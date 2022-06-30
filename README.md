@@ -1,5 +1,8 @@
 # ARCTIC-3D
 
+[![python lint](https://github.com/haddocking/arctic3d/actions/workflows/.lint.yml/badge.svg)](https://github.com/haddocking/arctic3d/actions/workflows/.lint.yml)
+[![unittests](https://github.com/haddocking/arctic3d/actions/workflows/unittests.yml/badge.svg)](https://github.com/haddocking/arctic3d/actions/workflows/unittests.yml)
+
 Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information
 
 ## Developing
