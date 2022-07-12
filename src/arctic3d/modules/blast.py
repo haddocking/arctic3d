@@ -22,7 +22,7 @@ def blast_seq(fasta_seq):
     with open("blast_res.xml", "w") as save_output:
         blast_res = blast_res_handle.read()
         save_output.write(blast_res)
-    
+
     tree = ET.parse("blast_res.xml")
     root = tree.getroot()
 
@@ -31,4 +31,4 @@ def blast_seq(fasta_seq):
     # instead of Hit_accession, [1] for [Hit_id] can be used
     accession_id = root[8][0][4][1][3]
 
-    pass
+    return accession_id
