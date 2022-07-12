@@ -3,6 +3,7 @@ import argparse
 import sys
 
 from arctic3d.modules.blast import blast_seq
+from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.interface import get_interface_residues
 from arctic3d.modules.output import make_output
 from arctic3d.modules.pdb import download_pdb, get_best_pdb
@@ -67,7 +68,9 @@ def main(fasta_file):
 
     interface_residues = get_interface_residues(uniprot_id)
 
-    _ = make_output(best_pdb, interface_residues)
+    clustered_interface_residues = cluster_interface(interface_residues)
+
+    _ = make_output(best_pdb, clustered_interface_residues)
 
 
 if __name__ == "__main__":
