@@ -20,10 +20,14 @@ Check [DEVELOPING.md](DEVELOPING.md) for more information.
 ```bash
 conda create -n arctic3d python=3.10
 conda activate arctic3d
-python setup.py develop
+pip install .
 arctic3d -h
 ```
 
 ## Example
+
+```bash
+arctic3d example/1ppe_E.fasta
+```
 
 ---

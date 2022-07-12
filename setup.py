@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
 setup(
     name="arctic3d",
     license="Apache License 2.0",
-    version="0.1.0-unreleased",
+    version="0.0.0",
     author="",
     description="",
     author_email="",
