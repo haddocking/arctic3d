@@ -24,10 +24,20 @@ pip install .
 arctic3d -h
 ```
 
+## To run BLAST locally
+
+```bash
+bash install_blast_deps.sh
+```
+
+And put `blastp` in your `$PATH`.
+
 ## Example
 
 ```bash
 arctic3d example/1ppe_E.fasta
+# or
+arctic3d example/1ppe_E.fasta --db db/swissprot
 ```
 
 ---
