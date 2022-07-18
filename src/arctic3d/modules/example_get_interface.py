@@ -14,4 +14,3 @@ uniprot_ids = ["P49916", "P24941", "P00690"]
 for uniprot_id in uniprot_ids:
     output_data = get_interface_residues(uniprot_id, filters_dict)
     print(f"interface data for {uniprot_id} : {output_data}")
-    
