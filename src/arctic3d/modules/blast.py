@@ -29,7 +29,7 @@ def run_blast(fasta_f, db=None):
         log.info("Running BLAST remotely...")
         accession_id = blast_remote(fasta_f)
 
-    return accession_id
+    return accession_id.split(".")[0]
 
 
 def get_blast_exec():
