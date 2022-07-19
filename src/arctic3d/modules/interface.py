@@ -1,7 +1,6 @@
 import logging
-import time
 
-import requests
+from arctic3d.functions import make_request
 
 log = logging.getLogger("arctic3dlog")
 
@@ -27,19 +26,6 @@ INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues
 # PDB_MOLECULES_URL = "https://www.ebi.ac.uk/pdbe/api/pdb/entry/molecules"
 # COV_CUTOFF = 0.8
 # PDB_DB = []
-
-
-def make_request(url, data):
-    """Helper function to make the requests."""
-    for n in range(3):
-        response = requests.get(url)
-        if response.status_code != 404:
-            data = response.json()
-            break
-    if response.status_code == 404:
-        data = None
-    time.sleep(0.1)
-    return data
 
 
 def get_interface_residues(uniprot_id):

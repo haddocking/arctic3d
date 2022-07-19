@@ -10,7 +10,8 @@ from arctic3d.modules.input import Input
 from arctic3d.modules.interface import get_interface_residues
 
 # from arctic3d.modules.output import make_output
-# from arctic3d.modules.pdb import download_pdb, get_best_pdb
+from arctic3d.modules.pdb import get_best_pdb
+
 # from arctic3d.modules.sequence import load_seq
 
 log = logging.getLogger("arctic3dlog")
@@ -90,8 +91,9 @@ def main(input_arg, db):
 
     log.info(f"Interface Residues: {interface_residues}")
 
-    # best_pdb = get_best_pdb(uniprot_id)
-    # _ = download_pdb(best_pdb)
+    pdb_f = get_best_pdb(uniprot_id)
+
+    log.info(f"PDB file: {pdb_f}")
 
     # clustered_interface_residues = cluster_interface(interface_residues)
     # _ = make_output(best_pdb, clustered_interface_residues)
