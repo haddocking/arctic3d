@@ -7,8 +7,8 @@ from arctic3d.modules.blast import run_blast
 
 # from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
+from arctic3d.modules.interface import get_interface_residues
 
-# from arctic3d.modules.interface import get_interface_residues
 # from arctic3d.modules.output import make_output
 # from arctic3d.modules.pdb import download_pdb, get_best_pdb
 # from arctic3d.modules.sequence import load_seq
@@ -84,13 +84,15 @@ def main(input_arg, db):
     if inp.is_uniprot():
         uniprot_id = inp.arg
 
-    log.info(uniprot_id)
+    log.info(f"Target UNIPROTID: {uniprot_id}")
 
-    # fasta_seq = load_seq(fasta_file)
-    # uniprot_id = blast_seq(fasta_seq)
+    interface_residues = get_interface_residues(uniprot_id)
+
+    log.info(f"Interface Residues: {interface_residues}")
+
     # best_pdb = get_best_pdb(uniprot_id)
     # _ = download_pdb(best_pdb)
-    # interface_residues = get_interface_residues(uniprot_id)
+
     # clustered_interface_residues = cluster_interface(interface_residues)
     # _ = make_output(best_pdb, clustered_interface_residues)
 
