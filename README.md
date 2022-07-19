@@ -35,8 +35,11 @@ And put `blastp` in your `$PATH`.
 ## Example
 
 ```bash
+# the default input is an uniprotID
+arctic3d P01074
+# or to identify the uniprotID number remotelly
 arctic3d example/1ppe_E.fasta
-# or
+# or to identify the uniprotID number locally
 arctic3d example/1ppe_E.fasta --db db/swissprot
 ```
 
