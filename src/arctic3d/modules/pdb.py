@@ -11,9 +11,6 @@ from arctic3d.functions import make_request
 log = logging.getLogger("arctic3dlog")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
-DOWNLOADPDB_URL = (
-    "https://wwwdev.ebi.ac.uk/pdbe/download/api/pdb/entry/archive?data_format=pdb&id="
-)
 
 
 def fetch_pdb(pdb_id):
