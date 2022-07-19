@@ -161,3 +161,4 @@ cython_debug/
 example/blast*
 src/ncbi-blast*
 db/*
+.trunk/logs
