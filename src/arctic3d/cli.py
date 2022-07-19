@@ -81,6 +81,8 @@ def main(input_arg, db):
 
     if inp.is_fasta():
         uniprot_id = run_blast(inp.arg, db)
+    if inp.is_uniprot():
+        uniprot_id = inp.arg
 
     log.info(uniprot_id)
 
