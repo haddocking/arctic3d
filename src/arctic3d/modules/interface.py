@@ -57,18 +57,18 @@ def get_interface_residues(uniprot_id):
         Interface residues.
 
     """
-    interface_list = []
+    interface_dict = {}
     url = f"{INTERFACE_URL}/{uniprot_id}"
     try:
         interface_api_data = make_request(url, None)
     except Exception as e:
         log.warning(f"Could not make InterfaceResidues request for {uniprot_id}, {e}")
-        return interface_list
+        return interface_dict
 
     if interface_api_data and len(interface_api_data) != 0:
-        interface_list = parse_interface_data(uniprot_id, interface_api_data)
+        interface_dict = parse_interface_data(uniprot_id, interface_api_data)
 
-    return interface_list
+    return interface_dict
 
 
 def parse_interface_data(uniprot_id, interface_data):
@@ -84,21 +84,21 @@ def parse_interface_data(uniprot_id, interface_data):
 
     Returns
     -------
-    residues : list
-        Interface residues.
+    interface_dict : dict
+        Interface residue dictionary.
+            {partner_uniprotid_1: [1,2,3], partner_uniprotid_2: [20,22,23]}
     """
-    residues = []
+    interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:
+        partner_uniprotid = element['accession']
+        interface_dict[partner_uniprotid] = []
         for residue_entry in element["residues"]:
             start = residue_entry["startIndex"]
             end = residue_entry["endIndex"]
             for interface_res in range(start, end + 1):
-                residues.append(interface_res)
+                interface_dict[partner_uniprotid].append(interface_res)
 
-    residues = list(set(residues))
-    residues.sort()
-
-    return residues
+    return interface_dict
 
 
 # def get_uniprot_length(uniprot_id):
