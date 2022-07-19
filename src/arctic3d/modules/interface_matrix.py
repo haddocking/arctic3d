@@ -163,7 +163,6 @@ def filter_interfaces(interface_dict, pdb_resids):
             retained_interfaces = {"c" : [5,6,7]}
     """
     log.debug("filtering interface dictionary")
-    print(type(pdb_resids))
     retained_interfaces = {}
     for key in interface_dict.keys():
         coverage, filtered_interface = check_residues_coverage(interface_dict[key], pdb_resids)
@@ -207,7 +206,6 @@ def interface_matrix(interface_dict, pdb_path):
         mapped_int_dict[key] = [int_resids.index(el) for el in retained_interfaces[key]]
     # calculate coupling matrix
     Jij_mat = get_coupling_matrix(mdu, int_resids)
-
     # norms
     norms = np.zeros(n_ret)
     for key_idx in range(n_ret):
