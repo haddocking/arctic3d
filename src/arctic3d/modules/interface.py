@@ -90,7 +90,7 @@ def parse_interface_data(uniprot_id, interface_data):
     """
     interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:
-        partner_uniprotid = element['accession']
+        partner_uniprotid = element["accession"]
         interface_dict[partner_uniprotid] = []
         for residue_entry in element["residues"]:
             start = residue_entry["startIndex"]
