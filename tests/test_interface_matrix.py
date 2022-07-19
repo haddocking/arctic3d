@@ -8,7 +8,7 @@ import os
 @pytest.fixture
 def example_mdu():
     """Example mdanalysis universe."""
-    pdb_path = Path("golden_data", "1rypB_r_b.pdb")
+    pdb_path = Path("./golden_data", "1rypB_r_b.pdb")
     return mda.Universe(pdb_path)
 
 @pytest.fixture
