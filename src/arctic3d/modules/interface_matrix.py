@@ -1,14 +1,16 @@
-import MDAnalysis as mda
-from scipy.spatial.distance import cdist
-import numpy as np
-import os
 import logging
+import os
 import time
+
+import MDAnalysis as mda
+import numpy as np
+from scipy.spatial.distance import cdist
 
 SIGMA = 1.9
 INTERFACE_COV_CUTOFF = 0.8
 
 log = logging.getLogger("arctic3dlog")
+
 
 def check_residues_coverage(interface, pdb_resids):
     """
@@ -34,8 +36,9 @@ def check_residues_coverage(interface, pdb_resids):
         if int_res in pdb_resids:
             coverage += 1.0
             filtered_interface.append(int_res)
-    coverage = coverage/len(interface)
+    coverage = coverage / len(interface)
     return coverage, filtered_interface
+
 
 def compute_scalar_product(interface_one, interface_two, Jij_mat):
     """
@@ -64,6 +67,7 @@ def compute_scalar_product(interface_one, interface_two, Jij_mat):
             scalar_product += Jij_mat[interface_one[res_one], interface_two[res_two]]
     return scalar_product
 
+
 def get_coupling_matrix(mdu, int_resids):
     """
     Computes coupling matrix.
@@ -83,12 +87,15 @@ def get_coupling_matrix(mdu, int_resids):
     sel_residues = "name CA and resid " + " ".join([str(el) for el in int_resids])
     u = mdu.select_atoms(sel_residues)
     if u.positions.shape[0] != len(int_resids):
-        raise Exception("shape mismatch: positions do not match input residues {int_resids}")
+        raise Exception(
+            "shape mismatch: positions do not match input residues {int_resids}"
+        )
     distmap = cdist(u.positions, u.positions)
-    exp_factor = 4*SIGMA*SIGMA
-    minus_dsq = - np.power(distmap,2)/(exp_factor)
+    exp_factor = 4 * SIGMA * SIGMA
+    minus_dsq = -np.power(distmap, 2) / (exp_factor)
     Jij_mat = np.exp(minus_dsq)
     return Jij_mat
+
 
 def output_interface_matrix(int_names, int_matrix, output_filename):
     """
@@ -98,7 +105,7 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     ----------
     retained_interfaces : list
         list of the names of the interfaces
-    
+
     int_matrix : 1D np.array
         interface distance matrix
 
@@ -116,6 +123,7 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
                 string += os.linesep
                 matrix_idx += 1
                 wmatrix.write(string)
+
 
 def get_unique_sorted_resids(interface_dict):
     """
@@ -139,6 +147,7 @@ def get_unique_sorted_resids(interface_dict):
     int_resids.sort()
     return int_resids
 
+
 def filter_interfaces(interface_dict, pdb_resids):
     """
     Filters the interfaces accoriding to the residues present in the pdb
@@ -147,7 +156,7 @@ def filter_interfaces(interface_dict, pdb_resids):
     ----------
     interface_dict : dict
         dictionary of interfaces
-    
+
     pdb_resids : np.array
         residues present in the pdb
 
@@ -165,7 +174,9 @@ def filter_interfaces(interface_dict, pdb_resids):
     log.debug("filtering interface dictionary")
     retained_interfaces = {}
     for key in interface_dict.keys():
-        coverage, filtered_interface = check_residues_coverage(interface_dict[key], pdb_resids)
+        coverage, filtered_interface = check_residues_coverage(
+            interface_dict[key], pdb_resids
+        )
         if coverage > INTERFACE_COV_CUTOFF:
             retained_interfaces[key] = filtered_interface
     log.info(f"{len(retained_interfaces.keys())} retained_interfaces")
@@ -191,11 +202,11 @@ def interface_matrix(interface_dict, pdb_path):
     start_time = time.time()
     log.info("computing interface matrix")
     mdu = mda.Universe(pdb_path)
-    pdb_resids = mdu.select_atoms('name CA').resids
+    pdb_resids = mdu.select_atoms("name CA").resids
     retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
     ret_keys = list(retained_interfaces.keys())
     n_ret = len(ret_keys)
-    int_pairs = int(n_ret*(n_ret-1)/2)
+    int_pairs = int(n_ret * (n_ret - 1) / 2)
     log.info(f"{int_pairs} pairs of interfaces")
     # getting all the residues
     int_resids = get_unique_sorted_resids(retained_interfaces)
@@ -209,27 +220,32 @@ def interface_matrix(interface_dict, pdb_path):
     # norms
     norms = np.zeros(n_ret)
     for key_idx in range(n_ret):
-        norms[key_idx] = compute_scalar_product(mapped_int_dict[ret_keys[key_idx]],
-                                                mapped_int_dict[ret_keys[key_idx]],
-                                                Jij_mat)
+        norms[key_idx] = compute_scalar_product(
+            mapped_int_dict[ret_keys[key_idx]],
+            mapped_int_dict[ret_keys[key_idx]],
+            Jij_mat,
+        )
     # for each interface pair, calculate the scalar product
     scal_prods = np.zeros(int_pairs)
     prod_idx = 0
     for idx_one in range(n_ret):
         for idx_two in range(idx_one + 1, n_ret):
-            scal_prods[prod_idx] = compute_scalar_product(mapped_int_dict[ret_keys[idx_one]],
-                                                          mapped_int_dict[ret_keys[idx_two]],
-                                                          Jij_mat
-                                                         )
+            scal_prods[prod_idx] = compute_scalar_product(
+                mapped_int_dict[ret_keys[idx_one]],
+                mapped_int_dict[ret_keys[idx_two]],
+                Jij_mat,
+            )
             prod_idx += 1
     # calculate cosine and sine matrix
     cos_mat = np.zeros(int_pairs)
     mat_idx = 0
     for idx_one in range(n_ret):
         for idx_two in range(idx_one + 1, n_ret):
-            cos_mat[mat_idx] = scal_prods[mat_idx]/np.sqrt(norms[idx_one]*norms[idx_two])
+            cos_mat[mat_idx] = scal_prods[mat_idx] / np.sqrt(
+                norms[idx_one] * norms[idx_two]
+            )
             mat_idx += 1
-    sin_mat = np.ones(int_pairs) - np.power(cos_mat,2)
+    sin_mat = np.ones(int_pairs) - np.power(cos_mat, 2)
     out_fl = "interface_matrix.txt"
     output_interface_matrix(ret_keys, sin_mat, out_fl)
     elap_time = round((time.time() - start_time), 2)
