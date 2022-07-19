@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import MDAnalysis as mda
@@ -10,7 +9,6 @@ from arctic3d.modules.interface_matrix import (
     compute_scalar_product,
     filter_interfaces,
     get_coupling_matrix,
-    interface_matrix,
 )
 
 from . import golden_data
