@@ -10,7 +10,8 @@ import pandas as pd
 from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 
 LINKAGE = "single"
-THRESHOLD = 0.7071  # np.sqrt(2)/2
+# THRESHOLD = 0.7071  # np.sqrt(2)/2
+THRESHOLD = 0.8660  # np.sqrt(3)/2
 
 log = logging.getLogger("arctic3dlog")
 
@@ -41,7 +42,7 @@ def read_int_matrix(filename):
     ligand_names = [int_matrix.iloc[0, 0]]
     for lig in np.unique(int_matrix.iloc[:, 1]):
         ligand_names.append(lig)
-    log.info(f"ordered ligand names {ligand_names}")
+    log.debug(f"Sorted ligand names {ligand_names}")
     return int_matrix.iloc[:, 2], ligand_names
 
 
@@ -73,7 +74,7 @@ def cluster_distance_matrix(int_matrix, entries, plot=False):
         plt.close()
     # clustering
     clusters = fcluster(Z, t=THRESHOLD, criterion="distance")
-    log.info(f"dendrogram created and clustered. Clusters = {clusters}")
+    log.info(f"Dendrogram created and clustered. Clusters = {clusters}")
     return clusters
 
 
@@ -111,6 +112,7 @@ def write_clusters(clusters, ligands, cl_filename):
         for key in cl_dict.keys():
             cl_string = " ".join(cl_dict[key])
             wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
+    log.info(f"Cluster dictionary {cl_dict}")
     return cl_dict
 
 
@@ -157,7 +159,7 @@ def interface_clustering(matrix_filename, interface_dict):
         dictionary of all the interfaces (each one with its uniprot ID as key)
     """
     start_time = time.time()
-    log.info("clustering interface matrix")
+    log.info("Clustering interface matrix")
     # read matrix
     if os.path.exists(matrix_filename):
         int_matrix, entries = read_int_matrix(matrix_filename)
@@ -171,7 +173,8 @@ def interface_clustering(matrix_filename, interface_dict):
     cl_dict = write_clusters(clusters, entries, cl_filename)
     # write clustered residues
     res_filename = "clustered_residues.out"
-    write_residues(cl_dict, interface_dict, res_filename)
+    clustered_residues = write_residues(cl_dict, interface_dict, res_filename)
     # write time
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"clustering performed in {elap_time} seconds")
+    log.info(f"Clustering performed in {elap_time} seconds")
+    return clustered_residues

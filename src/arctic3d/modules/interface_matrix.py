@@ -201,6 +201,9 @@ def interface_matrix(interface_dict, pdb_path):
     """
     start_time = time.time()
     log.info("computing interface matrix")
+    log.info(f"{os.listdir()}")
+    if not os.path.exists(pdb_path):
+        raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
     pdb_resids = mdu.select_atoms("name CA").resids
     retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
@@ -250,3 +253,4 @@ def interface_matrix(interface_dict, pdb_path):
     output_interface_matrix(ret_keys, sin_mat, out_fl)
     elap_time = round((time.time() - start_time), 2)
     log.info(f"interface matrix calculated in {elap_time} seconds")
+    return out_fl

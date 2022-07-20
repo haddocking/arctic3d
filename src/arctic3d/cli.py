@@ -4,6 +4,7 @@ import logging
 import sys
 
 from arctic3d.modules.blast import run_blast
+from arctic3d.modules.cluster_interfaces import cluster_interfaces
 
 # from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
@@ -11,7 +12,7 @@ from arctic3d.modules.interface import get_interface_residues
 
 # from arctic3d.modules.output import make_output
 from arctic3d.modules.pdb import get_best_pdb
-from arctic3d.modules.cluster_interfaces import cluster_interfaces
+
 # from arctic3d.modules.sequence import load_seq
 
 log = logging.getLogger("arctic3dlog")
