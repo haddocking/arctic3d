@@ -1,23 +1,24 @@
 """Clustering module."""
 
 import logging
-import numpy as np
-import pandas as pd
 import os
-from scipy.cluster.hierarchy import fcluster, linkage, dendrogram
-import matplotlib.pyplot as plt
 import time
 
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 
 LINKAGE = "single"
-THRESHOLD = 0.7071 # np.sqrt(2)/2
+THRESHOLD = 0.7071  # np.sqrt(2)/2
 
 log = logging.getLogger("arctic3dlog")
+
 
 def read_int_matrix(filename):
     """
     Read the interface matrix.
-    
+
     Parameters
     ----------
     filename : str or Path
@@ -30,21 +31,24 @@ def read_int_matrix(filename):
     int_matrix = pd.read_csv(filename, header=None, sep=" ")
     int_matrix.columns = ["lig1", "lig2", "D"]
     # first check: it must be a 1D condensed distance matrix
-    nligands = 0.5 + np.sqrt(0.25 + 2*int_matrix.shape[0])
+    nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
     int_nligands = int(nligands)
     if abs(nligands - int_nligands) > 0.00001:
-        raise Exception(f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix")
+        raise Exception(
+            f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix"
+        )
     # extracting ligands' names
-    ligand_names = [int_matrix.iloc[0,0]]
-    for lig in np.unique(int_matrix.iloc[:,1]):
+    ligand_names = [int_matrix.iloc[0, 0]]
+    for lig in np.unique(int_matrix.iloc[:, 1]):
         ligand_names.append(lig)
     log.info(f"ordered ligand names {ligand_names}")
-    return int_matrix.iloc[:,2], ligand_names
+    return int_matrix.iloc[:, 2], ligand_names
+
 
 def cluster_distance_matrix(int_matrix, entries, plot=False):
     """
     Does the clustering.
-    
+
     Parameters
     ----------
     int_matrix : np.array
@@ -62,22 +66,19 @@ def cluster_distance_matrix(int_matrix, entries, plot=False):
     if plot:
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
         plt.figure()
-        dn = dendrogram(
-            Z,
-            color_threshold=THRESHOLD,
-            labels=entries
-        )
+        dendrogram(Z, color_threshold=THRESHOLD, labels=entries)
         plt.savefig(dendrogram_figure_filename)
         plt.close()
     # clustering
-    clusters = fcluster(Z, t = THRESHOLD, criterion="distance")
+    clusters = fcluster(Z, t=THRESHOLD, criterion="distance")
     log.info(f"dendrogram created and clustered. Clusters = {clusters}")
     return clusters
+
 
 def write_clusters(clusters, ligands, cl_filename):
     """
     Writes clusters to file.
-    
+
     Parameters
     ----------
     clusters : list
@@ -120,7 +121,7 @@ def write_residues(cl_dict, interface_dict, res_filename):
     interface_dict : dict
         dictionary of all the interfaces (each one with its uniprot ID as key)
     res_filename : str or Path
-        output filename 
+        output filename
     Returns
     -------
     cl_residues : dict
@@ -141,10 +142,11 @@ def write_residues(cl_dict, interface_dict, res_filename):
             wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
     return clustered_residues
 
+
 def interface_clustering(matrix_filename, interface_dict):
     """
     Clusters the interface matrix.
-    
+
     Parameters
     ----------
     matrix_filename : str or Path

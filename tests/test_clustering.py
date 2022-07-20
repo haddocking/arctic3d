@@ -3,11 +3,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from arctic3d.modules.clustering import (
-    read_int_matrix,
+from arctic3d.modules.clustering import (  # write_clusters,; write_residues,
     cluster_distance_matrix,
-    write_clusters,
-    write_residues,
+    read_int_matrix,
 )
 
 from . import golden_data
@@ -18,6 +16,7 @@ def test_read_int_matrix_nonexisting():
     non_ex_path = "../dummy"
     with pytest.raises(Exception):
         read_int_matrix(non_ex_path)
+
 
 def test_read_int_matrix():
     """Test correct reading of interface matrix."""
@@ -38,9 +37,12 @@ def test_cluster_distance_matrix():
     expected_clusters = [1, 2, 1, 3]
     assert (clusters == expected_clusters).all()
 
+
 def test_write_clusters():
     # TODO: implement this
     assert True
+
+
 def test_write_residues():
     # TODO: implement this
     assert True
