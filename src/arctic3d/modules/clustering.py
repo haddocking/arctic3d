@@ -34,6 +34,7 @@ def read_int_matrix(filename):
     int_nligands = int(nligands)
     if abs(nligands - int_nligands) > 0.00001:
         raise Exception(f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix")
+    # extracting ligands' names
     ligand_names = [int_matrix.iloc[0,0]]
     for lig in np.unique(int_matrix.iloc[:,1]):
         ligand_names.append(lig)
