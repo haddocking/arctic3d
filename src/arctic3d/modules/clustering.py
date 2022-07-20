@@ -67,6 +67,8 @@ def cluster_distance_matrix(int_matrix, entries, plot=False):
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
         plt.figure()
         dendrogram(Z, color_threshold=THRESHOLD, labels=entries)
+        plt.xlabel("Interface Names")
+        plt.ylabel("Distance")
         plt.savefig(dendrogram_figure_filename)
         plt.close()
     # clustering
