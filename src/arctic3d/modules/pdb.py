@@ -1,7 +1,9 @@
+import gzip
 import logging
+import tempfile
 from pathlib import Path
 
-from pdbtools.pdb_fetch import fetch_structure
+import requests
 from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
@@ -11,17 +13,32 @@ from arctic3d.functions import make_request
 log = logging.getLogger("arctic3dlog")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
+PDBRENUM_URL = "http://dunbrack3.fccc.edu/PDBrenum/output_PDB"
 
 
 def fetch_pdb(pdb_id):
     """
     Fetch PDB file.
     """
-    log.debug(f"Fetching PDB file {pdb_id}")
+    log.debug(f"Fetching PDB file {pdb_id} from PDBrenum")
+    response = requests.get(f"{PDBRENUM_URL}/{pdb_id}_renum.pdb.gz")
+    if response.status_code != 200:
+        log.warning(f"Could not fetch PDB file for {pdb_id}")
+        return None
+
+    temp_gz = tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".gz")
+    temp_gz.write(response.content)
+    temp_gz.close()
+
     out_pdb_fname = Path(f"{pdb_id}.pdb")
+
     with open(out_pdb_fname, "w") as f:
-        for line in fetch_structure(pdb_id):
-            f.write(line)
+        with gzip.open(temp_gz.name, "rt") as gz:
+            for line in gz:
+                f.write(line)
+
+    Path(temp_gz.name).unlink()
+
     return out_pdb_fname
 
 
