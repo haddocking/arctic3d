@@ -4,6 +4,7 @@ import logging
 import sys
 
 from arctic3d.modules.blast import run_blast
+from arctic3d.modules.cluster_interfaces import cluster_interfaces
 
 # from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
@@ -95,7 +96,9 @@ def main(input_arg, db):
 
     log.info(f"PDB file: {pdb_f}")
 
-    # clustered_interface_residues = cluster_interface(interface_residues)
+    clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
+
+    log.info(f"clustered_interface_residues: {clustered_interface_residues}")
     # _ = make_output(best_pdb, clustered_interface_residues)
 
 

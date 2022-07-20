@@ -112,11 +112,11 @@ def get_best_pdb(uniprot_id):
     occ_pdb_f = occ_pdb(chained_pdb_f)
     tidy_pdb_f = tidy_pdb(occ_pdb_f)
 
-    tidy_pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
-
     pdb_f.unlink()
     atoms_pdb_f.unlink()
     chained_pdb_f.unlink()
     occ_pdb_f.unlink()
 
-    return tidy_pdb_f
+    processed_pdb = tidy_pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
+
+    return processed_pdb
