@@ -8,7 +8,7 @@ from arctic3d.modules.cluster_interfaces import cluster_interfaces
 
 # from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
-from arctic3d.modules.interface import get_interface_residues
+from arctic3d.modules.interface import get_interface_residues, read_interface_residues
 
 # from arctic3d.modules.output import make_output
 from arctic3d.modules.pdb import get_best_pdb
@@ -32,6 +32,11 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--db",
+    help="",
+)
+
+argument_parser.add_argument(
+    "--interface_file",
     help="",
 )
 
@@ -75,7 +80,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db):
+def main(input_arg, db, interface_file):
     """Main function."""
     log.setLevel("DEBUG")
 
@@ -88,7 +93,11 @@ def main(input_arg, db):
 
     log.info(f"Target UNIPROTID: {uniprot_id}")
 
-    interface_residues = get_interface_residues(uniprot_id)
+    if interface_file:
+        log.info(f"input interface file {interface_file}")
+        interface_residues = read_interface_residues(interface_file)
+    else:
+        interface_residues = get_interface_residues(uniprot_id)
 
     log.info(f"Interface Residues: {interface_residues}")
 
