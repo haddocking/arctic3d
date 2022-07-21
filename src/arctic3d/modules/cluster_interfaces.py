@@ -18,6 +18,6 @@ def cluster_interfaces(interface_dict, pdb_path):
     clustered_residues : dict
         dictionary of the clustered interfaces
     """
-    matrix_path = interface_matrix(interface_dict, pdb_path)
-    clustered_residues = interface_clustering(matrix_path, interface_dict)
+    filtered_interfaces, matrix_path = interface_matrix(interface_dict, pdb_path)
+    clustered_residues = interface_clustering(filtered_interfaces, matrix_path)
     return clustered_residues
