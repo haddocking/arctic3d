@@ -147,16 +147,21 @@ def write_residues(cl_dict, interface_dict, res_filename):
     return clustered_residues
 
 
-def interface_clustering(matrix_filename, interface_dict):
+def interface_clustering(interface_dict, matrix_filename):
     """
     Clusters the interface matrix.
 
     Parameters
     ----------
-    matrix_filename : str or Path
-        input interface matrix
     interface_dict : dict
         dictionary of all the interfaces (each one with its uniprot ID as key)
+
+    matrix_filename : str or Path
+        input interface matrix
+
+    Returns
+    -------
+    clustered_residues : dict
     """
     start_time = time.time()
     log.info("Clustering interface matrix")
