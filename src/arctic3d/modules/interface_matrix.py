@@ -114,7 +114,7 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     Returns
     -------
     """
-    log.info(f"Writing interface matrix on file {output_filename}")
+    log.info("Writing interface matrix on file {output_filename}")
     matrix_idx = 0
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
@@ -201,6 +201,7 @@ def interface_matrix(interface_dict, pdb_path):
     """
     start_time = time.time()
     log.info("computing interface matrix")
+    log.info(f"{os.listdir()}")
     if not os.path.exists(pdb_path):
         raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
