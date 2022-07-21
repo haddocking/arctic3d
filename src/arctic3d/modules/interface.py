@@ -1,4 +1,5 @@
 import logging
+import os
 
 from arctic3d.functions import make_request
 
@@ -28,6 +29,40 @@ INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues
 # PDB_DB = []
 
 
+def read_interface_residues(interface_file):
+    """
+    Parameters
+    ----------
+    interface_file : str or Path
+        path to the interface file
+
+    Example_file :
+    int_1 1,2,3
+    int_2 1,2,4,5,6
+    ...
+    interface_name_N 35,78,18
+
+    Returns
+    -------
+    interface_residues : dict
+        Interface residues.
+    """
+    interface_dict = {}
+    if os.path.exists(interface_file):
+        with open(interface_file, "r") as ifile:
+            for ln in ifile:
+                if ln != os.linesep:
+                    splt_ln = ln.split()
+                    try:
+                        residues = [int(resid) for resid in splt_ln[1].split(",")]
+                        interface_dict[splt_ln[0]] = residues
+                    except Exception as e:
+                        log.exception(e)
+    else:
+        raise Exception(f"interface_file {interface_file} does not exist")
+    return interface_dict
+
+
 def get_interface_residues(uniprot_id):
     """
     Get interface residues.
@@ -39,7 +74,7 @@ def get_interface_residues(uniprot_id):
 
     Returns
     -------
-    interface_residues : list
+    interface_residues : dict
         Interface residues.
 
     """
