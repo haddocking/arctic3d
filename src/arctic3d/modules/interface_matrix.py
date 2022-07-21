@@ -58,7 +58,7 @@ def compute_scalar_product(interface_one, interface_two, Jij_mat):
     scalar_product : float
         scalar product between the two interfaces
     """
-    log.debug(f"computing scal_prod between {interface_one} and {interface_two}")
+    # log.debug(f"computing scal_prod between {interface_one} and {interface_two}")
     len_one = len(interface_one)
     len_two = len(interface_two)
     scalar_product = 0.0
@@ -114,7 +114,7 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     Returns
     -------
     """
-    log.info("Writing interface matrix on file {output_filename}")
+    log.info(f"Writing interface matrix on file {output_filename}")
     matrix_idx = 0
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
@@ -171,16 +171,36 @@ def filter_interfaces(interface_dict, pdb_resids):
         else:
             retained_interfaces = {"c" : [5,6,7]}
     """
-    log.debug("filtering interface dictionary")
+    log.debug("Filtering interface dictionary")
     retained_interfaces = {}
     for key in interface_dict.keys():
         coverage, filtered_interface = check_residues_coverage(
             interface_dict[key], pdb_resids
         )
         if coverage > INTERFACE_COV_CUTOFF:
-            retained_interfaces[key] = filtered_interface
+            # formatting the interface name to avoid spaces
+            formatted_key = format_interface_name(key)
+            retained_interfaces[formatted_key] = filtered_interface
     log.info(f"{len(retained_interfaces.keys())} retained_interfaces")
     return retained_interfaces
+
+
+def format_interface_name(int_name):
+    """
+    Removes spaces from interfaces' names.
+
+    Parameters
+    ----------
+    int_names : str
+        list of original names
+    Returns
+    -------
+    formatted_int_names : str
+        list of formatted names
+    """
+    nm_split = int_name.strip().split()
+    formatted_name = "-".join(nm_split)
+    return formatted_name
 
 
 def interface_matrix(interface_dict, pdb_path):
@@ -196,24 +216,26 @@ def interface_matrix(interface_dict, pdb_path):
 
     Returns
     -------
-    interface_matrix : np.array
-        interface matrix
+    retained_interfaces : dict
+        dictionary of the retained interfaces (each one with its formatted uniprot ID as key)
+    out_fl : str
+        path to the output interface matrix
     """
     start_time = time.time()
-    log.info("computing interface matrix")
-    log.info(f"{os.listdir()}")
+    log.info("Computing interface matrix")
     if not os.path.exists(pdb_path):
         raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
     pdb_resids = mdu.select_atoms("name CA").resids
     retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
     ret_keys = list(retained_interfaces.keys())
+    log.debug(f"ret_keys {ret_keys}")
     n_ret = len(ret_keys)
     int_pairs = int(n_ret * (n_ret - 1) / 2)
     log.info(f"{int_pairs} pairs of interfaces")
     # getting all the residues
     int_resids = get_unique_sorted_resids(retained_interfaces)
-    log.info(f"interacting residues {int_resids}")
+    log.info(f"Interacting residues {int_resids}")
     # using index to keep track of interfaces
     mapped_int_dict = {}
     for key in ret_keys:
@@ -252,5 +274,5 @@ def interface_matrix(interface_dict, pdb_path):
     out_fl = "interface_matrix.txt"
     output_interface_matrix(ret_keys, sin_mat, out_fl)
     elap_time = round((time.time() - start_time), 2)
-    log.info(f"interface matrix calculated in {elap_time} seconds")
-    return out_fl
+    log.info(f"Interface matrix calculated in {elap_time} seconds")
+    return retained_interfaces, out_fl
