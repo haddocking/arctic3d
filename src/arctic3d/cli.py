@@ -88,17 +88,21 @@ def main(input_arg, db, interface_file):
 
     inp = Input(input_arg)
 
+    # retrieve uniprot information
     if inp.is_fasta():
         uniprot_id = run_blast(inp.arg, db)
     if inp.is_uniprot():
         uniprot_id = inp.arg
-    if inp.is_pdb() and not interface_file:
-        fasta_f = to_fasta(Path(inp.arg), temp=False)
-        log.info(f"fasta_f {fasta_f}")
-        uniprot_id = run_blast(fasta_f, db)
+    if inp.is_pdb():
+        if not interface_file:
+            fasta_f = to_fasta(Path(inp.arg), temp=False)
+            uniprot_id = run_blast(fasta_f.name, db)
+        else:
+            uniprot_id = None
 
     log.info(f"Target UNIPROTID: {uniprot_id}")
 
+    # retrieve interfaces
     if interface_file:
         log.info(f"input interface file {interface_file}")
         interface_residues = read_interface_residues(interface_file)
@@ -107,10 +111,15 @@ def main(input_arg, db, interface_file):
 
     log.info(f"Interface Residues: {interface_residues}")
 
-    pdb_f = get_best_pdb(uniprot_id)
+    # retrieve pdb file
+    if inp.is_pdb():
+        pdb_f = Path(inp.arg)
+    else:
+        pdb_f = get_best_pdb(uniprot_id)
 
     log.info(f"PDB file: {pdb_f}")
-
+    
+    # cluster interfaces
     clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
 
     log.info(f"Clustered interface residues: {clustered_interface_residues}")

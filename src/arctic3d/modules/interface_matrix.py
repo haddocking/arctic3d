@@ -29,6 +29,8 @@ def check_residues_coverage(interface, pdb_resids):
     -------
     coverage : float
         fraction of resids of the interface found in the pdb
+    filtered_interface : list
+        list of resids of the interface found in the pdb
     """
     coverage = 0.0
     filtered_interface = []
