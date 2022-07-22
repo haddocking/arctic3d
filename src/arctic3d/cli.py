@@ -4,8 +4,6 @@ import logging
 import sys
 from pathlib import Path
 
-from arctic3d.modules.sequence import to_fasta
-
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
 
@@ -15,6 +13,7 @@ from arctic3d.modules.interface import get_interface_residues, read_interface_re
 
 # from arctic3d.modules.output import make_output
 from arctic3d.modules.pdb import get_best_pdb
+from arctic3d.modules.sequence import to_fasta
 
 # from arctic3d.modules.sequence import load_seq
 
@@ -42,6 +41,7 @@ argument_parser.add_argument(
     "--interface_file",
     help="",
 )
+
 
 def load_args(arguments):
     """
@@ -118,7 +118,7 @@ def main(input_arg, db, interface_file):
         pdb_f = get_best_pdb(uniprot_id)
 
     log.info(f"PDB file: {pdb_f}")
-    
+
     # cluster interfaces
     clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
 
