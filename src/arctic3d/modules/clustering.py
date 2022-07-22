@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 
-LINKAGE = "single"
+LINKAGE = "average"
 # THRESHOLD = 0.7071  # np.sqrt(2)/2
 THRESHOLD = 0.8660  # np.sqrt(3)/2
 
@@ -40,9 +40,10 @@ def read_int_matrix(filename):
         )
     # extracting ligands' names
     ligand_names = [int_matrix.iloc[0, 0]]
-    for lig in np.unique(int_matrix.iloc[:, 1]):
-        ligand_names.append(lig)
-    log.debug(f"Sorted ligand names {ligand_names}")
+    for lig in int_matrix.iloc[:, 1]:
+        if lig not in ligand_names:
+            ligand_names.append(lig)
+    log.debug(f"Ligand names {ligand_names}")
     return int_matrix.iloc[:, 2], ligand_names
 
 
@@ -74,7 +75,8 @@ def cluster_distance_matrix(int_matrix, entries, plot=False):
         plt.close()
     # clustering
     clusters = fcluster(Z, t=THRESHOLD, criterion="distance")
-    log.info(f"Dendrogram created and clustered. Clusters = {clusters}")
+    log.info("Dendrogram created and clustered.")
+    log.debug(f"Clusters = {clusters}")
     return clusters
 
 
