@@ -118,7 +118,8 @@ def parse_interface_data(uniprot_id, interface_data):
             end = residue_entry["endIndex"]
             for interface_res in range(start, end + 1):
                 interface_dict[partner_uniprotid].append(interface_res)
-
+    
+    log.info(f"{len(interface_dict.keys())} retrieved interfaces.")
     return interface_dict
 
 
