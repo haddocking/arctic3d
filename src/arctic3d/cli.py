@@ -2,6 +2,9 @@
 import argparse
 import logging
 import sys
+from pathlib import Path
+
+from arctic3d.modules.sequence import to_fasta
 
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
@@ -39,7 +42,6 @@ argument_parser.add_argument(
     "--interface_file",
     help="",
 )
-
 
 def load_args(arguments):
     """
@@ -90,6 +92,10 @@ def main(input_arg, db, interface_file):
         uniprot_id = run_blast(inp.arg, db)
     if inp.is_uniprot():
         uniprot_id = inp.arg
+    if inp.is_pdb() and not interface_file:
+        fasta_f = to_fasta(Path(inp.arg), temp=False)
+        log.info(f"fasta_f {fasta_f}")
+        uniprot_id = run_blast(fasta_f, db)
 
     log.info(f"Target UNIPROTID: {uniprot_id}")
 
