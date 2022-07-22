@@ -1,13 +1,10 @@
-name: python lint
+name: lint
 
 on: pull_request
 
 jobs:
   build:
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      matrix:
-        platform: [ubuntu-latest, macos-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
