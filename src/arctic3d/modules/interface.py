@@ -63,13 +63,15 @@ def read_interface_residues(interface_file):
     return interface_dict
 
 
-def get_interface_residues(uniprot_id):
+def get_interface_residues(uniprot_id, out_uniprot):
     """
     Get interface residues.
 
     Parameters
     ----------
     uniprot_id : str
+        Uniprot ID.
+    out_uniprot : str or None
         Uniprot ID.
 
     Returns
@@ -87,12 +89,14 @@ def get_interface_residues(uniprot_id):
         return interface_dict
 
     if interface_api_data and len(interface_api_data) != 0:
-        interface_dict = parse_interface_data(uniprot_id, interface_api_data)
+        interface_dict = parse_interface_data(
+            uniprot_id, interface_api_data, out_uniprot
+        )
 
     return interface_dict
 
 
-def parse_interface_data(uniprot_id, interface_data):
+def parse_interface_data(uniprot_id, interface_data, out_uniprot):
     """
     Parse interface data.
 
@@ -102,6 +106,8 @@ def parse_interface_data(uniprot_id, interface_data):
         Uniprot ID.
     interface_data : dict
         Interface data.
+    out_uniprot : str
+        Uniprot ID.
 
     Returns
     -------
@@ -112,12 +118,15 @@ def parse_interface_data(uniprot_id, interface_data):
     interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
-        interface_dict[partner_uniprotid] = []
-        for residue_entry in element["residues"]:
-            start = residue_entry["startIndex"]
-            end = residue_entry["endIndex"]
-            for interface_res in range(start, end + 1):
-                interface_dict[partner_uniprotid].append(interface_res)
+        if partner_uniprotid != out_uniprot:
+            interface_dict[partner_uniprotid] = []
+            for residue_entry in element["residues"]:
+                start = residue_entry["startIndex"]
+                end = residue_entry["endIndex"]
+                for interface_res in range(start, end + 1):
+                    interface_dict[partner_uniprotid].append(interface_res)
+        else:
+            log.info(f"found uniprot ID {out_uniprot}. It will be discarded.")
 
     log.info(f"{len(interface_dict.keys())} retrieved interfaces.")
     return interface_dict

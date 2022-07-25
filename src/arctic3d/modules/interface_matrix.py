@@ -233,48 +233,54 @@ def interface_matrix(interface_dict, pdb_path):
     ret_keys = list(retained_interfaces.keys())
     log.debug(f"ret_keys {ret_keys}")
     n_ret = len(ret_keys)
-    int_pairs = int(n_ret * (n_ret - 1) / 2)
-    log.info(f"{int_pairs} pairs of interfaces")
-    # getting all the residues
-    int_resids = get_unique_sorted_resids(retained_interfaces)
-    log.info(f"Interacting residues {int_resids}")
-    # using index to keep track of interfaces
-    mapped_int_dict = {}
-    for key in ret_keys:
-        mapped_int_dict[key] = [int_resids.index(el) for el in retained_interfaces[key]]
-    # calculate coupling matrix
-    Jij_mat = get_coupling_matrix(mdu, int_resids)
-    # norms
-    norms = np.zeros(n_ret)
-    for key_idx in range(n_ret):
-        norms[key_idx] = compute_scalar_product(
-            mapped_int_dict[ret_keys[key_idx]],
-            mapped_int_dict[ret_keys[key_idx]],
-            Jij_mat,
-        )
-    # for each interface pair, calculate the scalar product
-    scal_prods = np.zeros(int_pairs)
-    prod_idx = 0
-    for idx_one in range(n_ret):
-        for idx_two in range(idx_one + 1, n_ret):
-            scal_prods[prod_idx] = compute_scalar_product(
-                mapped_int_dict[ret_keys[idx_one]],
-                mapped_int_dict[ret_keys[idx_two]],
+    if n_ret > 1:
+        int_pairs = int(n_ret * (n_ret - 1) / 2)
+        log.info(f"{int_pairs} pairs of interfaces")
+        # getting all the residues
+        int_resids = get_unique_sorted_resids(retained_interfaces)
+        log.info(f"Interacting residues {int_resids}")
+        # using index to keep track of interfaces
+        mapped_int_dict = {}
+        for key in ret_keys:
+            mapped_int_dict[key] = [
+                int_resids.index(el) for el in retained_interfaces[key]
+            ]
+        # calculate coupling matrix
+        Jij_mat = get_coupling_matrix(mdu, int_resids)
+        # norms
+        norms = np.zeros(n_ret)
+        for key_idx in range(n_ret):
+            norms[key_idx] = compute_scalar_product(
+                mapped_int_dict[ret_keys[key_idx]],
+                mapped_int_dict[ret_keys[key_idx]],
                 Jij_mat,
             )
-            prod_idx += 1
-    # calculate cosine and sine matrix
-    cos_mat = np.zeros(int_pairs)
-    mat_idx = 0
-    for idx_one in range(n_ret):
-        for idx_two in range(idx_one + 1, n_ret):
-            cos_mat[mat_idx] = scal_prods[mat_idx] / np.sqrt(
-                norms[idx_one] * norms[idx_two]
-            )
-            mat_idx += 1
-    sin_mat = np.ones(int_pairs) - np.power(cos_mat, 2)
-    out_fl = "interface_matrix.txt"
-    output_interface_matrix(ret_keys, sin_mat, out_fl)
-    elap_time = round((time.time() - start_time), 2)
-    log.info(f"Interface matrix calculated in {elap_time} seconds")
+        # for each interface pair, calculate the scalar product
+        scal_prods = np.zeros(int_pairs)
+        prod_idx = 0
+        for idx_one in range(n_ret):
+            for idx_two in range(idx_one + 1, n_ret):
+                scal_prods[prod_idx] = compute_scalar_product(
+                    mapped_int_dict[ret_keys[idx_one]],
+                    mapped_int_dict[ret_keys[idx_two]],
+                    Jij_mat,
+                )
+                prod_idx += 1
+        # calculate cosine and sine matrix
+        cos_mat = np.zeros(int_pairs)
+        mat_idx = 0
+        for idx_one in range(n_ret):
+            for idx_two in range(idx_one + 1, n_ret):
+                cos_mat[mat_idx] = scal_prods[mat_idx] / np.sqrt(
+                    norms[idx_one] * norms[idx_two]
+                )
+                mat_idx += 1
+        sin_mat = np.ones(int_pairs) - np.power(cos_mat, 2)
+        out_fl = "interface_matrix.txt"
+        output_interface_matrix(ret_keys, sin_mat, out_fl)
+        elap_time = round((time.time() - start_time), 2)
+        log.info(f"Interface matrix calculated in {elap_time} seconds")
+    else:
+        log.warning("Too few interfaces, interface matrix was not calculated.")
+        out_fl = None
     return retained_interfaces, out_fl

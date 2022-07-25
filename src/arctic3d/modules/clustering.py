@@ -133,6 +133,7 @@ def write_residues(cl_dict, interface_dict, res_filename):
     cl_residues : dict
         dictionary of clustered residues
     """
+    log.info(f"cl_dict {cl_dict}")
     clustered_residues = {}
     for key in cl_dict.keys():
         residues = []
