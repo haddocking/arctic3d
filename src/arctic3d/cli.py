@@ -42,6 +42,11 @@ argument_parser.add_argument(
     help="",
 )
 
+argument_parser.add_argument(
+    "--out_uniprot",
+    help="",
+)
+
 
 def load_args(arguments):
     """
@@ -82,7 +87,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db, interface_file):
+def main(input_arg, db, interface_file, out_uniprot):
     """Main function."""
     log.setLevel("DEBUG")
 
@@ -107,7 +112,7 @@ def main(input_arg, db, interface_file):
         log.info(f"input interface file {interface_file}")
         interface_residues = read_interface_residues(interface_file)
     else:
-        interface_residues = get_interface_residues(uniprot_id)
+        interface_residues = get_interface_residues(uniprot_id, out_uniprot)
 
     log.info(f"Interface Residues: {interface_residues}")
 
@@ -119,10 +124,13 @@ def main(input_arg, db, interface_file):
 
     log.info(f"PDB file: {pdb_f}")
 
-    # cluster interfaces
-    clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
+    if interface_residues:
+        # cluster interfaces
+        clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
+        log.info(f"Clustered interface residues: {clustered_interface_residues}")
+    else:
+        log.info("No interfaces found.")
 
-    log.info(f"Clustered interface residues: {clustered_interface_residues}")
     # _ = make_output(best_pdb, clustered_interface_residues)
 
 
