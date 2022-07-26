@@ -109,9 +109,18 @@ def get_best_pdb(uniprot_id):
         return pdb_dict
 
     # the first entry will be the one with highest coverage/lower resolution
-    top_hit = pdb_dict[uniprot_id][0]
+    for top_hit in pdb_dict[uniprot_id]:
 
-    pdb_id = top_hit["pdb_id"]
+        pdb_id = top_hit["pdb_id"]
+        pdb_f = fetch_pdb(pdb_id)
+
+        if pdb_f is not None:
+            break
+
+    if pdb_f is None:
+        log.warning(f"Could not fetch PDB file for {uniprot_id}")
+        return pdb_dict
+
     chain_id = top_hit["chain_id"]
     # TODO: Add a check for minimum coverage/resolution
     coverage = top_hit["coverage"]
@@ -123,7 +132,6 @@ def get_best_pdb(uniprot_id):
         f"BestPDB hit for {uniprot_id}: {pdb_id}_{chain_id} {coverage:.2f} coverage {resolution:.2f} Angstrom / start {start} end {end}"
     )
 
-    pdb_f = fetch_pdb(pdb_id)
     atoms_pdb_f = keep_atoms(pdb_f)
     chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
     occ_pdb_f = occ_pdb(chained_pdb_f)
