@@ -116,15 +116,15 @@ def main(input_arg, db, interface_file, out_uniprot):
 
     log.info(f"Interface Residues: {interface_residues}")
 
-    # retrieve pdb file
-    if inp.is_pdb():
-        pdb_f = Path(inp.arg)
-    else:
-        pdb_f = get_best_pdb(uniprot_id)
-
-    log.info(f"PDB file: {pdb_f}")
-
     if interface_residues:
+        # retrieve pdb file
+        if inp.is_pdb():
+            pdb_f = Path(inp.arg)
+        else:
+            pdb_f = get_best_pdb(uniprot_id)
+
+        log.info(f"PDB file: {pdb_f}")
+
         # cluster interfaces
         clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
         log.info(f"Clustered interface residues: {clustered_interface_residues}")
