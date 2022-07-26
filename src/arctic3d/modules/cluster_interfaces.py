@@ -1,6 +1,6 @@
 import logging
 
-from arctic3d.modules.clustering import interface_clustering, write_residues
+from arctic3d.modules.clustering import interface_clustering
 from arctic3d.modules.interface_matrix import interface_matrix
 
 log = logging.getLogger("arctic3dlog")
@@ -23,13 +23,8 @@ def cluster_interfaces(interface_dict, pdb_path):
         dictionary of the clustered interfaces
     """
     filtered_interfaces, matrix_path = interface_matrix(interface_dict, pdb_path)
-    if len(filtered_interfaces) > 1:
+    if len(filtered_interfaces) > 0:
         clustered_residues = interface_clustering(filtered_interfaces, matrix_path)
-    elif len(filtered_interfaces) == 1:
-        unique_interface = list(filtered_interfaces.keys())[0]
-        cl_dict = {1: [unique_interface]}
-        cl_filename = "clustered_residues.out"
-        clustered_residues = write_residues(cl_dict, filtered_interfaces, cl_filename)
     else:
         clustered_residues = None
     return clustered_residues
