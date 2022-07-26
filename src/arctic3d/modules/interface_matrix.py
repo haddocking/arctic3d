@@ -231,7 +231,7 @@ def interface_matrix(interface_dict, pdb_path):
     pdb_resids = mdu.select_atoms("name CA").resids
     retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
     ret_keys = list(retained_interfaces.keys())
-    log.debug(f"ret_keys {ret_keys}")
+    log.debug(f"Retained interfaces: {ret_keys}")
     n_ret = len(ret_keys)
     if n_ret > 1:
         int_pairs = int(n_ret * (n_ret - 1) / 2)

@@ -29,22 +29,25 @@ def read_int_matrix(filename):
     int_matrix : np.array
         interface matrix
     """
-    int_matrix = pd.read_csv(filename, header=None, sep=" ")
-    int_matrix.columns = ["lig1", "lig2", "D"]
-    # first check: it must be a 1D condensed distance matrix
-    nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
-    int_nligands = int(nligands)
-    if abs(nligands - int_nligands) > 0.00001:
-        raise Exception(
-            f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix"
-        )
-    # extracting ligands' names
-    ligand_names = [int_matrix.iloc[0, 0]]
-    for lig in int_matrix.iloc[:, 1]:
-        if lig not in ligand_names:
-            ligand_names.append(lig)
-    log.debug(f"Ligand names {ligand_names}")
-    return int_matrix.iloc[:, 2], ligand_names
+    if os.path.exists(filename):
+        int_matrix = pd.read_csv(filename, header=None, sep=" ")
+        int_matrix.columns = ["lig1", "lig2", "D"]
+        # first check: it must be a 1D condensed distance matrix
+        nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
+        int_nligands = int(nligands)
+        if abs(nligands - int_nligands) > 0.00001:
+            raise Exception(
+                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix"
+            )
+        # extracting ligands' names
+        ligand_names = [int_matrix.iloc[0, 0]]
+        for lig in int_matrix.iloc[:, 1]:
+            if lig not in ligand_names:
+                ligand_names.append(lig)
+        log.debug(f"Ligand names {ligand_names}")
+        return int_matrix.iloc[:, 2], ligand_names
+    else:
+        raise Exception(f"input path {filename} does not exist!")
 
 
 def cluster_distance_matrix(int_matrix, entries, plot=False):
@@ -167,14 +170,14 @@ def interface_clustering(interface_dict, matrix_filename):
     """
     start_time = time.time()
     log.info("Clustering interface matrix")
-    # read matrix
-    if os.path.exists(matrix_filename):
-        int_matrix, entries = read_int_matrix(matrix_filename)
+    # check if there's only a single interface
+    if len(interface_dict) == 1:
+        clusters = [1]
+        entries = list(interface_dict.keys())  # the only entry
     else:
-        raise Exception(f"input path {matrix_filename} does not exist!")
-    # cluster matrix
-    # TODO: make plot an external parameter
-    clusters = cluster_distance_matrix(int_matrix, entries, plot=True)
+        int_matrix, entries = read_int_matrix(matrix_filename)  # read matrix
+        # cluster matrix. TODO: make plot an external parameter
+        clusters = cluster_distance_matrix(int_matrix, entries, plot=True)
     # write clusters
     cl_filename = "clustered_interfaces.out"
     cl_dict = write_clusters(clusters, entries, cl_filename)
