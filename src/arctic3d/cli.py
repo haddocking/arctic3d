@@ -123,6 +123,12 @@ def main(input_arg, db, interface_file, out_uniprot):
         else:
             pdb_f = get_best_pdb(uniprot_id)
 
+        if pdb_f is None:
+            log.error(
+                "Could not retrieve a valid PDB for the target, please provide one using the --pdb option"
+            )
+            sys.exit()
+
         log.info(f"PDB file: {pdb_f}")
 
         # cluster interfaces
