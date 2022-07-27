@@ -151,7 +151,7 @@ def keep_atoms(inp_pdb_f):
 
 
 def validate_api_hit(
-    fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7, max_pdb_renum=5
+    fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7, max_pdb_renum=20
 ):
     """
     Validate PDB fetch request file.
