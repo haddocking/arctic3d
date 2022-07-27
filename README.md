@@ -37,6 +37,8 @@ And put `blastp` in your `$PATH`.
 ```bash
 # the default input is an uniprotID
 arctic3d P00760
+# one or more uniprot IDs can be excluded
+arctic3d P00760 --out_uniprot=P00760,P00974
 # or to identify the uniprotID number remotelly
 arctic3d example/1ppe_E.fasta
 # or to identify the uniprotID number locally
