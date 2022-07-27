@@ -29,6 +29,28 @@ INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues
 # PDB_DB = []
 
 
+def parse_out_uniprot(out_uniprot_string):
+    """
+    Parse the string of uniprot IDs to exclude.
+
+    Parameters
+    ----------
+    out_uniprot_string : str
+        comma-separated uniprot IDs to exclude.
+
+    Returns
+    -------
+    out_uniprot_list : list
+        list of uniprot IDs to exclude.
+    """
+    if out_uniprot_string:
+        out_uniprot_list = out_uniprot_string.split(",")
+    else:
+        out_uniprot_list = []
+    # TODO : do some checks here
+    return out_uniprot_list
+
+
 def read_interface_residues(interface_file):
     """
     Parameters
@@ -63,7 +85,7 @@ def read_interface_residues(interface_file):
     return interface_dict
 
 
-def get_interface_residues(uniprot_id, out_uniprot):
+def get_interface_residues(uniprot_id, out_uniprot_string):
     """
     Get interface residues.
 
@@ -71,8 +93,8 @@ def get_interface_residues(uniprot_id, out_uniprot):
     ----------
     uniprot_id : str
         Uniprot ID.
-    out_uniprot : str or None
-        Uniprot ID.
+    out_uniprot_string : str or None
+        comma-separated uniprot IDs to exclude.
 
     Returns
     -------
@@ -80,6 +102,9 @@ def get_interface_residues(uniprot_id, out_uniprot):
         Interface residues.
 
     """
+    # get the uniprot IDs to exclude
+    out_uniprot_list = parse_out_uniprot(out_uniprot_string)
+
     interface_dict = {}
     url = f"{INTERFACE_URL}/{uniprot_id}"
     try:
@@ -90,13 +115,13 @@ def get_interface_residues(uniprot_id, out_uniprot):
 
     if interface_api_data and len(interface_api_data) != 0:
         interface_dict = parse_interface_data(
-            uniprot_id, interface_api_data, out_uniprot
+            uniprot_id, interface_api_data, out_uniprot_list
         )
 
     return interface_dict
 
 
-def parse_interface_data(uniprot_id, interface_data, out_uniprot):
+def parse_interface_data(uniprot_id, interface_data, out_uniprot_list):
     """
     Parse interface data.
 
@@ -106,8 +131,8 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot):
         Uniprot ID.
     interface_data : dict
         Interface data.
-    out_uniprot : str
-        Uniprot ID.
+    out_uniprot_list : list or None
+        List of Uniprot IDs to exclude.
 
     Returns
     -------
@@ -118,7 +143,7 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot):
     interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
-        if partner_uniprotid != out_uniprot:
+        if partner_uniprotid not in out_uniprot_list:
             interface_dict[partner_uniprotid] = []
             for residue_entry in element["residues"]:
                 start = residue_entry["startIndex"]
@@ -126,7 +151,7 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot):
                 for interface_res in range(start, end + 1):
                     interface_dict[partner_uniprotid].append(interface_res)
         else:
-            log.info(f"found uniprot ID {out_uniprot}. It will be discarded.")
+            log.info(f"found uniprot ID {partner_uniprotid}. It will be discarded.")
 
     log.info(f"{len(interface_dict.keys())} retrieved interfaces.")
     return interface_dict
