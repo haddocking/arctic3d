@@ -131,8 +131,8 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_list):
         Uniprot ID.
     interface_data : dict
         Interface data.
-    out_uniprot_list : list or None
-        List of Uniprot IDs to exclude.
+    out_uniprot_list : list
+        List of Uniprot IDs to exclude. Empty if none.
 
     Returns
     -------
