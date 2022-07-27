@@ -216,7 +216,7 @@ def interface_matrix(interface_dict, pdb_path, filter=True):
     pdb_path : str or Path
         path to the pdb of interest
     filter : bool
-
+        filter the interfaces. Could be already filtered.
 
     Returns
     -------

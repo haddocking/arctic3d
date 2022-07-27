@@ -165,12 +165,12 @@ def validate_api_hit(
     coverage_cutoff : float
         Coverage cutoff.
     max_pdb_renum : int
-        Maximum number of pdb to fetch.
+        Maximum number of pdb files to fetch.
 
     Returns
     -------
     validated_pdbs : list
-        list of (pdb_f, hit) tuples
+        List of (pdb_f, hit) tuples
     """
     validated_pdbs = []  # list of good pdbs
     for hit in fetch_list[:max_pdb_renum]:
@@ -208,17 +208,22 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
     """
     Get PDB ID that retains the most interfaces.
 
+    
+    Parameters
+    ----------
     validated_pdbs : list
-        list of (pdb_f, hit) tuples
+        List of (pdb_f, hit) tuples
+    interface_residues : dict
+        Dictionary of all the interfaces (each one with its uniprot ID as key)
 
     Returns
     -------
     pdb_f : Path or None
 
     hit : dict
-        interface API hit
+        Interface API hit
     filtered_interfaces : dict
-        dictionary of the retained and filtered interfaces
+        Dictionary of the retained and filtered interfaces
     """
     if validated_pdbs != []:
         max_nint = 0
@@ -246,6 +251,8 @@ def get_best_pdb(uniprot_id, interface_residues):
     ----------
     uniprot_id : str
         Uniprot ID.
+    interface_residues : dict
+        Dictionary of all the interfaces (each one with its uniprot ID as key)
 
     Returns
     -------
