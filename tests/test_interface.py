@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from arctic3d.modules.interface import read_interface_residues, parse_out_uniprot
+from arctic3d.modules.interface import parse_out_uniprot, read_interface_residues
 
 from . import golden_data
 
@@ -29,14 +29,10 @@ def test_read_int_file():
 
 
 def test_parse_out_uniprot():
-    uniprot_strings = [None,
-                       "P00760",
-                       "P00760,P00974"]
-    expected_uniprot_strings = [[],
-                                ["P00760"],
-                                ["P00760,P00974"]]
+    uniprot_strings = [None, "P00760", "P00760,P00974"]
+    expected_uniprot_strings = [[], ["P00760"], ["P00760", "P00974"]]
     observed_uniprot_strings = []
     for string in uniprot_strings:
         obs_list = parse_out_uniprot(string)
         observed_uniprot_strings.append(obs_list)
-
+    assert expected_uniprot_strings == expected_uniprot_strings
