@@ -27,7 +27,7 @@ def fetch_pdbrenum(pdb_id):
 
     Returns
     -------
-    Path
+    out_pdb_fname : Path
         Path to PDB file.
     """
     log.debug(f"Fetching PDB file {pdb_id} from PDBrenum")
@@ -65,7 +65,7 @@ def selchain_pdb(inp_pdb_f, chain):
 
     Returns
     -------
-    Path
+    out_pdb_fname : Path
         Path to PDB file.
     """
     log.debug(f"Selecting chain {chain} from PDB file")
@@ -112,7 +112,7 @@ def occ_pdb(inp_pdb_f):
 
     Returns
     -------
-    Path
+    out_pdb_fname : Path
         Path to PDB file.
     """
     log.debug("Selecting residues with highest occupancy")
@@ -135,7 +135,7 @@ def keep_atoms(inp_pdb_f):
 
     Returns
     -------
-    Path
+    out_pdb_fname : Path
         Path to PDB file.
     """
     log.debug("Removing non-ATOM lines from PDB file")
