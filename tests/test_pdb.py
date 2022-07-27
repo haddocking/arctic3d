@@ -81,6 +81,7 @@ def test_get_best_pdb():
 
 
 def test_get_maxint_pdb():
+    """Test get_maxint_pdb."""
     empty_validated_pdbs = []
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(empty_validated_pdbs, {})
     assert pdb_f is None

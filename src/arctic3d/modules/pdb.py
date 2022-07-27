@@ -208,7 +208,6 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
     """
     Get PDB ID that retains the most interfaces.
 
-    
     Parameters
     ----------
     validated_pdbs : list
@@ -219,11 +218,11 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
     Returns
     -------
     pdb_f : Path or None
-
-    hit : dict
-        Interface API hit
-    filtered_interfaces : dict
-        Dictionary of the retained and filtered interfaces
+        Path to PDB file.
+    hit : dict or None
+        Interface API hit.
+    filtered_interfaces : dict or None
+        Dictionary of the retained and filtered interfaces.
     """
     if validated_pdbs != []:
         max_nint = 0
@@ -252,12 +251,14 @@ def get_best_pdb(uniprot_id, interface_residues):
     uniprot_id : str
         Uniprot ID.
     interface_residues : dict
-        Dictionary of all the interfaces (each one with its uniprot ID as key)
+        Dictionary of all the interfaces (each one with its uniprot ID as key).
 
     Returns
     -------
     Path or None
         Path to PDB file or None if no PDB file was found.
+    filtered_interfaces : dict or None
+        Dictionary of the retained and filtered interfaces.
     """
     pdb_dict = {}
     url = f"{BESTPDB_URL}/{uniprot_id}"
