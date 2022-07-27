@@ -5,6 +5,7 @@ import pytest
 from arctic3d.modules.pdb import (
     fetch_pdbrenum,
     get_best_pdb,
+    get_maxint_pdb,
     keep_atoms,
     occ_pdb,
     selchain_pdb,
@@ -64,16 +65,26 @@ def test_validate_api_hit():
         "tax_id": 9606,
     }
 
-    pdb, dict = validate_api_hit([hit])
-    assert pdb is None
-    assert dict is None
+    validated_pdbs = validate_api_hit([hit])
+    assert validated_pdbs == []
 
     hit["resolution"] = 1.0
-    pdb, dict = validate_api_hit([hit])
+    validated_pdbs = validate_api_hit([hit])
+    pdb, dict = validated_pdbs[0]
     assert pdb.name == "2gsx.pdb"
     assert dict == hit
 
 
 def test_get_best_pdb():
-    pdb = get_best_pdb("P20023")
+    pdb = get_best_pdb("P20023", {"P01024": [103, 104, 105]})
     assert pdb is None
+
+
+def test_get_maxint_pdb():
+    empty_validated_pdbs = []
+    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(empty_validated_pdbs, {})
+    assert pdb_f is None
+    assert top_hit is None
+    assert filtered_interfaces is None
+
+    # TODO: test the non-empty case as well

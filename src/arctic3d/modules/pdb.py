@@ -3,12 +3,14 @@ import logging
 import tempfile
 from pathlib import Path
 
+import MDAnalysis as mda
 import requests
 from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
 
 from arctic3d.functions import make_request
+from arctic3d.modules.interface_matrix import filter_interfaces
 
 log = logging.getLogger("arctic3dlog")
 
@@ -148,7 +150,9 @@ def keep_atoms(inp_pdb_f):
     return out_pdb_fname
 
 
-def validate_api_hit(fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7):
+def validate_api_hit(
+    fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7, max_pdb_renum=5
+):
     """
     Validate PDB fetch request file.
 
@@ -160,15 +164,16 @@ def validate_api_hit(fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7):
         Resolution cutoff.
     coverage_cutoff : float
         Coverage cutoff.
+    max_pdb_renum : int
+        Maximum number of pdb to fetch.
 
     Returns
     -------
-    pdb_f : Path or None
-        Path to PDB file or None if no PDB file was found.
-    hits : dict or None
-        Dictionary of hits or None if no PDB file was found.
+    validated_pdbs : list
+        list of (pdb_f, hit) tuples
     """
-    for hit in fetch_list:
+    validated_pdbs = []  # list of good pdbs
+    for hit in fetch_list[:max_pdb_renum]:
         check_list = []
         pdb_id = hit["pdb_id"]
         coverage = hit["coverage"]
@@ -193,14 +198,47 @@ def validate_api_hit(fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7):
             check_list.append(False)
 
         if all(check_list):
-            return pdb_f, hit
+            validated_pdbs.append((pdb_f, hit))
         else:
             log.debug(f"{pdb_id} failed validation")
+    return validated_pdbs
 
-    return None, None
+
+def get_maxint_pdb(validated_pdbs, interface_residues):
+    """
+    Get PDB ID that retains the most interfaces.
+
+    validated_pdbs : list
+        list of (pdb_f, hit) tuples
+
+    Returns
+    -------
+    pdb_f : Path or None
+
+    hit : dict
+        interface API hit
+    filtered_interfaces : dict
+        dictionary of the retained and filtered interfaces
+    """
+    if validated_pdbs != []:
+        max_nint = 0
+        for curr_pdb, curr_hit in validated_pdbs:
+            mdu = mda.Universe(curr_pdb)
+            pdb_resids = mdu.select_atoms("name CA").resids
+            tmp_filtered_interfaces = filter_interfaces(interface_residues, pdb_resids)
+            curr_nint = len(tmp_filtered_interfaces)
+            if curr_nint > max_nint:  # update "best" hit
+                max_nint = curr_nint
+                filtered_interfaces = tmp_filtered_interfaces.copy()
+                pdb_f = curr_pdb
+                hit = curr_hit
+        log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
+        return pdb_f, hit, filtered_interfaces
+    else:
+        return None, None, None
 
 
-def get_best_pdb(uniprot_id):
+def get_best_pdb(uniprot_id, interface_residues):
     """
     Get best PDB ID.
 
@@ -222,7 +260,10 @@ def get_best_pdb(uniprot_id):
         log.warning(f"Could not make BestStructure request for {uniprot_id}, {e}")
         return
 
-    pdb_f, top_hit = validate_api_hit(pdb_dict[uniprot_id])
+    validated_pdbs = validate_api_hit(pdb_dict[uniprot_id])
+    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+        validated_pdbs, interface_residues
+    )
 
     if pdb_f is None:
         log.warning(f"Could not fetch PDB file for {uniprot_id}")
@@ -251,4 +292,4 @@ def get_best_pdb(uniprot_id):
 
     processed_pdb = tidy_pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
 
-    return processed_pdb
+    return processed_pdb, filtered_interfaces
