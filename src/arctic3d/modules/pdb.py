@@ -16,9 +16,19 @@ BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBRENUM_URL = "http://dunbrack3.fccc.edu/PDBrenum/output_PDB"
 
 
-def fetch_pdb(pdb_id):
+def fetch_pdbrenum(pdb_id):
     """
     Fetch PDB file.
+
+    Parameters
+    ----------
+    pdb_id : str
+        PDB ID.
+
+    Returns
+    -------
+    Path
+        Path to PDB file.
     """
     log.debug(f"Fetching PDB file {pdb_id} from PDBrenum")
     response = requests.get(f"{PDBRENUM_URL}/{pdb_id}_renum.pdb.gz")
@@ -45,6 +55,18 @@ def fetch_pdb(pdb_id):
 def selchain_pdb(inp_pdb_f, chain):
     """
     Select chain from PDB file.
+
+    Parameters
+    ----------
+    inp_pdb_f : Path
+        Path to PDB file.
+    chain : str
+        Chain ID.
+
+    Returns
+    -------
+    Path
+        Path to PDB file.
     """
     log.debug(f"Selecting chain {chain} from PDB file")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-{chain}.pdb")
@@ -59,6 +81,16 @@ def selchain_pdb(inp_pdb_f, chain):
 def tidy_pdb(inp_pdb_f):
     """
     Tidy PDB file.
+
+    Parameters
+    ----------
+    inp_pdb_f : Path
+        Path to PDB file.
+
+    Returns
+    -------
+    Path
+        Path to PDB file.
     """
     log.debug("Tidying PDB file")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-tidy.pdb")
@@ -72,6 +104,16 @@ def tidy_pdb(inp_pdb_f):
 def occ_pdb(inp_pdb_f):
     """
     Select residues with highest occupancy.
+
+    Parameters
+    ----------
+    inp_pdb_f : Path
+        Path to PDB file.
+
+    Returns
+    -------
+    Path
+        Path to PDB file.
     """
     log.debug("Selecting residues with highest occupancy")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-occ.pdb")
@@ -85,6 +127,16 @@ def occ_pdb(inp_pdb_f):
 def keep_atoms(inp_pdb_f):
     """
     Keep atoms.
+
+    Parameters
+    ----------
+    inp_pdb_f : Path
+        Path to PDB file.
+
+    Returns
+    -------
+    Path
+        Path to PDB file.
     """
     log.debug("Removing non-ATOM lines from PDB file")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-atoms.pdb")
@@ -96,9 +148,71 @@ def keep_atoms(inp_pdb_f):
     return out_pdb_fname
 
 
+def validate_api_hit(fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7):
+    """
+    Validate PDB fetch request file.
+
+    Parameters
+    ----------
+    fetch_dic : list
+        List containing dictionaries of hits.
+    resolution_cutoff : float
+        Resolution cutoff.
+    coverage_cutoff : float
+        Coverage cutoff.
+
+    Returns
+    -------
+    pdb_f : Path or None
+        Path to PDB file or None if no PDB file was found.
+    hits : dict or None
+        Dictionary of hits or None if no PDB file was found.
+    """
+    for hit in fetch_list:
+        check_list = []
+        pdb_id = hit["pdb_id"]
+        coverage = hit["coverage"]
+        resolution = hit["resolution"]
+
+        pdb_f = fetch_pdbrenum(pdb_id)
+        if pdb_f is not None:
+            check_list.append(True)
+        else:
+            check_list.append(False)
+
+        if coverage > coverage_cutoff:
+            check_list.append(True)
+        else:
+            check_list.append(False)
+
+        if resolution is None:
+            check_list.append(False)
+        elif resolution < resolution_cutoff:
+            check_list.append(True)
+        else:
+            check_list.append(False)
+
+        if all(check_list):
+            return pdb_f, hit
+        else:
+            log.debug(f"{pdb_id} failed validation")
+
+    return None, None
+
+
 def get_best_pdb(uniprot_id):
     """
     Get best PDB ID.
+
+    Parameters
+    ----------
+    uniprot_id : str
+        Uniprot ID.
+
+    Returns
+    -------
+    Path or None
+        Path to PDB file or None if no PDB file was found.
     """
     pdb_dict = {}
     url = f"{BESTPDB_URL}/{uniprot_id}"
@@ -106,23 +220,16 @@ def get_best_pdb(uniprot_id):
         pdb_dict = make_request(url, None)
     except Exception as e:
         log.warning(f"Could not make BestStructure request for {uniprot_id}, {e}")
-        return pdb_dict
+        return
 
-    # the first entry will be the one with highest coverage/lower resolution
-    for top_hit in pdb_dict[uniprot_id]:
-
-        pdb_id = top_hit["pdb_id"]
-        pdb_f = fetch_pdb(pdb_id)
-
-        if pdb_f is not None:
-            break
+    pdb_f, top_hit = validate_api_hit(pdb_dict[uniprot_id])
 
     if pdb_f is None:
         log.warning(f"Could not fetch PDB file for {uniprot_id}")
-        return pdb_dict
+        return
 
+    pdb_id = top_hit["pdb_id"]
     chain_id = top_hit["chain_id"]
-    # TODO: Add a check for minimum coverage/resolution
     coverage = top_hit["coverage"]
     resolution = top_hit["resolution"]
     start = top_hit["unp_start"]
