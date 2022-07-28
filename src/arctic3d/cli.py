@@ -133,12 +133,12 @@ def main(input_arg, db, interface_file, out_uniprot):
 
         # cluster interfaces
         if filtered_interfaces:
-            filter = False
+            clustered_interface_residues = cluster_interfaces(
+                filtered_interfaces, pdb_f
+            )
         else:
-            filter = True
-        clustered_interface_residues = cluster_interfaces(
-            interface_residues, pdb_f, filter=filter
-        )
+            clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
+
         log.info(f"Clustered interface residues: {clustered_interface_residues}")
     else:
         log.info("No interfaces found.")
