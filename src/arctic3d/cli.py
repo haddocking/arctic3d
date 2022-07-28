@@ -121,7 +121,7 @@ def main(input_arg, db, interface_file, out_uniprot):
         if inp.is_pdb():
             pdb_f = Path(inp.arg)
         else:
-            pdb_f = get_best_pdb(uniprot_id)
+            pdb_f, filtered_interfaces = get_best_pdb(uniprot_id, interface_residues)
 
         if pdb_f is None:
             log.error(
@@ -132,7 +132,13 @@ def main(input_arg, db, interface_file, out_uniprot):
         log.info(f"PDB file: {pdb_f}")
 
         # cluster interfaces
-        clustered_interface_residues = cluster_interfaces(interface_residues, pdb_f)
+        if filtered_interfaces:
+            filter = False
+        else:
+            filter = True
+        clustered_interface_residues = cluster_interfaces(
+            interface_residues, pdb_f, filter=filter
+        )
         log.info(f"Clustered interface residues: {clustered_interface_residues}")
     else:
         log.info("No interfaces found.")
