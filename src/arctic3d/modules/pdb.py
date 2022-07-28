@@ -1,6 +1,5 @@
 import gzip
 import logging
-import os
 import tempfile
 from pathlib import Path
 
@@ -237,12 +236,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
                 filtered_interfaces = tmp_filtered_interfaces.copy()
                 pdb_f = curr_pdb
                 hit = curr_hit
-        log.info(f"filtered_interfaces {filtered_interfaces}")
         log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
-        # unlink pdb files
-        for curr_pdb, curr_hit in validated_pdbs:
-            if curr_pdb != pdb_f:
-                os.unlink(curr_pdb)
         return pdb_f, hit, filtered_interfaces
     else:
         return None, None, None
