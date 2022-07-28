@@ -205,7 +205,7 @@ def format_interface_name(int_name):
     return formatted_name
 
 
-def interface_matrix(interface_dict, pdb_path, filter=True):
+def interface_matrix(interface_dict, pdb_path):
     """
     Computes the interface matrix.
 
@@ -215,8 +215,6 @@ def interface_matrix(interface_dict, pdb_path, filter=True):
         dictionary of all the interfaces (each one with its uniprot ID as key)
     pdb_path : str or Path
         path to the pdb of interest
-    filter : bool
-        filter the interfaces. Could be already filtered.
 
     Returns
     -------
@@ -231,11 +229,7 @@ def interface_matrix(interface_dict, pdb_path, filter=True):
         raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
     pdb_resids = mdu.select_atoms("name CA").resids
-    if filter:
-        retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
-    else:
-        log.debug("Interfaces have already been filtered.")
-        retained_interfaces = interface_dict.copy()
+    retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
     ret_keys = list(retained_interfaces.keys())
     log.debug(f"Retained interfaces: {ret_keys}")
     n_ret = len(ret_keys)
