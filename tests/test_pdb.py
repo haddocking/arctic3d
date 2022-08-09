@@ -76,8 +76,9 @@ def test_validate_api_hit():
 
 
 def test_get_best_pdb():
-    pdb = get_best_pdb("P20023", {"P01024": [103, 104, 105]})
+    pdb, filtered_interfaces = get_best_pdb("P20023", {"P01024": [103, 104, 105]})
     assert pdb is None
+    assert filtered_interfaces is None
 
 
 def test_get_maxint_pdb():

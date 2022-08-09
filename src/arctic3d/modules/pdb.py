@@ -283,7 +283,7 @@ def get_best_pdb(uniprot_id, interface_residues):
 
     if pdb_f is None:
         log.warning(f"Could not fetch PDB file for {uniprot_id}")
-        return
+        return None, None
 
     pdb_id = top_hit["pdb_id"]
     chain_id = top_hit["chain_id"]
