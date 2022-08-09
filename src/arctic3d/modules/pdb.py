@@ -202,7 +202,8 @@ def validate_api_hit(
             validated_pdbs.append((pdb_f, hit))
         else:
             log.debug(f"{pdb_id} failed validation")
-            os.unlink(pdb_f)
+            if pdb_f is not None:  # it may happen that pdb_f is None
+                os.unlink(pdb_f)
     return validated_pdbs
 
 
@@ -226,6 +227,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
     filtered_interfaces : dict or None
         Dictionary of the retained and filtered interfaces.
     """
+    pdb_f, hit, filtered_interfaces = None, None, None
     if validated_pdbs != []:
         max_nint = 0
         for curr_pdb, curr_hit in validated_pdbs:
@@ -238,16 +240,15 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
                 filtered_interfaces = tmp_filtered_interfaces.copy()
                 pdb_f = curr_pdb
                 hit = curr_hit
-        log.info(f"filtered_interfaces {filtered_interfaces}")
-        log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
         # unlink pdb files
         for curr_pdb, curr_hit in validated_pdbs:
             if os.path.exists(curr_pdb):
                 if curr_pdb != pdb_f:
                     os.unlink(curr_pdb)
-        return pdb_f, hit, filtered_interfaces
-    else:
-        return None, None, None
+        if max_nint != 0:
+            log.info(f"filtered_interfaces {filtered_interfaces}")
+            log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
+    return pdb_f, hit, filtered_interfaces
 
 
 def get_best_pdb(uniprot_id, interface_residues):
@@ -277,13 +278,14 @@ def get_best_pdb(uniprot_id, interface_residues):
         return
 
     validated_pdbs = validate_api_hit(pdb_dict[uniprot_id])
+
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, interface_residues
     )
 
     if pdb_f is None:
         log.warning(f"Could not fetch PDB file for {uniprot_id}")
-        return
+        return None, None
 
     pdb_id = top_hit["pdb_id"]
     chain_id = top_hit["chain_id"]
