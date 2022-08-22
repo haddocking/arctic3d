@@ -5,6 +5,6 @@ mdanalysis==2.2.0
 requests==2.28.1
 biopython==1.79
 scipy==1.9.0
-matplotlib==3.5.2
+matplotlib==3.5.3
 pdb-tools==2.5.0
 pandas==1.4.3
