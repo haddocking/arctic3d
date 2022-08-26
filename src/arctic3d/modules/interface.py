@@ -185,7 +185,8 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_list, out_pdb_s
                 if out_pdb_set:
                     int_pdbs_list = residue_entry["interactingPDBEntries"]
                     int_pdbs = set([data["pdbId"] for data in int_pdbs_list])
-                    if int_pdbs.issubset(out_pdb_set): # all the interacting pdbs are supposed to be excluded
+                    if int_pdbs.issubset(out_pdb_set):
+                        # all interacting pdbs must be excluded
                         accept = False
                 if accept:
                     for interface_res in range(start, end + 1):

@@ -52,6 +52,7 @@ argument_parser.add_argument(
     help="",
 )
 
+
 def load_args(arguments):
     """
     Load argument parser.
