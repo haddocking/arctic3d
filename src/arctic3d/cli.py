@@ -47,6 +47,10 @@ argument_parser.add_argument(
     help="",
 )
 
+argument_parser.add_argument(
+    "--out_pdb",
+    help="",
+)
 
 def load_args(arguments):
     """
@@ -87,7 +91,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db, interface_file, out_uniprot):
+def main(input_arg, db, interface_file, out_uniprot, out_pdb):
     """Main function."""
     log.setLevel("DEBUG")
 
@@ -112,7 +116,7 @@ def main(input_arg, db, interface_file, out_uniprot):
         log.info(f"input interface file {interface_file}")
         interface_residues = read_interface_residues(interface_file)
     else:
-        interface_residues = get_interface_residues(uniprot_id, out_uniprot)
+        interface_residues = get_interface_residues(uniprot_id, out_uniprot, out_pdb)
 
     log.info(f"Interface Residues: {interface_residues}")
 
