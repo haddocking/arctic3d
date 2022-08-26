@@ -163,8 +163,8 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_list, out_pdb_s
         Interface data.
     out_uniprot_list : list
         List of Uniprot IDs to exclude. Empty if none.
-    out_pdb_list : list
-        List of PDB files to exclude.
+    out_pdb_set : set
+        Set of PDB files to exclude.
 
     Returns
     -------
