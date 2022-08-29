@@ -34,12 +34,16 @@ def test_read_int_file():
 
 def test_parse_out_uniprot():
     uniprot_strings = [None, "P00760", "P00760,P00974"]
-    expected_uniprot_strings = [[], ["P00760"], ["P00760", "P00974"]]
+    expected_uniprot_strings = [
+        set([]),
+        set(["P00760"]),
+        set(["P00760", "P00974"])
+    ]
     observed_uniprot_strings = []
     for string in uniprot_strings:
         obs_list = parse_out_uniprot(string)
         observed_uniprot_strings.append(obs_list)
-    assert expected_uniprot_strings == expected_uniprot_strings
+    assert expected_uniprot_strings == observed_uniprot_strings
 
 
 def test_parse_out_pdb():
