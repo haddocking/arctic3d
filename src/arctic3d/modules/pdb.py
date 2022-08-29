@@ -174,6 +174,8 @@ def validate_api_hit(
         List of (pdb_f, hit) tuples
     """
     validated_pdbs = []  # list of good pdbs
+    valid_pdb_set = set()  # set of valid pdb IDs
+
     for hit in fetch_list[:max_pdb_renum]:
         check_list = []
         pdb_id = hit["pdb_id"]
@@ -200,9 +202,13 @@ def validate_api_hit(
 
         if all(check_list):
             validated_pdbs.append((pdb_f, hit))
+            if pdb_id not in valid_pdb_set:
+                valid_pdb_set.add(pdb_id)
         else:
             log.debug(f"{pdb_id} failed validation")
-            if pdb_f is not None:  # it may happen that pdb_f is None
+            if (
+                pdb_f is not None and pdb_id not in valid_pdb_set
+            ):  # pdb_f could be None or the pdb (another chain) could be valid and the file should not be removed
                 os.unlink(pdb_f)
     return validated_pdbs
 
