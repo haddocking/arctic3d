@@ -47,7 +47,7 @@ def parse_out_uniprot(out_uniprot_string):
     if out_uniprot_string:
         uniprot_split = out_uniprot_string.split(",")
         for uni in uniprot_split:
-            if len(uni) != 6 or not uni.isalnum():
+            if not uni.isalnum():
                 raise Exception(f"Invalid Uniprot ID {uni} in --out_pdb.")
             if uni in out_uniprot_list:
                 log.warning(f"Warning: duplicated pdb entry {uni} in --out_uniprot.")

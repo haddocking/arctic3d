@@ -42,6 +42,13 @@ def test_parse_out_uniprot():
     assert expected_uniprot_strings == observed_uniprot_strings
 
 
+def test_error_parse_out_uniprot():
+    out_uniprot_strings = ["P00760+", "P00760/"]
+    for string in out_uniprot_strings:
+        with pytest.raises(Exception):
+            parse_out_uniprot(string)
+
+
 def test_parse_out_pdb():
     """Test parse_out_pdb function."""
     out_pdb_strings = [None, "1abc", "4B2C,4B1T,4B2A", "4B2C,4B1T,4B2A,4b2a"]
