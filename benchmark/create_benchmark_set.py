@@ -14,27 +14,28 @@ logging.basicConfig(
 )
 
 
-def load_bm5_file(bm5_file: str) -> list[tuple[str, str]]:
+def load_bm5_file(bm5_file: str) -> list[tuple[str, str, str]]:
     """Load the BM5 Excel File."""
     logging.info("Loading BM5 file.")
     bm5_df = pd.read_excel(bm5_file, header=2).dropna()
 
+    complex_ids = bm5_df["Complex"].values
     receptor_ids = bm5_df["PDB ID 1"].values
     ligand_ids = bm5_df["PDB ID 2"].values
 
     data = []
-    for receptor, ligand in zip(receptor_ids, ligand_ids):
-        data.append((receptor, ligand))
+    for complex, receptor, ligand in zip(complex_ids, receptor_ids, ligand_ids):
+        data.append((complex, receptor, ligand))
 
     return data
 
 
-def filter_bm5(bm5: list[tuple[str, str]]) -> list[tuple[str, str]]:
+def filter_bm5(bm5: list[tuple[str, str, str]]) -> list[tuple[str, str, str]]:
     """Filter out multichain pdbs."""
     logging.info("Filtering out multichain pdbs.")
     filtered_bm5 = []
     for element in bm5:
-        receptor, ligand = element
+        _, receptor, ligand = element
         receptor_chains = len(receptor.split("_")[-1])
         ligand_chains = len(ligand.split("_")[-1])
         if receptor_chains != 1 or ligand_chains != 1:
@@ -62,31 +63,34 @@ def identify_uniprotid(pdb_id: str, target_chain: str) -> Optional[str]:
     return None
 
 
-def parse_bm(bm: list[tuple[str, str]]) -> list[tuple[str, str, str, str]]:
+def parse_bm(bm: list[tuple[str, str, str]]) -> list[tuple[str, str, str, str, str]]:
     """Parse the benchmark and return a list with the Uniprot IDs."""
     parsed_bm: list = []
-    for receptor, ligand in bm:
+    for complex, receptor, ligand in bm:
         receptor_pdb, receptor_chain = receptor.split("_")
         ligand_pdb, ligand_chain = ligand.split("_")
         uniprot_receptor = identify_uniprotid(receptor_pdb, receptor_chain)
         uniprot_ligand = identify_uniprotid(ligand_pdb, ligand_chain)
 
         if uniprot_receptor and uniprot_ligand:
-            parsed_bm.append((receptor, uniprot_receptor, ligand, uniprot_ligand))
+            parsed_bm.append(
+                (complex, receptor, uniprot_receptor, ligand, uniprot_ligand)
+            )
 
     return parsed_bm
 
 
 def write_output_file(
-    parsed_bm: list[tuple[str, str, str, str]], output_file: str
+    parsed_bm: list[tuple[str, str, str, str, str]], output_file: str
 ) -> None:
     """Write the output file."""
     logging.info(f"Saving output to {output_file}.")
     with open(output_file, "w") as f:
-        f.write("receptor,uniprot_receptor,ligand,uniprot_ligand" + os.linesep)
-        for receptor, uniprot_receptor, ligand, uniprot_ligand in parsed_bm:
+        f.write("complex,receptor,uniprot_receptor,ligand,uniprot_ligand" + os.linesep)
+        for complex, receptor, uniprot_receptor, ligand, uniprot_ligand in parsed_bm:
             f.write(
-                f"{receptor},{uniprot_receptor},{ligand},{uniprot_ligand}" + os.linesep
+                f"{complex},{receptor},{uniprot_receptor},{ligand},{uniprot_ligand}"
+                + os.linesep
             )
 
 
