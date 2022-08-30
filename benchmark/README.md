@@ -8,7 +8,7 @@ To create a benchmark using the [Docking benchmark version 5](https://zlab.umass
 python create_benchmark_set Table_BM5.5.xlsx bm5_benchmark.csv
 ```
 
-This  will generate a comma separated table that will serve as the base for the benchmarking.
+This will generate a comma separated table that will serve as the base for the benchmarking.
 
 ```csv
 receptor,uniprot_receptor,ligand,uniprot_ligand
@@ -21,4 +21,3 @@ receptor,uniprot_receptor,ligand,uniprot_ligand
 ## Introduction
 
 Coming soon
-
