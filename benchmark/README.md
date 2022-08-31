@@ -21,7 +21,7 @@ complex,receptor,uniprot_receptor,ligand,uniprot_ligand
 
 ## run arctic3d on the benchmark
 
-```
+```bash
 python3 execute_arctic_bm5.py bm5_uniprot.csv $OUTPUT_DIRECTORY
 ```
 
