@@ -19,6 +19,18 @@ complex,receptor,uniprot_receptor,ligand,uniprot_ligand
 (...)
 ```
 
+## run arctic3d on the benchmark
+
+```bash
+python3 execute_arctic_bm5.py bm5_uniprot.csv $OUTPUT_DIRECTORY
+```
+
+This command runs arctic3d on the full benchmark file "bm5_uniprot", saving the output in the OUTPUT_DIRECTORY folder.
+
+More specifically, the target directory will be populated with a folder for each complex ID, containing the arctic3d results for the 2 uniprot IDs in play.
+
+The benchmark requires ~ 45 minutes to run on a standard machine.
+
 ## Introduction
 
 Coming soon
