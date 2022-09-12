@@ -7,5 +7,5 @@ biopython==1.79
 scipy==1.9.1
 matplotlib==3.5.3
 pdb-tools==2.5.0
-pandas==1.4.3
+pandas==1.4.4
 openpyxl==3.0.10
