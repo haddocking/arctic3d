@@ -52,6 +52,11 @@ argument_parser.add_argument(
     help="",
 )
 
+argument_parser.add_argument(
+    "--pdb_to_use",
+    help="",
+)
+
 
 def load_args(arguments):
     """
@@ -92,7 +97,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db, interface_file, out_uniprot, out_pdb):
+def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
     """Main function."""
     log.setLevel("DEBUG")
 
@@ -129,7 +134,10 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb):
                 """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
             )
         else:
-            pdb_f, filtered_interfaces = get_best_pdb(uniprot_id, interface_residues)
+            print(f"pdb_to_use {pdb_to_use}")
+            pdb_f, filtered_interfaces = get_best_pdb(
+                uniprot_id, interface_residues, pdb_to_use
+            )
 
         if pdb_f is None:
             log.error(

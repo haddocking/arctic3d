@@ -159,7 +159,7 @@ def validate_api_hit(
 
     Parameters
     ----------
-    fetch_dic : list
+    fetch_list : list
         List containing dictionaries of hits.
     resolution_cutoff : float
         Resolution cutoff.
@@ -257,7 +257,35 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
     return pdb_f, hit, filtered_interfaces
 
 
-def get_best_pdb(uniprot_id, interface_residues):
+def filter_pdb_list(fetch_list, pdb_to_use):
+    """
+    Filter the PDB fetch list.
+
+    Parameters
+    ----------
+    fetch_list : list
+        List containing dictionaries of hits.
+    pdb_to_use : str
+        Pdb code to be used.
+
+    Returns
+    -------
+    reduced_list : list
+        List containing only the pdb_to_use hit
+    """
+    reduced_list = []
+    for hit in fetch_list:
+        pdb_id = hit["pdb_id"]
+        if pdb_id == pdb_to_use:
+            reduced_list.append(hit)
+            break
+    #
+    if len(reduced_list) == 0:
+        log.warning(f"PDB ID {pdb_to_use} not found in fectched pdb list.")
+    return reduced_list
+
+
+def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None):
     """
     Get best PDB ID.
 
@@ -267,6 +295,8 @@ def get_best_pdb(uniprot_id, interface_residues):
         Uniprot ID.
     interface_residues : dict
         Dictionary of all the interfaces (each one with its uniprot ID as key).
+    pdb_to_use : str (default None)
+        Pdb code to be used.
 
     Returns
     -------
@@ -283,7 +313,13 @@ def get_best_pdb(uniprot_id, interface_residues):
         log.warning(f"Could not make BestStructure request for {uniprot_id}, {e}")
         return
 
-    validated_pdbs = validate_api_hit(pdb_dict[uniprot_id])
+    # if pdb_to_use is not None, already filter the list
+    if pdb_to_use:
+        pdb_code = pdb_to_use.lower()
+        pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_code)
+    else:
+        pdb_list = pdb_dict[uniprot_id]
+    validated_pdbs = validate_api_hit(pdb_list)
 
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, interface_residues
