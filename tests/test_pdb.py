@@ -4,6 +4,7 @@ import pytest
 
 from arctic3d.modules.pdb import (
     fetch_pdbrenum,
+    filter_pdb_list,
     get_best_pdb,
     get_maxint_pdb,
     keep_atoms,
@@ -19,6 +20,54 @@ from . import golden_data
 @pytest.fixture
 def inp_pdb():
     return Path(golden_data, "1rypB_r_b.pdb")
+
+
+@pytest.fixture
+def pdb_hit_no_resolution():
+    hit = {
+        "end": 951,
+        "chain_id": "A",
+        "pdb_id": "2gsx",
+        "start": 1,
+        "unp_end": 971,
+        "coverage": 0.939,
+        "unp_start": 21,
+        "resolution": None,
+        "experimental_method": "X-ray solution scattering",
+        "tax_id": 9606,
+    }
+    return hit
+
+
+@pytest.fixture
+def good_hits():
+    hits_list = [
+        {
+            "end": 246,
+            "chain_id": "A",
+            "pdb_id": "4xoj",
+            "start": 1,
+            "unp_end": 246,
+            "coverage": 1,
+            "unp_start": 1,
+            "resolution": 0.91,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 9913,
+        },
+        {
+            "end": 246,
+            "chain_id": "A",
+            "pdb_id": "6sy3",
+            "start": 1,
+            "unp_end": 246,
+            "coverage": 1,
+            "unp_start": 1,
+            "resolution": 0.95,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 9913,
+        },
+    ]
+    return hits_list
 
 
 def test_fetch_pdbrenum():
@@ -51,28 +100,15 @@ def test_keep_atoms(inp_pdb):
     pdb.unlink()
 
 
-def test_validate_api_hit():
-    hit = {
-        "end": 951,
-        "chain_id": "A",
-        "pdb_id": "2gsx",
-        "start": 1,
-        "unp_end": 971,
-        "coverage": 0.939,
-        "unp_start": 21,
-        "resolution": None,
-        "experimental_method": "X-ray solution scattering",
-        "tax_id": 9606,
-    }
-
-    validated_pdbs = validate_api_hit([hit])
+def test_validate_api_hit(pdb_hit_no_resolution):
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
     assert validated_pdbs == []
 
-    hit["resolution"] = 1.0
-    validated_pdbs = validate_api_hit([hit])
+    pdb_hit_no_resolution["resolution"] = 1.0
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
     pdb, dict = validated_pdbs[0]
     assert pdb.name == "2gsx.pdb"
-    assert dict == hit
+    assert dict == pdb_hit_no_resolution
 
 
 def test_get_best_pdb():
@@ -90,3 +126,13 @@ def test_get_maxint_pdb():
     assert filtered_interfaces is None
 
     # TODO: test the non-empty case as well
+
+
+def test_filter_pdb_list(good_hits):
+    """Test filter_pdb_list."""
+    observed_red_list = filter_pdb_list(good_hits, "1abc")
+    expected_red_list = []
+    assert observed_red_list == expected_red_list
+    observed_red_list = filter_pdb_list(good_hits, "6sy3")
+    expected_red_list = [good_hits[1]]
+    assert observed_red_list == expected_red_list
