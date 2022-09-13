@@ -47,6 +47,8 @@ arctic3d P00760 --pdb_to_use=4xoj
 arctic3d example/1ppe_E.fasta
 # or locally
 arctic3d example/1ppe_E.fasta --db db/swissprot
+# it is also possible to provide a pdb file with a set of interfaces
+arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
 ```
 
 ---
