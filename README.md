@@ -37,11 +37,15 @@ And put `blastp` in your `$PATH`.
 ```bash
 # the default input is an uniprotID
 arctic3d P00760
-# one or more uniprot IDs can be excluded
+# one or more uniprot IDs can be excluded from the interface calls
 arctic3d P00760 --out_uniprot=P00760,P00974
-# or to identify the uniprotID number remotelly
+# one or more pdb IDs can be excluded from the interface calls
+arctic3d P00760 --out_pdb=4xoj,6sy3
+# the pdb that must be retrieved can be specified
+arctic3d P00760 --pdb_to_use=4xoj
+# the uniprotID can be identifed from the sequence, either remotely
 arctic3d example/1ppe_E.fasta
-# or to identify the uniprotID number locally
+# or locally
 arctic3d example/1ppe_E.fasta --db db/swissprot
 ```
 
