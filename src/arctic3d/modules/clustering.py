@@ -150,7 +150,6 @@ def write_residues(res_dict, res_filename):
         for key in res_dict.keys():
             cl_string = " ".join([str(el) for el in res_dict[key]])
             wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
-    return res_dict
 
 
 def interface_clustering(interface_dict, matrix_filename):
