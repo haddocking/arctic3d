@@ -87,7 +87,7 @@ def parse_out_pdb(out_pdb_string):
 def parse_interface_line(int_line, ln_num):
     """
     Parses the input interface line according to the following format:
-    
+
     int_name 1,2,3,6,7
 
     Parameters
@@ -108,7 +108,9 @@ def parse_interface_line(int_line, ln_num):
     int_name = splt_ln[0]
     # checking malformed interface
     if len(splt_ln) != 2:
-        raise Exception(f"Found uncompatible interface at line {ln_num} in interface_file.")
+        raise Exception(
+            f"Found uncompatible interface at line {ln_num} in interface_file."
+        )
     residues_str_list = splt_ln[1].split(",")
     residues_int_list = []
     # checking they are all integers
@@ -141,11 +143,11 @@ def read_interface_residues(interface_file):
     interface_dict = {}
     if os.path.exists(interface_file):
         with open(interface_file, "r") as ifile:
-            ln_num = 0
+            ln_num = 0  # keep track of line number
             for ln in ifile:
                 ln_num += 1
                 if ln != os.linesep:
-                    int_name, residue_list = parse_interface_line(ln)
+                    int_name, residue_list = parse_interface_line(ln, ln_num)
                     interface_dict[int_name] = residue_list
     else:
         raise Exception(f"interface_file {interface_file} does not exist")
