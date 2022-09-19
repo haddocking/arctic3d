@@ -49,9 +49,9 @@ def cluster_similarity_matrix(int_matrix, entries, plot=False):
     return clusters
 
 
-def write_clusters(clusters, ligands, cl_filename):
+def get_clustering_dict(clusters, ligands):
     """
-    Writes clusters to file.
+    Gets dictionary of clusters.
 
     Parameters
     ----------
@@ -59,8 +59,6 @@ def write_clusters(clusters, ligands, cl_filename):
         list of cluster IDs
     ligands : list
         names of the ligands
-    cl_filename : str or Path
-        name of the output filename
 
     Returns
     -------
@@ -71,36 +69,54 @@ def write_clusters(clusters, ligands, cl_filename):
                   ...
                 }
     """
-    log.info(f"Writing clusters to file {cl_filename}")
     cl_dict = {}
-    #
+    # loop over clusters
     for cl in range(len(clusters)):
         if clusters[cl] not in cl_dict.keys():
             cl_dict[clusters[cl]] = [ligands[cl]]
         else:
             cl_dict[clusters[cl]].append(ligands[cl])
-    with open(cl_filename, "w") as wfile:
-        for key in cl_dict.keys():
-            cl_string = " ".join(cl_dict[key])
-            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
     log.info(f"Cluster dictionary {cl_dict}")
     return cl_dict
 
 
-def write_residues(cl_dict, interface_dict, res_filename):
+def write_clusters(cl_dict, cl_filename):
     """
-    Writes the clustered residues to file
+    Writes clusters to file.
 
+    Parameters
+    ----------
+    cl_dict : dict
+        dictionary of clustered interfaces
+    cl_filename : str or Path
+        name of the output filename
+    """
+    log.info(f"Writing clusters to file {cl_filename}")
+    with open(cl_filename, "w") as wfile:
+        for key in cl_dict.keys():
+            cl_string = " ".join(cl_dict[key])
+            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
+
+
+def get_residue_dict(cl_dict, interface_dict):
+    """
+    Gets dictionary of clustered residues.
+
+    Parameters
+    ----------
     cl_dict : dict
         dictionary of the clustered interfaces
     interface_dict : dict
         dictionary of all the interfaces (each one with its uniprot ID as key)
-    res_filename : str or Path
-        output filename
+
     Returns
     -------
-    cl_residues : dict
+    res_dict : dict
         dictionary of clustered residues
+        example { 1 : [1,2,3,5,6,8] ,
+                  2 : [29,30,31],
+                  ...
+                }
     """
     clustered_residues = {}
     for key in cl_dict.keys():
@@ -110,12 +126,31 @@ def write_residues(cl_dict, interface_dict, res_filename):
         unique_cl_residues = list(set(residues))
         unique_cl_residues.sort()
         clustered_residues[key] = unique_cl_residues
+    return clustered_residues
+
+
+def write_residues(res_dict, res_filename):
+    """
+    Writes clustered residues to file.
+
+    Parameters
+    ----------
+    res_dict : dict
+        dictionary of clustered residues
+    res_filename : str or Path
+        output filename
+
+    Returns
+    -------
+    cl_residues : dict
+        dictionary of clustered residues
+    """
     # write to file
     with open(res_filename, "w") as wfile:
-        for key in clustered_residues.keys():
-            cl_string = " ".join([str(el) for el in clustered_residues[key]])
+        for key in res_dict.keys():
+            cl_string = " ".join([str(el) for el in res_dict[key]])
             wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
-    return clustered_residues
+    return res_dict
 
 
 def interface_clustering(interface_dict, matrix_filename):
@@ -126,7 +161,6 @@ def interface_clustering(interface_dict, matrix_filename):
     ----------
     interface_dict : dict
         dictionary of all the interfaces (each one with its uniprot ID as key)
-
     matrix_filename : str or Path
         input interface matrix
 
@@ -146,10 +180,12 @@ def interface_clustering(interface_dict, matrix_filename):
         clusters = cluster_similarity_matrix(int_matrix, entries, plot=True)
     # write clusters
     cl_filename = "clustered_interfaces.out"
-    cl_dict = write_clusters(clusters, entries, cl_filename)
+    cl_dict = get_clustering_dict(clusters)
+    write_clusters(cl_dict, cl_filename)
     # write clustered residues
     res_filename = "clustered_residues.out"
-    clustered_residues = write_residues(cl_dict, interface_dict, res_filename)
+    res_dict = get_residue_dict(cl_dict, interface_dict)
+    clustered_residues = write_residues(res_dict, res_filename)
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
