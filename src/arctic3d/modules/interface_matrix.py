@@ -105,14 +105,14 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
         list of the names of the interfaces
 
     int_matrix : 1D np.array
-        interface distance matrix
+        interface similarity matrix
 
     output_fl : str or Path
 
     Returns
     -------
     """
-    log.info(f"Writing interface matrix on file {output_filename}")
+    log.info(f"Writing interface similarity matrix to file {output_filename}")
     matrix_idx = 0
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
@@ -298,12 +298,12 @@ def read_int_matrix(filename):
     if os.path.exists(filename):
         int_matrix = pd.read_csv(filename, header=None, sep=" ")
         int_matrix.columns = ["lig1", "lig2", "D"]
-        # first check: it must be a 1D condensed distance matrix
+        # first check: it must be a 1D condensed similarity matrix
         nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
         int_nligands = int(nligands)
         if abs(nligands - int_nligands) > 0.00001:
             raise Exception(
-                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix"
+                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed similarity matrix"
             )
         # extracting ligands' names
         ligand_names = [int_matrix.iloc[0, 0]]
