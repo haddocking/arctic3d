@@ -4,6 +4,7 @@ import time
 
 import MDAnalysis as mda
 import numpy as np
+import pandas as pd
 from scipy.spatial.distance import cdist
 
 SIGMA = 1.9
@@ -61,12 +62,7 @@ def compute_scalar_product(interface_one, interface_two, Jij_mat):
         scalar product between the two interfaces
     """
     # log.debug(f"computing scal_prod between {interface_one} and {interface_two}")
-    len_one = len(interface_one)
-    len_two = len(interface_two)
-    scalar_product = 0.0
-    for res_one in range(len_one):
-        for res_two in range(len_two):
-            scalar_product += Jij_mat[interface_one[res_one], interface_two[res_two]]
+    scalar_product = Jij_mat[np.ix_(interface_one, interface_two)].sum()
     return scalar_product
 
 
@@ -284,3 +280,37 @@ def interface_matrix(interface_dict, pdb_path):
         log.warning("Too few interfaces, interface matrix was not calculated.")
         out_fl = None
     return retained_interfaces, out_fl
+
+
+def read_int_matrix(filename):
+    """
+    Read the interface matrix.
+
+    Parameters
+    ----------
+    filename : str or Path
+        interface matrix filename
+    Returns
+    -------
+    int_matrix : np.array
+        interface matrix
+    """
+    if os.path.exists(filename):
+        int_matrix = pd.read_csv(filename, header=None, sep=" ")
+        int_matrix.columns = ["lig1", "lig2", "D"]
+        # first check: it must be a 1D condensed distance matrix
+        nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
+        int_nligands = int(nligands)
+        if abs(nligands - int_nligands) > 0.00001:
+            raise Exception(
+                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix"
+            )
+        # extracting ligands' names
+        ligand_names = [int_matrix.iloc[0, 0]]
+        for lig in int_matrix.iloc[:, 1]:
+            if lig not in ligand_names:
+                ligand_names.append(lig)
+        log.debug(f"Ligand names {ligand_names}")
+        return int_matrix.iloc[:, 2], ligand_names
+    else:
+        raise Exception(f"input path {filename} does not exist!")

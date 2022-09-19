@@ -5,49 +5,15 @@ import os
 import time
 
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
+
+from arctic3d.modules.interface_matrix import read_int_matrix
 
 LINKAGE = "average"
 # THRESHOLD = 0.7071  # np.sqrt(2)/2
 THRESHOLD = 0.8660  # np.sqrt(3)/2
 
 log = logging.getLogger("arctic3dlog")
-
-
-def read_int_matrix(filename):
-    """
-    Read the interface matrix.
-
-    Parameters
-    ----------
-    filename : str or Path
-        interface matrix filename
-    Returns
-    -------
-    int_matrix : np.array
-        interface matrix
-    """
-    if os.path.exists(filename):
-        int_matrix = pd.read_csv(filename, header=None, sep=" ")
-        int_matrix.columns = ["lig1", "lig2", "D"]
-        # first check: it must be a 1D condensed distance matrix
-        nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
-        int_nligands = int(nligands)
-        if abs(nligands - int_nligands) > 0.00001:
-            raise Exception(
-                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed distance matrix"
-            )
-        # extracting ligands' names
-        ligand_names = [int_matrix.iloc[0, 0]]
-        for lig in int_matrix.iloc[:, 1]:
-            if lig not in ligand_names:
-                ligand_names.append(lig)
-        log.debug(f"Ligand names {ligand_names}")
-        return int_matrix.iloc[:, 2], ligand_names
-    else:
-        raise Exception(f"input path {filename} does not exist!")
 
 
 def cluster_distance_matrix(int_matrix, entries, plot=False):
