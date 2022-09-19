@@ -118,7 +118,9 @@ def parse_interface_line(int_line, ln_num):
         if resid_string.isdigit():
             residues_int_list.append(int(resid_string))
         else:
-            raise Exception(f"Malformed residue {resid_string} in interface_file.")
+            raise Exception(
+                f"Malformed residue {resid_string} at line {ln_num} in interface_file."
+            )
     return int_name, residues_int_list
 
 
