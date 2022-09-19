@@ -16,14 +16,14 @@ THRESHOLD = 0.8660  # np.sqrt(3)/2
 log = logging.getLogger("arctic3dlog")
 
 
-def cluster_distance_matrix(int_matrix, entries, plot=False):
+def cluster_similarity_matrix(int_matrix, entries, plot=False):
     """
     Does the clustering.
 
     Parameters
     ----------
     int_matrix : np.array
-        1D condensed interface matrix
+        1D condensed interface similarity matrix
     entries : list
         names of the ligands
     plot : bool
@@ -39,7 +39,7 @@ def cluster_distance_matrix(int_matrix, entries, plot=False):
         plt.figure()
         dendrogram(Z, color_threshold=THRESHOLD, labels=entries)
         plt.xlabel("Interface Names")
-        plt.ylabel("Distance")
+        plt.ylabel("Similarity")
         plt.savefig(dendrogram_figure_filename)
         plt.close()
     # clustering
@@ -143,7 +143,7 @@ def interface_clustering(interface_dict, matrix_filename):
     else:
         int_matrix, entries = read_int_matrix(matrix_filename)  # read matrix
         # cluster matrix. TODO: make plot an external parameter
-        clusters = cluster_distance_matrix(int_matrix, entries, plot=True)
+        clusters = cluster_similarity_matrix(int_matrix, entries, plot=True)
     # write clusters
     cl_filename = "clustered_interfaces.out"
     cl_dict = write_clusters(clusters, entries, cl_filename)
