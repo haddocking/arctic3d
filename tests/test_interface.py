@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from arctic3d.modules.interface import (
+    parse_interface_line,
     parse_out_pdb,
     parse_out_uniprot,
     read_interface_residues,
@@ -30,6 +31,20 @@ def test_read_int_file():
         "int_6": [1, 2],
     }
     assert obs_interface_dict == exp_interface_dict
+
+
+def test_parse_interface_line():
+    """Test parse_interface_line function."""
+    interface_lines = ["P00767 1,2,3", "P00767", "P00767 1-3,4"]
+    # first string is correct
+    exp_interface = "P00767", [1, 2, 3]
+    obs_interface = parse_interface_line(interface_lines[0], 0)
+    assert exp_interface == obs_interface
+    # the other two should throw an exception
+    with pytest.raises(Exception):
+        parse_interface_line(interface_lines[1], 1)
+    with pytest.raises(Exception):
+        parse_interface_line(interface_lines[2], 2)
 
 
 def test_parse_out_uniprot():
