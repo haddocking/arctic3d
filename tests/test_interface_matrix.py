@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import MDAnalysis as mda
@@ -118,6 +119,7 @@ def test_interface_matrix(example_interface_dict, example_pdbpath):
         expected_interface_matrix, observed_int_matrix, atol=0.00001
     )
     assert expected_interface_names == obs_int_names
+    os.unlink(observed_int_filename)
 
 
 def test_read_int_matrix_nonexisting():
