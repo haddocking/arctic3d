@@ -20,6 +20,7 @@ setup(
     entry_points={
         "console_scripts": [
             "arctic3d=arctic3d.cli:maincli",
+            "arctic3d_resclust=arctic3d.cli_resclust:maincli",
         ],
     },
 )
