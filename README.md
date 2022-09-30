@@ -56,8 +56,10 @@ arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.t
 ## Residue-based clustering
 
 It is also possible to clusters separate residues with the following command:
+
 ```bash
 arctic3d example/1ppe_E.pdb ./example/1ppe_E.pdb --residue_list 49,50,51,100,101,102 --threshold=12.0 --segid=E
 ```
+
 Here each residue is treated as an independent entity and the standard CA-CA distance matrix between the selected amino acids is clustered according to the `threshold` value.
 This can be useful if one wants to automatically separate groups of residues on a pdb structure.
