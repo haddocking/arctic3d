@@ -179,12 +179,12 @@ def interface_clustering(interface_dict, matrix_filename):
         clusters = cluster_similarity_matrix(int_matrix, entries, plot=True)
     # write clusters
     cl_filename = "clustered_interfaces.out"
-    cl_dict = get_clustering_dict(clusters)
+    cl_dict = get_clustering_dict(clusters, entries)
     write_clusters(cl_dict, cl_filename)
     # write clustered residues
     res_filename = "clustered_residues.out"
-    res_dict = get_residue_dict(cl_dict, interface_dict)
-    clustered_residues = write_residues(res_dict, res_filename)
+    clustered_residues = get_residue_dict(cl_dict, interface_dict)
+    write_residues(clustered_residues, res_filename)
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
