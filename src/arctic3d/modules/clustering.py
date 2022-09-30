@@ -16,7 +16,7 @@ THRESHOLD = 0.8660  # np.sqrt(3)/2
 log = logging.getLogger("arctic3dlog")
 
 
-def cluster_similarity_matrix(int_matrix, entries, plot=False):
+def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=False):
     """
     Does the clustering.
 
@@ -33,6 +33,7 @@ def cluster_similarity_matrix(int_matrix, entries, plot=False):
     clusters : list
         list of clusters ID, each one associated to an entry
     """
+    log.info(f"clustering with threshold {threshold}")
     Z = linkage(int_matrix, LINKAGE)
     if plot:
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
@@ -43,7 +44,7 @@ def cluster_similarity_matrix(int_matrix, entries, plot=False):
         plt.savefig(dendrogram_figure_filename)
         plt.close()
     # clustering
-    clusters = fcluster(Z, t=THRESHOLD, criterion="distance")
+    clusters = fcluster(Z, t=threshold, criterion="distance")
     log.info("Dendrogram created and clustered.")
     log.debug(f"Clusters = {clusters}")
     return clusters
