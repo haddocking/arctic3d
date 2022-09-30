@@ -129,10 +129,12 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
     if interface_residues:
         # retrieve pdb file
         if inp.is_pdb():
+            # interfaces will be filtered later
             pdb_f, filtered_interfaces = Path(inp.arg), None
-            log.warning(
-                """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
-            )
+            if not interface_file:
+                log.warning(
+                    """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
+                )
         else:
             print(f"pdb_to_use {pdb_to_use}")
             pdb_f, filtered_interfaces = get_best_pdb(
