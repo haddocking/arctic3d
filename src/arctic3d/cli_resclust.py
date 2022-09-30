@@ -1,3 +1,18 @@
+"""
+Residue-based clustering.
+
+Given a pdb and a set of residues, you can create different clusters of
+residues.
+
+USAGE::
+
+    arctic3d_resclust ./example/1ppe_E.pdb --residue_list 29,30,31,49,50,51 --threshold=20.0 --chain=E
+
+Input arguments:
+`residue_list` : the comma-separated list of residue IDs
+`threshold` : the number to be used as threshold for hierarchical clustering
+`chain` : the chain ID to be used
+"""
 import argparse
 import logging
 import sys
@@ -36,7 +51,7 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--segid", help="Segment ID to be considered", required=False
+    "--chain", help="Segment ID to be considered", required=False
 )
 
 
@@ -79,7 +94,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, residue_list, threshold, segid):
+def main(input_arg, residue_list, threshold, chain):
     """Main function."""
     log.setLevel("INFO")
 
@@ -92,32 +107,32 @@ def main(input_arg, residue_list, threshold, segid):
     # read pdb
     try:
         mdu = mda.Universe(inp.arg)
-    except ValueError():
+    except ValueError:
         log.error(f"Unable to read input PDB file {inp.arg}")
         sys.exit(1)
 
     # extract atoms
-    if segid:
-        segid_str = f"and chainID {segid} "
+    if chain:
+        chain_str = f"and chainID {chain} "
     else:
-        segid_str = ""
+        chain_str = ""
 
     try:
         resids_list = [int(el) for el in residue_list.strip().split(",")]
-    except ValueError():
+    except ValueError:
         log.error(f"Malformed input residue_list {residue_list}")
         sys.exit(1)
 
     log.info(f"resids_list {resids_list}")
     str_resids_list = [str(res) for res in resids_list]
-    sel_residues = f"name CA {segid_str}and resid {' '.join(str_resids_list)}"
+    sel_residues = f"name CA {chain_str}and resid {' '.join(str_resids_list)}"
 
     u = mdu.select_atoms(sel_residues)
     log.info(f"retrieved residues: {u.resids}")
 
-    n_segids = u.n_segments
-    if n_segids != 1:
-        log.error(f"Number of consistent segments ({n_segids}) != 1. Aborting.")
+    n_chains = u.n_segments
+    if n_chains != 1:
+        log.error(f"Number of consistent segments ({n_chains}) != 1. Aborting.")
         sys.exit(1)
 
     # do the clustering
