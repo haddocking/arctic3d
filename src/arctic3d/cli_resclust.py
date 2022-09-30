@@ -2,10 +2,11 @@ import argparse
 import logging
 import sys
 
-from arctic3d.modules.input import Input
-from arctic3d.modules.clustering import cluster_similarity_matrix, get_clustering_dict
 import MDAnalysis as mda
 from scipy.spatial.distance import pdist
+
+from arctic3d.modules.clustering import cluster_similarity_matrix, get_clustering_dict
+from arctic3d.modules.input import Input
 
 log = logging.getLogger("arctic3dlog")
 ch = logging.StreamHandler()
@@ -24,22 +25,18 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--residue_list",
-    help="List of residues to cluster",
-    required=True
+    "--residue_list", help="List of residues to cluster", required=True
 )
 
 argument_parser.add_argument(
     "--threshold",
     help="Threshold (in angstroms) for clustering",
     type=float,
-    required=False
+    required=False,
 )
 
 argument_parser.add_argument(
-    "--segid",
-    help="Segment ID to be considered",
-    required=False
+    "--segid", help="Segment ID to be considered", required=False
 )
 
 
@@ -60,6 +57,7 @@ def load_args(arguments):
     """
     return arguments.parse_args()
 
+
 def cli(arguments, main_func):
     """
     Command-line interface entry point.
@@ -75,9 +73,11 @@ def cli(arguments, main_func):
     cmd = load_args(arguments)
     main_func(**vars(cmd))
 
+
 def maincli():
     """Execute main client."""
     cli(argument_parser, main)
+
 
 def main(input_arg, residue_list, threshold, segid):
     """Main function."""
@@ -86,40 +86,40 @@ def main(input_arg, residue_list, threshold, segid):
     # check input
     inp = Input(input_arg)
     if not inp.is_pdb:
-        log.error(f"Input must be a pdb file")
+        log.error("Input must be a pdb file")
         sys.exit(1)
-    
+
     # read pdb
     try:
         mdu = mda.Universe(inp.arg)
-    except:
+    except ValueError():
         log.error(f"Unable to read input PDB file {inp.arg}")
         sys.exit(1)
-    
+
     # extract atoms
     if segid:
         segid_str = f"and chainID {segid} "
     else:
-        segid_str = ''
-    
+        segid_str = ""
+
     try:
-        resids_list = [int(el) for el in residue_list.strip().split(',')]
-    except:
+        resids_list = [int(el) for el in residue_list.strip().split(",")]
+    except ValueError():
         log.error(f"Malformed input residue_list {residue_list}")
         sys.exit(1)
-    
+
     log.info(f"resids_list {resids_list}")
     str_resids_list = [str(res) for res in resids_list]
     sel_residues = f"name CA {segid_str}and resid {' '.join(str_resids_list)}"
-    
+
     u = mdu.select_atoms(sel_residues)
     log.info(f"retrieved residues: {u.resids}")
 
     n_segids = u.n_segments
     if n_segids != 1:
-        log.error(f"Number of consistent segments != 1. Aborting.")
+        log.error(f"Number of consistent segments ({n_segids}) != 1. Aborting.")
         sys.exit(1)
-    
+
     # do the clustering
     cutoff = THRESHOLD
     if threshold:
@@ -128,7 +128,10 @@ def main(input_arg, residue_list, threshold, segid):
     clusters = cluster_similarity_matrix(distmap, resids_list, threshold=cutoff)
     cl_dict = get_clustering_dict(clusters, resids_list)
     for el in cl_dict.keys():
-        log.info(f"cluster {el}, residues {' '.join([str(res) for res in cl_dict[el]])}")
+        log.info(
+            f"cluster {el}, residues {' '.join([str(res) for res in cl_dict[el]])}"
+        )
+
 
 if __name__ == "__main__":
     sys.exit(maincli())
