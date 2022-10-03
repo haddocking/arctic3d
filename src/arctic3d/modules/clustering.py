@@ -5,6 +5,7 @@ import os
 import time
 
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 
 from arctic3d.modules.interface_matrix import read_int_matrix
@@ -33,7 +34,7 @@ def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=Fal
     clusters : list
         list of clusters ID, each one associated to an entry
     """
-    log.info(f"clustering with threshold {threshold}")
+    log.info(f"Clustering with threshold {threshold}")
     Z = linkage(int_matrix, LINKAGE)
     if plot:
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
@@ -112,22 +113,34 @@ def get_residue_dict(cl_dict, interface_dict):
 
     Returns
     -------
-    res_dict : dict
+    clustered_residues : dict
         dictionary of clustered residues
         example { 1 : [1,2,3,5,6,8] ,
                   2 : [29,30,31],
                   ...
                 }
+    cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+        example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
+                  ...
+                }
     """
     clustered_residues = {}
+    cl_residues_probs = {}
     for key in cl_dict.keys():
+        denom = len(cl_dict[key])
         residues = []
         for int_id in cl_dict[key]:
             residues.extend(interface_dict[int_id])
-        unique_cl_residues = list(set(residues))
-        unique_cl_residues.sort()
-        clustered_residues[key] = unique_cl_residues
-    return clustered_residues
+        unique_res = np.unique(residues, return_counts=True)
+        cl_residues_probs[key] = {}
+        # assign probabilities
+        for res_idx, res in enumerate(unique_res[0]):
+            res_prob = unique_res[1][res_idx] / denom
+            cl_residues_probs[key][res] = res_prob
+        clustered_residues[key] = list(unique_res[0])
+    log.info(f"cl residues probs {cl_residues_probs}")
+    return clustered_residues, cl_residues_probs
 
 
 def write_residues(res_dict, res_filename):
@@ -140,17 +153,37 @@ def write_residues(res_dict, res_filename):
         dictionary of clustered residues
     res_filename : str or Path
         output filename
-
-    Returns
-    -------
-    cl_residues : dict
-        dictionary of clustered residues
     """
     # write to file
     with open(res_filename, "w") as wfile:
         for key in res_dict.keys():
             cl_string = " ".join([str(el) for el in res_dict[key]])
             wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
+
+
+def write_residues_probs(cl_residues_probs, res_probs_filename):
+    """
+    Writes clustered residues to file with their probability.
+
+    Parameters
+    ----------
+    res_dict : dict
+        dictionary of clustered residues
+    res_probs_filename : str or Path
+        output filename
+    """
+    # write to file
+    with open(res_probs_filename, "w") as wfile:
+        for key in cl_residues_probs.keys():
+            cl_string = f"Cluster {key} : {len(cl_residues_probs[key].keys())} residues{os.linesep}"
+            cl_string += f"rank\tresid\tprobability{os.linesep}"
+            sorted_probs = sorted(
+                cl_residues_probs[key].items(), key=lambda x: x[1], reverse=True
+            )
+            for pair_idx, pair in enumerate(sorted_probs, start=1):
+                cl_string += f"{pair_idx}\t{pair[0]}\t{pair[1]:.3f}{os.linesep}"
+            cl_string += os.linesep
+            wfile.write(cl_string)
 
 
 def interface_clustering(interface_dict, matrix_filename):
@@ -184,9 +217,12 @@ def interface_clustering(interface_dict, matrix_filename):
     write_clusters(cl_dict, cl_filename)
     # write clustered residues
     res_filename = "clustered_residues.out"
-    clustered_residues = get_residue_dict(cl_dict, interface_dict)
-    write_residues(clustered_residues, res_filename)
+    cl_residues, cl_residues_probs = get_residue_dict(cl_dict, interface_dict)
+    write_residues(cl_residues, res_filename)
+    res_probs_filename = "clustered_residues_probs.out"
+    write_residues_probs(cl_residues_probs, res_probs_filename)
+    log.info(f"cl res {cl_residues}")
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
-    return clustered_residues
+    return cl_residues
