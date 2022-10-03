@@ -383,7 +383,7 @@ def output_pdb(pdb_f, cl_residues_probs):
     for cl_id in cl_residues_probs.keys():
         # creating new file
         new_filename = f"{pdb_f.stem}_cl{cl_id}{pdb_f.suffix}"
-        if new_filename in os.listdir():
+        if os.path.exists(new_filename):
             raise Exception(f"Existing pdb file {new_filename}")
         output_files.append(Path(new_filename))
         log.info(f"Creating output file {new_filename}")

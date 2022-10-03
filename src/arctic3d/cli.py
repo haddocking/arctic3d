@@ -10,8 +10,7 @@ from arctic3d.modules.cluster_interfaces import cluster_interfaces
 # from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
 from arctic3d.modules.interface import get_interface_residues, read_interface_residues
-
-# from arctic3d.modules.output import make_output
+from arctic3d.modules.output import setup_output_folder
 from arctic3d.modules.pdb import get_best_pdb, output_pdb
 from arctic3d.modules.sequence import to_fasta
 
@@ -102,25 +101,35 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
     log.setLevel("DEBUG")
 
     inp = Input(input_arg)
-
+    input_files = []
     # retrieve uniprot information
     if inp.is_fasta():
-        uniprot_id = run_blast(inp.arg, db)
+        fasta_f = Path(inp.arg)
+        uniprot_id = run_blast(fasta_f, db)
+        input_files.append(fasta_f)
     if inp.is_uniprot():
         uniprot_id = inp.arg
     if inp.is_pdb():
+        pdb_f = Path(inp.arg)
+        input_files.append(pdb_f)
         if not interface_file:
-            fasta_f = to_fasta(Path(inp.arg), temp=False)
+            fasta_f = to_fasta(pdb_f, temp=False)
             uniprot_id = run_blast(fasta_f.name, db)
         else:
+            interface_f = Path(interface_file)
             uniprot_id = None
+            input_files.append(Path(interface_file))
 
     log.info(f"Target UNIPROTID: {uniprot_id}")
+
+    setup_output_folder(uniprot_id, input_files)
 
     # retrieve interfaces
     if interface_file:
         log.info(f"input interface file {interface_file}")
-        interface_residues = read_interface_residues(interface_file)
+        interface_residues = read_interface_residues(
+            Path("input_data", interface_f.name)
+        )
     else:
         interface_residues = get_interface_residues(uniprot_id, out_uniprot, out_pdb)
 
@@ -130,7 +139,7 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
         # retrieve pdb file
         if inp.is_pdb():
             # interfaces will be filtered later
-            pdb_f, filtered_interfaces = Path(inp.arg), None
+            pdb_f, filtered_interfaces = Path("input_data", pdb_f.name), None
             if not interface_file:
                 log.warning(
                     """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
