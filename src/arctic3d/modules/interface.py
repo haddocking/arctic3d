@@ -7,7 +7,7 @@ log = logging.getLogger("arctic3dlog")
 
 INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues"
 # maximum number of interfaces in interface file
-MAX_INTERFACES = 2
+MAX_INTERFACES = 10000
 # ALLPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot"
 # QUERY_DB = {}  # this probably can be removed
 # PROTEINS_URL = "https://www.ebi.ac.uk/proteins/api/proteins"
