@@ -353,3 +353,53 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None):
     processed_pdb = tidy_pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
 
     return processed_pdb, filtered_interfaces
+
+
+def output_pdb(pdb_f, cl_residues_probs):
+    """Outputs pdb containing probabilities
+
+    Parameters
+    ----------
+    pdb_f : str or Path
+        Path to PDB file.
+
+    cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+        example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
+                  ...
+                }
+
+    Returns
+    -------
+    output_files : list of Paths
+        List of Paths to output PDB files
+    """
+    output_files = []  # list of paths
+    log.info("Creating output pdb files...")
+    st_beta = 50.0  # baseline value for b-factors of the identified residues
+    # read original file
+    original_content = open(pdb_f, "r").read().split(os.linesep)
+    # iterate over clusters
+    for cl_id in cl_residues_probs.keys():
+        # creating new file
+        new_filename = f"{pdb_f.stem}_cl{cl_id}{pdb_f.suffix}"
+        if new_filename in os.listdir():
+            raise Exception(f"Existing pdb file {new_filename}")
+        output_files.append(Path(new_filename))
+        log.info(f"Creating output file {new_filename}")
+        # writing new file
+        with open(new_filename, "w") as wfile:
+            for ln in original_content:
+                if ln.startswith("ATOM"):
+                    resid = int(ln[23:27].strip())
+                    new_beta = 0.00
+                    if resid in cl_residues_probs[cl_id].keys():
+                        new_beta = (
+                            st_beta + (100 - st_beta) * cl_residues_probs[cl_id][resid]
+                        )
+                    n_blank = 3 - len(str(new_beta).split(".")[0])
+                    new_line = f"{ln[:60]}{' '*n_blank}{new_beta:.2f}{ln[66:]}"
+                    wfile.write(f"{new_line}{os.linesep}")
+                else:
+                    wfile.write(f"{ln}{os.linesep}")
+    return output_files
