@@ -6,6 +6,8 @@ from arctic3d.functions import make_request
 log = logging.getLogger("arctic3dlog")
 
 INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues"
+# maximum number of interfaces in interface file
+MAX_INTERFACES = 10000
 # ALLPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot"
 # QUERY_DB = {}  # this probably can be removed
 # PROTEINS_URL = "https://www.ebi.ac.uk/proteins/api/proteins"
@@ -151,6 +153,10 @@ def read_interface_residues(interface_file):
                 if ln != os.linesep:
                     int_name, residue_list = parse_interface_line(ln, ln_num)
                     interface_dict[int_name] = residue_list
+        if ln_num > MAX_INTERFACES:
+            raise Exception(
+                f"Number of interfaces ({ln_num}) higher than threshold ({MAX_INTERFACES})."
+            )
     else:
         raise Exception(f"interface_file {interface_file} does not exist")
     return interface_dict
