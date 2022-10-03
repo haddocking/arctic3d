@@ -139,7 +139,6 @@ def get_residue_dict(cl_dict, interface_dict):
             res_prob = unique_res[1][res_idx] / denom
             cl_residues_probs[key][res] = res_prob
         clustered_residues[key] = list(unique_res[0])
-    log.info(f"cl residues probs {cl_residues_probs}")
     return clustered_residues, cl_residues_probs
 
 
@@ -221,8 +220,7 @@ def interface_clustering(interface_dict, matrix_filename):
     write_residues(cl_residues, res_filename)
     res_probs_filename = "clustered_residues_probs.out"
     write_residues_probs(cl_residues_probs, res_probs_filename)
-    log.info(f"cl res {cl_residues}")
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
-    return cl_residues
+    return cl_residues, cl_residues_probs
