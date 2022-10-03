@@ -30,6 +30,7 @@ MAX_INTERFACES = 2
 # COV_CUTOFF = 0.8
 # PDB_DB = []
 
+
 def parse_out_uniprot(out_uniprot_string):
     """
     Parse the string of uniprot IDs to exclude.
@@ -153,7 +154,9 @@ def read_interface_residues(interface_file):
                     int_name, residue_list = parse_interface_line(ln, ln_num)
                     interface_dict[int_name] = residue_list
         if ln_num > MAX_INTERFACES:
-            raise Exception(f"Number of interfaces ({ln_num}) higher than threshold ({MAX_INTERFACES}).")
+            raise Exception(
+                f"Number of interfaces ({ln_num}) higher than threshold ({MAX_INTERFACES})."
+            )
     else:
         raise Exception(f"interface_file {interface_file} does not exist")
     return interface_dict
