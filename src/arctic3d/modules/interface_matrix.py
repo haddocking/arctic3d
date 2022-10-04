@@ -298,6 +298,8 @@ def read_int_matrix(filename):
     if os.path.exists(filename):
         int_matrix = pd.read_csv(filename, header=None, sep=" ")
         int_matrix.columns = ["lig1", "lig2", "D"]
+        int_matrix["lig1"] = int_matrix["lig1"].astype(str)
+        int_matrix["lig2"] = int_matrix["lig2"].astype(str)
         # first check: it must be a 1D condensed similarity matrix
         nligands = 0.5 + np.sqrt(0.25 + 2 * int_matrix.shape[0])
         int_nligands = int(nligands)
