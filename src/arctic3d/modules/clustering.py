@@ -39,7 +39,12 @@ def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=Fal
     if plot:
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
         plt.figure(dpi=200)
-        dendrogram(Z, color_threshold=THRESHOLD, labels=entries)
+        truncate_mode = None
+        p = None
+        if len(entries) > 100:
+            truncate_mode = "level"
+            p = 100
+        dendrogram(Z, color_threshold=THRESHOLD, labels=entries, truncate_mode=truncate_mode, p=p)
         plt.xlabel("Interface Names")
         plt.ylabel("Similarity")
         plt.title("ARCTIC3D dendrogram")
