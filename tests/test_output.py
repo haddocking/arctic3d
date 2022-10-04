@@ -1,9 +1,11 @@
-import pytest
-from pathlib import Path
 import os
-from . import golden_data
+from pathlib import Path
+
+import pytest
 
 from arctic3d.modules.output import output_pdb
+
+from . import golden_data
 
 
 @pytest.fixture
