@@ -5,7 +5,7 @@ from pathlib import Path
 
 def setup_output_folder(uniprot_id, input_files):
     """Sets up output folder
-    
+
     Parameters
     ----------
     uniprot_id : string or None
