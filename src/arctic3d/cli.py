@@ -10,8 +10,8 @@ from arctic3d.modules.cluster_interfaces import cluster_interfaces
 # from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
 from arctic3d.modules.interface import get_interface_residues, read_interface_residues
-from arctic3d.modules.output import setup_output_folder
-from arctic3d.modules.pdb import get_best_pdb, output_pdb
+from arctic3d.modules.output import make_output, setup_output_folder
+from arctic3d.modules.pdb import get_best_pdb
 from arctic3d.modules.sequence import to_fasta
 
 # from arctic3d.modules.sequence import load_seq
@@ -165,7 +165,7 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
 
         log.info(f"Clustered interface residues: {clustered_interface_residues}")
 
-        output_pdb(pdb_f, cl_residues_probs)
+        make_output(pdb_f, cl_residues_probs)
     else:
         log.info("No interfaces found.")
 

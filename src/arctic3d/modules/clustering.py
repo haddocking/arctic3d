@@ -34,7 +34,7 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=100):
     """
     plt.figure(dpi=200)
     truncate_mode = None
-    p = None
+    p = len(entries)
     if len(entries) > max_entries:
         log.info("High number of entries, truncating dendrogram...")
         truncate_mode = "lastp"
