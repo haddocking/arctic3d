@@ -17,6 +17,42 @@ THRESHOLD = 0.8660  # np.sqrt(3)/2
 log = logging.getLogger("arctic3dlog")
 
 
+def plot_dendrogram(linkage_matrix, entries, filename, max_entries=100):
+    """
+    Plots the dendrogram.
+
+    Parameters
+    ----------
+    linkage matrix : np.array (4 x nentries)
+        linkage matrix
+    entries : list
+        list of interface names
+    filename : str or Path
+        plot filename
+    max_entries : int
+        maximum number of entries to plot
+    """
+    plt.figure(dpi=200)
+    truncate_mode = None
+    p = None
+    if len(entries) > max_entries:
+        log.info("High number of entries, truncating dendrogram...")
+        truncate_mode = "lastp"
+        p = max_entries
+    dendrogram(
+        linkage_matrix,
+        color_threshold=THRESHOLD,
+        labels=entries,
+        truncate_mode=truncate_mode,
+        p=p,
+    )
+    plt.xlabel("Interface Names")
+    plt.ylabel("Similarity")
+    plt.title("ARCTIC3D dendrogram")
+    plt.savefig(filename)
+    plt.close()
+
+
 def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=False):
     """
     Does the clustering.
@@ -38,18 +74,7 @@ def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=Fal
     Z = linkage(int_matrix, LINKAGE)
     if plot:
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
-        plt.figure(dpi=200)
-        truncate_mode = None
-        p = None
-        if len(entries) > 100:
-            truncate_mode = "level"
-            p = 100
-        dendrogram(Z, color_threshold=THRESHOLD, labels=entries, truncate_mode=truncate_mode, p=p)
-        plt.xlabel("Interface Names")
-        plt.ylabel("Similarity")
-        plt.title("ARCTIC3D dendrogram")
-        plt.savefig(dendrogram_figure_filename)
-        plt.close()
+        plot_dendrogram(Z, entries, dendrogram_figure_filename)
     # clustering
     clusters = fcluster(Z, t=threshold, criterion="distance")
     log.info("Dendrogram created and clustered.")
