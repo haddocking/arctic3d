@@ -12,7 +12,7 @@ log = logging.getLogger("arctic3dlog")
 
 
 def setup_output_folder(uniprot_id, input_files):
-    """Sets up output folder
+    """Sets up output folder.
 
     Parameters
     ----------
@@ -47,6 +47,67 @@ def setup_output_folder(uniprot_id, input_files):
         filename = input_files[key].name
         copied_input_files[key] = Path("input_data", filename)
     return copied_input_files
+
+
+def write_clusters(cl_dict, cl_filename):
+    """
+    Writes clusters to file.
+
+    Parameters
+    ----------
+    cl_dict : dict
+        dictionary of clustered interfaces
+    cl_filename : str or Path
+        name of the output filename
+    """
+    log.info(f"Writing clusters to file {cl_filename}")
+    with open(cl_filename, "w") as wfile:
+        for key in cl_dict.keys():
+            cl_string = " ".join(cl_dict[key])
+            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
+
+
+def write_residues(res_dict, res_filename):
+    """
+    Writes clustered residues to file.
+
+    Parameters
+    ----------
+    res_dict : dict
+        dictionary of clustered residues
+    res_filename : str or Path
+        output filename
+    """
+    # write to file
+    with open(res_filename, "w") as wfile:
+        for key in res_dict.keys():
+            cl_string = " ".join([str(el) for el in res_dict[key]])
+            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
+
+
+def write_residues_probs(cl_residues_probs, res_probs_filename):
+    """
+    Writes clustered residues to file with their probability.
+
+    Parameters
+    ----------
+    res_dict : dict
+        dictionary of clustered residues
+    res_probs_filename : str or Path
+        output filename
+    """
+    # write to file
+    with open(res_probs_filename, "w") as wfile:
+        for key in cl_residues_probs.keys():
+            cl_string = f"Cluster {key} : {len(cl_residues_probs[key].keys())} residues{os.linesep}"
+            cl_string += f"rank\tresid\tprobability{os.linesep}"
+            sorted_probs = sorted(
+                cl_residues_probs[key].items(), key=lambda x: x[1], reverse=True
+            )
+            for pair_idx, pair in enumerate(sorted_probs, start=1):
+                cl_string += f"{pair_idx}\t{pair[0]}\t{pair[1]:.3f}{os.linesep}"
+            cl_string += os.linesep
+            wfile.write(cl_string)
 
 
 def output_pdb(pdb_f, cl_residues_probs):
@@ -185,14 +246,19 @@ def plot_interactive_probs(pdb_f, cl_residues_probs):
         log.warning("Could not create interactive plot")
 
 
-def make_output(pdb_f, cl_residues_probs):
+def make_output(pdb_f, cl_dict, cl_residues, cl_residues_probs):
     """
-    wrapper to call the output functions
+    wrapper to call the different output functions.
 
     Parameters
     ----------
     pdb_f : str or Path
         Path to PDB file.
+
+    cl_dict : dict
+        dictionary of clustered interfaces
+    cl_residues : dict
+        dictionary of clustered residues
 
     cl_residues_probs : dict of dicts
         dictionary of probabilities for clustered residues
@@ -200,8 +266,16 @@ def make_output(pdb_f, cl_residues_probs):
                   ...
                 }
     """
+    # writing cluster information to files
+    cl_filename = "clustered_interfaces.out"
+    write_clusters(cl_dict, cl_filename)
+    res_filename = "clustered_residues.out"
+    write_residues(cl_residues, res_filename)
+    res_probs_filename = "clustered_residues_probs.out"
+    write_residues_probs(cl_residues_probs, res_probs_filename)
+
+    # write output pdb with probabilities
     output_pdb(pdb_f, cl_residues_probs)
 
+    # make interactive plot with probabilities
     plot_interactive_probs(pdb_f, cl_residues_probs)
-
-    # TODO : place write calls here

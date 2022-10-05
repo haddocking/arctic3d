@@ -1,7 +1,6 @@
 """Clustering module."""
 
 import logging
-import os
 import time
 
 import matplotlib.pyplot as plt
@@ -113,24 +112,6 @@ def get_clustering_dict(clusters, ligands):
     return cl_dict
 
 
-def write_clusters(cl_dict, cl_filename):
-    """
-    Writes clusters to file.
-
-    Parameters
-    ----------
-    cl_dict : dict
-        dictionary of clustered interfaces
-    cl_filename : str or Path
-        name of the output filename
-    """
-    log.info(f"Writing clusters to file {cl_filename}")
-    with open(cl_filename, "w") as wfile:
-        for key in cl_dict.keys():
-            cl_string = " ".join(cl_dict[key])
-            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
-
-
 def get_residue_dict(cl_dict, interface_dict):
     """
     Gets dictionary of clustered residues.
@@ -173,49 +154,6 @@ def get_residue_dict(cl_dict, interface_dict):
     return clustered_residues, cl_residues_probs
 
 
-def write_residues(res_dict, res_filename):
-    """
-    Writes clustered residues to file.
-
-    Parameters
-    ----------
-    res_dict : dict
-        dictionary of clustered residues
-    res_filename : str or Path
-        output filename
-    """
-    # write to file
-    with open(res_filename, "w") as wfile:
-        for key in res_dict.keys():
-            cl_string = " ".join([str(el) for el in res_dict[key]])
-            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
-
-
-def write_residues_probs(cl_residues_probs, res_probs_filename):
-    """
-    Writes clustered residues to file with their probability.
-
-    Parameters
-    ----------
-    res_dict : dict
-        dictionary of clustered residues
-    res_probs_filename : str or Path
-        output filename
-    """
-    # write to file
-    with open(res_probs_filename, "w") as wfile:
-        for key in cl_residues_probs.keys():
-            cl_string = f"Cluster {key} : {len(cl_residues_probs[key].keys())} residues{os.linesep}"
-            cl_string += f"rank\tresid\tprobability{os.linesep}"
-            sorted_probs = sorted(
-                cl_residues_probs[key].items(), key=lambda x: x[1], reverse=True
-            )
-            for pair_idx, pair in enumerate(sorted_probs, start=1):
-                cl_string += f"{pair_idx}\t{pair[0]}\t{pair[1]:.3f}{os.linesep}"
-            cl_string += os.linesep
-            wfile.write(cl_string)
-
-
 def interface_clustering(interface_dict, matrix_filename):
     """
     Clusters the interface matrix.
@@ -229,29 +167,30 @@ def interface_clustering(interface_dict, matrix_filename):
 
     Returns
     -------
-    clustered_residues : dict
+    cl_dict : dict
+        dictionary of clustered interfaces
+    cl_residues : dict
+        dictionary of clustered residues
+    cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
     """
     start_time = time.time()
     log.info("Clustering interface matrix")
+
     # check if there's only a single interface
     if len(interface_dict) == 1:
         clusters = [1]
         entries = list(interface_dict.keys())  # the only entry
     else:
         int_matrix, entries = read_int_matrix(matrix_filename)  # read matrix
-        # cluster matrix. TODO: make plot an external parameter
+        # cluster matrix.
         clusters = cluster_similarity_matrix(int_matrix, entries, plot=True)
-    # write clusters
-    cl_filename = "clustered_interfaces.out"
+
+    # get clustering dictionary and clustered_residues
     cl_dict = get_clustering_dict(clusters, entries)
-    write_clusters(cl_dict, cl_filename)
-    # write clustered residues
-    res_filename = "clustered_residues.out"
     cl_residues, cl_residues_probs = get_residue_dict(cl_dict, interface_dict)
-    write_residues(cl_residues, res_filename)
-    res_probs_filename = "clustered_residues_probs.out"
-    write_residues_probs(cl_residues_probs, res_probs_filename)
+
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
-    return cl_residues, cl_residues_probs
+    return cl_dict, cl_residues, cl_residues_probs
