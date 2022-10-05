@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import pytest
@@ -10,7 +9,6 @@ from arctic3d.modules.pdb import (
     get_maxint_pdb,
     keep_atoms,
     occ_pdb,
-    output_pdb,
     selchain_pdb,
     tidy_pdb,
     validate_api_hit,
@@ -138,21 +136,3 @@ def test_filter_pdb_list(good_hits):
     observed_red_list = filter_pdb_list(good_hits, "6sy3")
     expected_red_list = [good_hits[1]]
     assert observed_red_list == expected_red_list
-
-
-def test_output_pdb(inp_pdb):
-    """Test output_pdb."""
-    example_res_probs = {1: {3: 0.2, 4: 0.75}}
-    output_files = output_pdb(inp_pdb, example_res_probs)
-    original_content = open(inp_pdb, "r").read().split(os.linesep)
-    original_content = [el for el in original_content if el.startswith("ATOM")]
-    # check file existence
-    assert Path.exists(output_files[0])
-    observed_content = open(output_files[0], "r").read().split(os.linesep)
-    observed_content = [el for el in observed_content if el.startswith("ATOM")]
-    # assert equal length
-    assert len(original_content) == len(observed_content)
-    # assert equal content (except for b factors)
-    for ln_id in range(len(observed_content)):
-        assert original_content[ln_id][:60] == observed_content[ln_id][:60]
-    os.unlink(output_files[0])
