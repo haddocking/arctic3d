@@ -31,7 +31,6 @@ formatter = logging.Formatter(
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
-THRESHOLD = 10.0
 
 argument_parser = argparse.ArgumentParser()
 argument_parser.add_argument(
@@ -48,6 +47,16 @@ argument_parser.add_argument(
     help="Threshold (in angstroms) for clustering",
     type=float,
     required=False,
+    default=10.0,
+)
+
+argument_parser.add_argument(
+    "--linkage",
+    help="Linkage strategy for clustering",
+    type=str,
+    required=False,
+    choices=["average", "single", "complete", "median", "centroid", "ward", "weighted"],
+    default="average",
 )
 
 argument_parser.add_argument(
@@ -94,7 +103,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, residue_list, threshold, chain):
+def main(input_arg, residue_list, chain, threshold, linkage):
     """Main function."""
     log.setLevel("INFO")
 
@@ -123,12 +132,13 @@ def main(input_arg, residue_list, threshold, chain):
         log.error(f"Malformed input residue_list {residue_list}")
         sys.exit(1)
 
-    log.info(f"resids_list {resids_list}")
+    log.info(f"input residue_list {resids_list}")
     str_resids_list = [str(res) for res in resids_list]
     sel_residues = f"name CA {chain_str}and resid {' '.join(str_resids_list)}"
 
     u = mdu.select_atoms(sel_residues)
-    log.info(f"retrieved residues: {u.resids}")
+    unique_sorted_resids = u.resids
+    log.info(f"retrieved residues: {unique_sorted_resids}")
 
     n_chains = u.n_segments
     if n_chains != 1:
@@ -136,12 +146,12 @@ def main(input_arg, residue_list, threshold, chain):
         sys.exit(1)
 
     # do the clustering
-    cutoff = THRESHOLD
-    if threshold:
-        cutoff = threshold
     distmap = pdist(u.positions)
-    clusters = cluster_similarity_matrix(distmap, resids_list, threshold=cutoff)
-    cl_dict = get_clustering_dict(clusters, resids_list)
+    clusters = cluster_similarity_matrix(
+        distmap, unique_sorted_resids, threshold=threshold, linkage_strategy=linkage
+    )
+
+    cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
     for el in cl_dict.keys():
         log.info(
             f"cluster {el}, residues {' '.join([str(res) for res in cl_dict[el]])}"

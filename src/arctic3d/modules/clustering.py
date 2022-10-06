@@ -52,7 +52,9 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=100):
     plt.close()
 
 
-def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=False):
+def cluster_similarity_matrix(
+    int_matrix, entries, threshold=THRESHOLD, plot=False, linkage_strategy=LINKAGE
+):
     """
     Does the clustering.
 
@@ -70,7 +72,7 @@ def cluster_similarity_matrix(int_matrix, entries, threshold=THRESHOLD, plot=Fal
         list of clusters ID, each one associated to an entry
     """
     log.info(f"Clustering with threshold {threshold}")
-    Z = linkage(int_matrix, LINKAGE)
+    Z = linkage(int_matrix, linkage_strategy)
     if plot:
         dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
         plot_dendrogram(Z, entries, dendrogram_figure_filename)
