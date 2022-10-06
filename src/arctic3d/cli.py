@@ -140,7 +140,6 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
                     """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
                 )
         else:
-            print(f"pdb_to_use {pdb_to_use}")
             pdb_f, filtered_interfaces = get_best_pdb(
                 uniprot_id, interface_residues, pdb_to_use
             )
