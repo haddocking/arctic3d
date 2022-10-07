@@ -56,6 +56,11 @@ argument_parser.add_argument(
     help="",
 )
 
+argument_parser.add_argument(
+    "--run_dir",
+    help="directory where to store the run",
+)
+
 
 def load_args(arguments):
     """
@@ -96,7 +101,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
+def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use, run_dir):
     """Main function."""
     log.setLevel("DEBUG")
 
@@ -119,7 +124,7 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use):
 
     log.info(f"Target UNIPROTID: {uniprot_id}")
 
-    input_files = setup_output_folder(uniprot_id, input_files)
+    input_files = setup_output_folder(uniprot_id, input_files, run_dir)
 
     # retrieve interfaces
     if interface_file:

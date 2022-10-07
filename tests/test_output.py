@@ -5,6 +5,7 @@ import pytest
 
 from arctic3d.modules.output import (
     output_pdb,
+    setup_output_folder,
     write_clusters,
     write_residues,
     write_residues_probs,
@@ -94,3 +95,17 @@ def test_output_pdb(inp_pdb):
     for ln_id in range(len(observed_content)):
         assert original_content[ln_id][:60] == observed_content[ln_id][:60]
     os.unlink(output_files[0])
+
+
+def test_run_dir():
+    """Test if the expected run_dir is effectively created."""
+    run_dir = "run_dir"
+    uniprot_id = "fake_uniprot"
+    start_cwd = os.getcwd()
+    setup_output_folder(uniprot_id, [], run_dir)
+    obs_cwd = Path(os.getcwd())
+    exp_cwd = Path(start_cwd, run_dir)
+    assert exp_cwd == obs_cwd
+    os.chdir(start_cwd)
+    os.rmdir(Path(run_dir, "input_data"))
+    os.rmdir(run_dir)
