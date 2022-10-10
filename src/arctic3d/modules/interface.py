@@ -172,6 +172,8 @@ def get_interface_residues(uniprot_id, out_uniprot_string, out_pdb_string):
         Uniprot ID.
     out_uniprot_string : str or None
         comma-separated uniprot IDs to exclude.
+    out_pdb_string : str or None
+        comma-separated pdb IDs to exclude.
 
     Returns
     -------

@@ -1,6 +1,8 @@
 import gzip
 import logging
 import os
+import shutil
+import sys
 import tempfile
 from pathlib import Path
 
@@ -19,7 +21,63 @@ BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBRENUM_URL = "http://dunbrack3.fccc.edu/PDBrenum/output_PDB"
 
 
-def fetch_pdbrenum(pdb_id):
+def write_pdb_renum(gz_file, pdb_id):
+    """
+    writes a pdb renum gz file to a human-readable pdb file.
+
+    Parameters
+    ----------
+    gz_file : Path
+        input gz pdb file
+    pdb_id : str
+        PDB ID
+
+    Returns
+    -------
+    out_pdb_fname : Path
+        path to the created filename
+    """
+    out_pdb_fname = Path(f"{pdb_id}.pdb")
+
+    with open(out_pdb_fname, "w") as f:
+        with gzip.open(gz_file.name, "rt") as gz:
+            for line in gz:
+                f.write(line)
+
+    return out_pdb_fname
+
+
+def fetch_local_pdbrenum(pdb_id, pdb_renum_db):
+    """
+    Parameters
+    ----------
+    pdb_id : str
+        PDB ID.
+    pdb_renum_db : str or Path
+        path to the pdb renum local db
+
+    """
+    log.debug(f"Fetching PDB file {pdb_id} from local PDBrenum db {pdb_renum_db}")
+    renum_filename = f"{pdb_id}_renum.pdb.gz"
+
+    target_path = Path(pdb_renum_db, renum_filename)
+    temp_gz = Path(renum_filename)
+
+    if not os.path.exists(temp_gz):
+        log.error(
+            f"File {temp_gz} not found in local pdb_renum_db {pdb_renum_db}. Check path and pdb id or fetch the remote database."
+        )
+        sys.exit(1)
+
+    shutil.copy(target_path, temp_gz)
+
+    out_pdb_fname = write_pdb_renum(temp_gz, pdb_id)
+
+    Path(temp_gz).unlink()
+    return out_pdb_fname
+
+
+def fetch_remote_pdbrenum(pdb_id):
     """
     Fetch PDB file.
 
@@ -43,12 +101,7 @@ def fetch_pdbrenum(pdb_id):
     temp_gz.write(response.content)
     temp_gz.close()
 
-    out_pdb_fname = Path(f"{pdb_id}.pdb")
-
-    with open(out_pdb_fname, "w") as f:
-        with gzip.open(temp_gz.name, "rt") as gz:
-            for line in gz:
-                f.write(line)
+    out_pdb_fname = write_pdb_renum(temp_gz, pdb_id)
 
     Path(temp_gz.name).unlink()
 
@@ -152,7 +205,11 @@ def keep_atoms(inp_pdb_f):
 
 
 def validate_api_hit(
-    fetch_list, resolution_cutoff=3.0, coverage_cutoff=0.7, max_pdb_renum=20
+    fetch_list,
+    pdb_renum_db=None,
+    resolution_cutoff=3.0,
+    coverage_cutoff=0.7,
+    max_pdb_renum=20,
 ):
     """
     Validate PDB fetch request file.
@@ -161,6 +218,8 @@ def validate_api_hit(
     ----------
     fetch_list : list
         List containing dictionaries of hits.
+    pdb_renum_db : str or Path or None
+        path to the pdb renum local db
     resolution_cutoff : float
         Resolution cutoff.
     coverage_cutoff : float
@@ -182,7 +241,11 @@ def validate_api_hit(
         coverage = hit["coverage"]
         resolution = hit["resolution"]
 
-        pdb_f = fetch_pdbrenum(pdb_id)
+        if pdb_renum_db is None:
+            pdb_f = fetch_remote_pdbrenum(pdb_id)
+        else:
+            pdb_f = fetch_local_pdbrenum(pdb_id, pdb_renum_db)
+        log.info(f"pdb_f {pdb_f}")
         if pdb_f is not None:
             check_list.append(True)
         else:
@@ -281,11 +344,11 @@ def filter_pdb_list(fetch_list, pdb_to_use):
             break
     #
     if len(reduced_list) == 0:
-        log.warning(f"PDB ID {pdb_to_use} not found in fectched pdb list.")
+        log.warning(f"PDB ID {pdb_to_use} not found in fetched pdb list.")
     return reduced_list
 
 
-def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None):
+def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, pdb_renum_db=None):
     """
     Get best PDB ID.
 
@@ -297,6 +360,8 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None):
         Dictionary of all the interfaces (each one with its uniprot ID as key).
     pdb_to_use : str (default None)
         Pdb code to be used.
+    pdb_renum_db : str or Path or None
+        path to the pdb renum local db
 
     Returns
     -------
@@ -319,7 +384,7 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None):
         pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_code)
     else:
         pdb_list = pdb_dict[uniprot_id]
-    validated_pdbs = validate_api_hit(pdb_list)
+    validated_pdbs = validate_api_hit(pdb_list, pdb_renum_db=pdb_renum_db)
 
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, interface_residues

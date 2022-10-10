@@ -57,6 +57,11 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
+    "--pdb_renum_db",
+    help="path to a local version of the PDBrenum database",
+)
+
+argument_parser.add_argument(
     "--run_dir",
     help="directory where to store the run",
 )
@@ -101,7 +106,16 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use, run_dir):
+def main(
+    input_arg,
+    db,
+    interface_file,
+    out_uniprot,
+    out_pdb,
+    pdb_to_use,
+    run_dir,
+    pdb_renum_db,
+):
     """Main function."""
     log.setLevel("DEBUG")
 
@@ -146,7 +160,7 @@ def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use, run_di
                 )
         else:
             pdb_f, filtered_interfaces = get_best_pdb(
-                uniprot_id, interface_residues, pdb_to_use
+                uniprot_id, interface_residues, pdb_to_use, pdb_renum_db
             )
 
         if pdb_f is None:
