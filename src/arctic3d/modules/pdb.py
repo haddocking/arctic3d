@@ -1,9 +1,10 @@
 import gzip
 import logging
 import os
+import shutil
+import sys
 import tempfile
 from pathlib import Path
-import shutil
 
 import MDAnalysis as mda
 import requests
@@ -45,6 +46,7 @@ def write_pdb_renum(gz_file, pdb_id):
 
     return out_pdb_fname
 
+
 def fetch_local_pdbrenum(pdb_id, pdb_renum_db):
     """
     Parameters
@@ -60,8 +62,15 @@ def fetch_local_pdbrenum(pdb_id, pdb_renum_db):
 
     target_path = Path(pdb_renum_db, renum_filename)
     temp_gz = Path(renum_filename)
-    
+
+    if not os.path.exists(temp_gz):
+        log.error(
+            f"File {temp_gz} not found in local pdb_renum_db {pdb_renum_db}. Check path and pdb id or fetch the remote database."
+        )
+        sys.exit(1)
+
     shutil.copy(target_path, temp_gz)
+
     out_pdb_fname = write_pdb_renum(temp_gz, pdb_id)
 
     Path(temp_gz).unlink()
@@ -196,7 +205,11 @@ def keep_atoms(inp_pdb_f):
 
 
 def validate_api_hit(
-    fetch_list, pdb_renum_db=None, resolution_cutoff=3.0, coverage_cutoff=0.7, max_pdb_renum=20
+    fetch_list,
+    pdb_renum_db=None,
+    resolution_cutoff=3.0,
+    coverage_cutoff=0.7,
+    max_pdb_renum=20,
 ):
     """
     Validate PDB fetch request file.
@@ -227,11 +240,11 @@ def validate_api_hit(
         pdb_id = hit["pdb_id"]
         coverage = hit["coverage"]
         resolution = hit["resolution"]
-        
+
         if pdb_renum_db is None:
             pdb_f = fetch_remote_pdbrenum(pdb_id)
         else:
-            pdb_f = fetch_local_pdbrenum(pdb_id, pdb_renum_db)            
+            pdb_f = fetch_local_pdbrenum(pdb_id, pdb_renum_db)
         log.info(f"pdb_f {pdb_f}")
         if pdb_f is not None:
             check_list.append(True)

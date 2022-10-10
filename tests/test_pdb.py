@@ -3,7 +3,8 @@ from pathlib import Path
 import pytest
 
 from arctic3d.modules.pdb import (
-    fetch_pdbrenum,
+    fetch_local_pdbrenum,
+    fetch_remote_pdbrenum,
     filter_pdb_list,
     get_best_pdb,
     get_maxint_pdb,
@@ -70,10 +71,16 @@ def good_hits():
     return hits_list
 
 
-def test_fetch_pdbrenum():
-    pdb = fetch_pdbrenum("1crn")
+def test_fetch_remote_pdbrenum():
+    pdb = fetch_remote_pdbrenum("1crn")
     assert pdb.exists()
     pdb.unlink()
+
+
+def test_fetch_local_pdbrenum():
+    with pytest.raises(SystemExit) as exit_message:
+        fetch_local_pdbrenum("1crn", "dummypath")
+    assert exit_message.value.code == 1
 
 
 def test_selchain_pdb(inp_pdb):

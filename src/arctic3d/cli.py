@@ -106,7 +106,16 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, db, interface_file, out_uniprot, out_pdb, pdb_to_use, run_dir, pdb_renum_db):
+def main(
+    input_arg,
+    db,
+    interface_file,
+    out_uniprot,
+    out_pdb,
+    pdb_to_use,
+    run_dir,
+    pdb_renum_db,
+):
     """Main function."""
     log.setLevel("DEBUG")
 
