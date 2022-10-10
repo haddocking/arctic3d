@@ -78,9 +78,8 @@ def test_fetch_remote_pdbrenum():
 
 
 def test_fetch_local_pdbrenum():
-    with pytest.raises(SystemExit) as exit_message:
-        fetch_local_pdbrenum("1crn", "dummypath")
-    assert exit_message.value.code == 1
+    pdb = fetch_local_pdbrenum("1crn", "dummypath")
+    assert pdb is None
 
 
 def test_selchain_pdb(inp_pdb):

@@ -2,7 +2,6 @@ import gzip
 import logging
 import os
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 
@@ -63,11 +62,9 @@ def fetch_local_pdbrenum(pdb_id, pdb_renum_db):
     target_path = Path(pdb_renum_db, renum_filename)
     temp_gz = Path(renum_filename)
 
-    if not os.path.exists(temp_gz):
-        log.error(
-            f"File {temp_gz} not found in local pdb_renum_db {pdb_renum_db}. Check path and pdb id or fetch the remote database."
-        )
-        sys.exit(1)
+    if not os.path.exists(target_path):
+        log.warning(f"File {temp_gz} not found in local pdb_renum_db {pdb_renum_db}.")
+        return None
 
     shutil.copy(target_path, temp_gz)
 
@@ -301,7 +298,8 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
         max_nint = 0
         for curr_pdb, curr_hit in validated_pdbs:
             mdu = mda.Universe(curr_pdb)
-            pdb_resids = mdu.select_atoms("name CA").resids
+            selection_string = f"name CA and chainID {curr_hit['chain_id']}"
+            pdb_resids = mdu.select_atoms(selection_string).resids
             tmp_filtered_interfaces = filter_interfaces(interface_residues, pdb_resids)
             curr_nint = len(tmp_filtered_interfaces)
             if curr_nint > max_nint:  # update "best" hit
