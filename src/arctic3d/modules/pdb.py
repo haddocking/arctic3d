@@ -1,12 +1,10 @@
-import gzip
 import logging
 import os
-import shutil
-import tempfile
 from pathlib import Path
 
 import MDAnalysis as mda
 import requests
+from pdbecif.mmcif_io import MMCIF2Dict
 from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
@@ -18,89 +16,137 @@ log = logging.getLogger("arctic3dlog")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBRENUM_URL = "http://dunbrack3.fccc.edu/PDBrenum/output_PDB"
+PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"
+PDBSIFTS_URL = "https://ftp.ebi.ac.uk/pub/databases/msd/sifts/split_xml/oz"
 
 
-def write_pdb_renum(gz_file, pdb_id):
+def fetch_updated_cif(pdb_id, cif_fname):
     """
-    writes a pdb renum gz file to a human-readable pdb file.
+    Fetch updated cif from PDBE database.
 
     Parameters
     ----------
-    gz_file : Path
-        input gz pdb file
     pdb_id : str
         PDB ID
-
-    Returns
-    -------
-    out_pdb_fname : Path
-        path to the created filename
+    cif_fname : str or Path
+        name of the output cif file
     """
-    out_pdb_fname = Path(f"{pdb_id}.pdb")
-
-    with open(out_pdb_fname, "w") as f:
-        with gzip.open(gz_file.name, "rt") as gz:
-            for line in gz:
-                f.write(line)
-
-    return out_pdb_fname
-
-
-def fetch_local_pdbrenum(pdb_id, pdb_renum_db):
-    """
-    Parameters
-    ----------
-    pdb_id : str
-        PDB ID.
-    pdb_renum_db : str or Path
-        path to the pdb renum local db
-
-    """
-    log.debug(f"Fetching PDB file {pdb_id} from local PDBrenum db {pdb_renum_db}")
-    renum_filename = f"{pdb_id}_renum.pdb.gz"
-
-    target_path = Path(pdb_renum_db, renum_filename)
-    temp_gz = Path(renum_filename)
-
-    if not os.path.exists(target_path):
-        log.warning(f"File {temp_gz} not found in local pdb_renum_db {pdb_renum_db}.")
+    log.debug(f"Fetching updated CIF file {pdb_id} from PDBE")
+    cif_response = requests.get(f"{PDBE_URL}/{pdb_id}_updated.cif")
+    if cif_response.status_code != 200:
+        log.warning(f"Could not fetch CIF file for {pdb_id}")
         return None
 
-    shutil.copy(target_path, temp_gz)
-
-    out_pdb_fname = write_pdb_renum(temp_gz, pdb_id)
-
-    Path(temp_gz).unlink()
-    return out_pdb_fname
+    with open(cif_fname, "wb") as wfile:
+        wfile.write(cif_response.content)
 
 
-def fetch_remote_pdbrenum(pdb_id):
+def get_cif_dict(cif_name):
     """
-    Fetch PDB file.
+    Convert cif file to dict.
+
+    Parameters
+    ----------
+    cif_name : str or Path
+        cif filename
+
+    Returns
+    -------
+    cif_dict : dict
+        cif dictionary
+    """
+    mmcif_dict = MMCIF2Dict()
+    cif_dict = mmcif_dict.parse(cif_name)
+    return cif_dict
+
+
+def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
+    """
+    gets the numbering correspondence between the pdb file and the uniprot
+    sequence from the cif dict.
+
+    pdb_id : str
+        PDB ID
+    cif_dict : dict
+        cif dictionary
+    uniprot_id : str
+        uniprot ID to be used (many IDs may exist in the .cif file)
+    chain_id : str
+        chain ID to be used
+
+    Returns
+    -------
+    numbering_dict : dict
+        pdb-resid : uniprot-resid dictionary
+        Example : {"GLY-16" : 20, "TYR-17" : 21, ... }
+    """
+    pdb_atom_mapping = cif_dict[pdb_id.upper()]["_atom_site"]
+    numbering_dict = {}
+    prev_residue_key = None
+    len_sifts_mapping = len(pdb_atom_mapping["auth_seq_id"])
+    for resid in range(len_sifts_mapping):
+        if (
+            pdb_atom_mapping["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
+            and pdb_atom_mapping["auth_asym_id"][resid] == chain_id
+        ):
+            residue_key = f"{pdb_atom_mapping['auth_comp_id'][resid]}-{pdb_atom_mapping['auth_seq_id'][resid]}"
+            unp_num = pdb_atom_mapping["pdbx_sifts_xref_db_num"][resid]
+            if residue_key != prev_residue_key:  # not a duplicate entry
+                numbering_dict[residue_key] = unp_num
+                prev_residue_key = residue_key
+    # log.debug(f"numbering dict {numbering_dict}")
+    return numbering_dict
+
+
+def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
+    cif_fname = f"{pdb_id}_updated.cif"
+    if cif_fname not in os.listdir():
+        cif_fname = fetch_updated_cif(pdb_id, cif_fname)
+    cif_dict = get_cif_dict(cif_fname)
+    # retrieve mapping
+    numbering_dict = get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id)
+    # we do not check if all residues in pdb_fname have been correctly renumbered
+    log.info(f"renumbering pdb {pdb_fname}")
+    pdb_renum_fname = Path(f"{pdb_fname.stem}_renum.pdb")
+    with open(pdb_renum_fname, "w") as wfile:
+        with open(pdb_fname, "r") as rfile:
+            for ln in rfile:
+                if ln.startswith("ATOM"):
+                    resid = ln[22:26].strip()
+                    residue_key = f"{ln[17:20].strip()}-{resid}"
+                    n_spaces = 4 - len(str(numbering_dict[residue_key]))
+                    resid_str = f"{' '*n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
+                    new_ln = f"{ln[:22]}{resid_str}{ln[27:]}"
+                else:
+                    new_ln = f"{ln}"
+                wfile.write(new_ln)
+    return pdb_renum_fname
+
+
+def fetch_pdb(pdb_id):
+    """
+    Fetches the pdb from PDBe database.
+
+    This is the un-renumbered pdb.
 
     Parameters
     ----------
     pdb_id : str
-        PDB ID.
-
+        pdb target id
     Returns
     -------
     out_pdb_fname : Path
-        Path to PDB file.
+        pdb filename
     """
-    log.debug(f"Fetching PDB file {pdb_id} from PDBrenum")
-    response = requests.get(f"{PDBRENUM_URL}/{pdb_id}_renum.pdb.gz")
+    log.debug(f"Fetching PDB file {pdb_id} from PDBE")
+    response = requests.get(f"{PDBE_URL}/pdb{pdb_id}.ent")
     if response.status_code != 200:
         log.warning(f"Could not fetch PDB file for {pdb_id}")
         return None
 
-    temp_gz = tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=".gz")
-    temp_gz.write(response.content)
-    temp_gz.close()
-
-    out_pdb_fname = write_pdb_renum(temp_gz, pdb_id)
-
-    Path(temp_gz.name).unlink()
+    out_pdb_fname = Path(f"{pdb_id}.pdb")
+    with open(out_pdb_fname, "wb") as wfile:
+        wfile.write(response.content)
 
     return out_pdb_fname
 
@@ -121,7 +167,7 @@ def selchain_pdb(inp_pdb_f, chain):
     out_pdb_fname : Path
         Path to PDB file.
     """
-    log.debug(f"Selecting chain {chain} from PDB file")
+    # log.debug(f"Selecting chain {chain} from PDB file")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-{chain}.pdb")
     with open(inp_pdb_f, "r") as pdb_fh:
         with open(out_pdb_fname, "w") as f:
@@ -145,7 +191,7 @@ def tidy_pdb(inp_pdb_f):
     Path
         Path to PDB file.
     """
-    log.debug("Tidying PDB file")
+    # log.debug("Tidying PDB file")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-tidy.pdb")
     with open(inp_pdb_f, "r") as pdb_fh:
         with open(out_pdb_fname, "w") as f:
@@ -168,7 +214,7 @@ def occ_pdb(inp_pdb_f):
     out_pdb_fname : Path
         Path to PDB file.
     """
-    log.debug("Selecting residues with highest occupancy")
+    # log.debug("Selecting residues with highest occupancy")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-occ.pdb")
     with open(inp_pdb_f, "r") as pdb_fh:
         with open(out_pdb_fname, "w") as f:
@@ -191,7 +237,7 @@ def keep_atoms(inp_pdb_f):
     out_pdb_fname : Path
         Path to PDB file.
     """
-    log.debug("Removing non-ATOM lines from PDB file")
+    # log.debug(f"Removing non-ATOM lines from PDB file {inp_pdb_f}")
     out_pdb_fname = Path(f"{inp_pdb_f.stem}-atoms.pdb")
     with open(inp_pdb_f, "r") as pdb_fh:
         with open(out_pdb_fname, "w") as f:
@@ -203,7 +249,7 @@ def keep_atoms(inp_pdb_f):
 
 def validate_api_hit(
     fetch_list,
-    pdb_renum_db=None,
+    # pdb_renum_db=None,
     resolution_cutoff=3.0,
     coverage_cutoff=0.7,
     max_pdb_renum=20,
@@ -238,10 +284,15 @@ def validate_api_hit(
         coverage = hit["coverage"]
         resolution = hit["resolution"]
 
-        if pdb_renum_db is None:
-            pdb_f = fetch_remote_pdbrenum(pdb_id)
+        # if pdb_renum_db is None:
+        #    pdb_f = fetch_remote_pdbrenum(pdb_id)
+        # else:
+        #    pdb_f = fetch_local_pdbrenum(pdb_id, pdb_renum_db)
+        pdb_fname = f"{pdb_id}.pdb"
+        if pdb_fname not in os.listdir():
+            pdb_f = fetch_pdb(pdb_id)
         else:
-            pdb_f = fetch_local_pdbrenum(pdb_id, pdb_renum_db)
+            pdb_f = Path(pdb_fname)
         log.info(f"pdb_f {pdb_f}")
         if pdb_f is not None:
             check_list.append(True)
@@ -273,7 +324,31 @@ def validate_api_hit(
     return validated_pdbs
 
 
-def get_maxint_pdb(validated_pdbs, interface_residues):
+def preprocess_pdb(pdb_fname, chain_id):
+    """
+    Apply a set of transformations to an input pdb file.
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+
+
+    """
+    atoms_pdb_f = keep_atoms(pdb_fname)
+    chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
+    occ_pdb_f = occ_pdb(chained_pdb_f)
+    tidy_pdb_f = tidy_pdb(occ_pdb_f)
+
+    atoms_pdb_f.unlink()
+    chained_pdb_f.unlink()
+    occ_pdb_f.unlink()
+
+    return tidy_pdb_f
+
+
+def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
     """
     Get PDB ID that retains the most interfaces.
 
@@ -283,6 +358,8 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
         List of (pdb_f, hit) tuples
     interface_residues : dict
         Dictionary of all the interfaces (each one with its uniprot ID as key)
+    uniprot_id : str
+        Uniprot ID
 
     Returns
     -------
@@ -293,28 +370,42 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
     filtered_interfaces : dict or None
         Dictionary of the retained and filtered interfaces.
     """
+    log.info("Selecting pdb retaining the most interfaces")
     pdb_f, hit, filtered_interfaces = None, None, None
     if validated_pdbs != []:
         max_nint = 0
         for curr_pdb, curr_hit in validated_pdbs:
-            mdu = mda.Universe(curr_pdb)
-            selection_string = f"name CA and chainID {curr_hit['chain_id']}"
+            chain_id = curr_hit["chain_id"]
+            pdb_id = curr_hit["pdb_id"]
+            # refactor renumbering
+            tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
+
+            curr_renum_pdb_f = renumber_pdb_from_cif(
+                pdb_id, uniprot_id, chain_id, tidy_pdb_f
+            )
+            tidy_pdb_f.unlink()
+            if curr_renum_pdb_f is None:
+                continue
+
+            mdu = mda.Universe(curr_renum_pdb_f)
+            selection_string = f"name CA and chainID {chain_id}"
             pdb_resids = mdu.select_atoms(selection_string).resids
             tmp_filtered_interfaces = filter_interfaces(interface_residues, pdb_resids)
             curr_nint = len(tmp_filtered_interfaces)
             if curr_nint > max_nint:  # update "best" hit
                 max_nint = curr_nint
                 filtered_interfaces = tmp_filtered_interfaces.copy()
-                pdb_f = curr_pdb
+                pdb_f = curr_renum_pdb_f
                 hit = curr_hit
         # unlink pdb files
         for curr_pdb, curr_hit in validated_pdbs:
             if os.path.exists(curr_pdb):
                 if curr_pdb != pdb_f:
-                    os.unlink(curr_pdb)
+                    curr_pdb.unlink()
         if max_nint != 0:
             log.info(f"filtered_interfaces {filtered_interfaces}")
             log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
+
     return pdb_f, hit, filtered_interfaces
 
 
@@ -382,10 +473,10 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, pdb_renum_db=N
         pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_code)
     else:
         pdb_list = pdb_dict[uniprot_id]
-    validated_pdbs = validate_api_hit(pdb_list, pdb_renum_db=pdb_renum_db)
+    validated_pdbs = validate_api_hit(pdb_list)
 
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        validated_pdbs, interface_residues
+        validated_pdbs, interface_residues, uniprot_id
     )
 
     if pdb_f is None:
@@ -403,16 +494,6 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, pdb_renum_db=N
         f"BestPDB hit for {uniprot_id}: {pdb_id}_{chain_id} {coverage:.2f} coverage {resolution:.2f} Angstrom / start {start} end {end}"
     )
 
-    atoms_pdb_f = keep_atoms(pdb_f)
-    chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
-    occ_pdb_f = occ_pdb(chained_pdb_f)
-    tidy_pdb_f = tidy_pdb(occ_pdb_f)
-
-    pdb_f.unlink()
-    atoms_pdb_f.unlink()
-    chained_pdb_f.unlink()
-    occ_pdb_f.unlink()
-
-    processed_pdb = tidy_pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
+    processed_pdb = pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
 
     return processed_pdb, filtered_interfaces
