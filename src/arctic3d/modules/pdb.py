@@ -15,9 +15,7 @@ from arctic3d.modules.interface_matrix import filter_interfaces
 log = logging.getLogger("arctic3dlog")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
-PDBRENUM_URL = "http://dunbrack3.fccc.edu/PDBrenum/output_PDB"
 PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"
-PDBSIFTS_URL = "https://ftp.ebi.ac.uk/pub/databases/msd/sifts/split_xml/oz"
 
 
 def fetch_updated_cif(pdb_id, cif_fname):
@@ -65,6 +63,8 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
     gets the numbering correspondence between the pdb file and the uniprot
     sequence from the cif dict.
 
+    Parameters
+    ----------
     pdb_id : str
         PDB ID
     cif_dict : dict
@@ -80,17 +80,17 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
         pdb-resid : uniprot-resid dictionary
         Example : {"GLY-16" : 20, "TYR-17" : 21, ... }
     """
-    pdb_atom_mapping = cif_dict[pdb_id.upper()]["_atom_site"]
+    atomsite_dict = cif_dict[pdb_id.upper()]["_atom_site"]
     numbering_dict = {}
     prev_residue_key = None
-    len_sifts_mapping = len(pdb_atom_mapping["auth_seq_id"])
+    len_sifts_mapping = len(atomsite_dict["auth_seq_id"])
     for resid in range(len_sifts_mapping):
         if (
-            pdb_atom_mapping["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
-            and pdb_atom_mapping["auth_asym_id"][resid] == chain_id
+            atomsite_dict["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
+            and atomsite_dict["auth_asym_id"][resid] == chain_id
         ):
-            residue_key = f"{pdb_atom_mapping['auth_comp_id'][resid]}-{pdb_atom_mapping['auth_seq_id'][resid]}"
-            unp_num = pdb_atom_mapping["pdbx_sifts_xref_db_num"][resid]
+            residue_key = f"{atomsite_dict['auth_comp_id'][resid]}-{atomsite_dict['auth_seq_id'][resid]}"
+            unp_num = atomsite_dict["pdbx_sifts_xref_db_num"][resid]
             if residue_key != prev_residue_key:  # not a duplicate entry
                 numbering_dict[residue_key] = unp_num
                 prev_residue_key = residue_key
@@ -99,6 +99,26 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
 
 
 def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
+    """
+    Renumbers a pdb file based on the information coming from the corresponding
+    updated cif file.
+
+    Parameters
+    ----------
+    pdb_id : str
+        PDB ID
+    chain_id : str
+        chain ID to be used
+    uniprot_id : str
+        uniprot ID to be used
+    pdb_fname : str or Path
+        input pdb file
+
+    Returns
+    -------
+    pdb_renum_fname : Path
+        renumbered pdb filename
+    """
     cif_fname = f"{pdb_id}_updated.cif"
     if cif_fname not in os.listdir():
         cif_fname = fetch_updated_cif(pdb_id, cif_fname)
@@ -106,7 +126,7 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
     # retrieve mapping
     numbering_dict = get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id)
     # we do not check if all residues in pdb_fname have been correctly renumbered
-    log.info(f"renumbering pdb {pdb_fname}")
+    log.info(f"Renumbering pdb {pdb_fname}")
     pdb_renum_fname = Path(f"{pdb_fname.stem}_renum.pdb")
     with open(pdb_renum_fname, "w") as wfile:
         with open(pdb_fname, "r") as rfile:
@@ -115,7 +135,7 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
                     resid = ln[22:26].strip()
                     residue_key = f"{ln[17:20].strip()}-{resid}"
                     n_spaces = 4 - len(str(numbering_dict[residue_key]))
-                    resid_str = f"{' '*n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
+                    resid_str = f"{' ' * n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
                     new_ln = f"{ln[:22]}{resid_str}{ln[27:]}"
                 else:
                     new_ln = f"{ln}"
