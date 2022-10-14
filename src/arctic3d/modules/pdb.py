@@ -119,28 +119,44 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
     pdb_renum_fname : Path
         renumbered pdb filename
     """
-    cif_fname = f"{pdb_id}_updated.cif"
-    if cif_fname not in os.listdir():
-        cif_fname = fetch_updated_cif(pdb_id, cif_fname)
+    cif_fname = Path(f"{pdb_id}_updated.cif")
+    if not cif_fname.is_file():
+        fetch_updated_cif(pdb_id, cif_fname)
     cif_dict = get_cif_dict(cif_fname)
+
     # retrieve mapping
     numbering_dict = get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id)
+
     # we do not check if all residues in pdb_fname have been correctly renumbered
-    log.info(f"Renumbering pdb {pdb_fname}")
-    pdb_renum_fname = Path(f"{pdb_fname.stem}_renum.pdb")
-    with open(pdb_renum_fname, "w") as wfile:
-        with open(pdb_fname, "r") as rfile:
-            for ln in rfile:
-                if ln.startswith("ATOM"):
-                    resid = ln[22:26].strip()
-                    residue_key = f"{ln[17:20].strip()}-{resid}"
-                    n_spaces = 4 - len(str(numbering_dict[residue_key]))
-                    resid_str = f"{' ' * n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
-                    new_ln = f"{ln[:22]}{resid_str}{ln[27:]}"
-                else:
-                    new_ln = f"{ln}"
-                wfile.write(new_ln)
-    return pdb_renum_fname
+    # we only check it's not empty (it could be empty if the cif does not contain
+    # the uniprot information)
+    if any(numbering_dict):
+        log.info(f"Renumbering pdb {pdb_fname}")
+        pdb_renum_fname = Path(f"{pdb_fname.stem}_renum.pdb")
+
+        records = ("ATOM", "TER")
+        file_content = ""
+        with open(pdb_renum_fname, "w") as wfile:
+            with open(pdb_fname, "r") as rfile:
+                for ln in rfile:
+                    if ln.startswith(records):
+                        resid = ln[22:26].strip()
+                        residue_key = f"{ln[17:20].strip()}-{resid}"
+
+                        # the residues in the pdb_fname that do not have an entry in the numbering_dict
+                        # are discarded. It may happen that the same chain in the input pdb is associated to several
+                        # uniprot ids (especially in old files)
+                        if residue_key in numbering_dict.keys():
+                            n_spaces = 4 - len(str(numbering_dict[residue_key]))
+                            resid_str = f"{' ' * n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
+                            file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
+                    else:
+                        file_content += f"{ln}"
+                wfile.write(file_content)
+    else:
+        log.info(f"Renumbering failed for pdb {pdb_fname}")
+        pdb_renum_fname = None
+    return pdb_renum_fname, cif_fname
 
 
 def fetch_pdb(pdb_id):
@@ -269,10 +285,9 @@ def keep_atoms(inp_pdb_f):
 
 def validate_api_hit(
     fetch_list,
-    # pdb_renum_db=None,
     resolution_cutoff=3.0,
     coverage_cutoff=0.7,
-    max_pdb_renum=20,
+    max_pdb_num=10,
 ):
     """
     Validate PDB fetch request file.
@@ -287,7 +302,7 @@ def validate_api_hit(
         Resolution cutoff.
     coverage_cutoff : float
         Coverage cutoff.
-    max_pdb_renum : int
+    max_pdb_num : int
         Maximum number of pdb files to fetch.
 
     Returns
@@ -298,22 +313,18 @@ def validate_api_hit(
     validated_pdbs = []  # list of good pdbs
     valid_pdb_set = set()  # set of valid pdb IDs
 
-    for hit in fetch_list[:max_pdb_renum]:
+    for hit in fetch_list[:max_pdb_num]:
         check_list = []
         pdb_id = hit["pdb_id"]
         coverage = hit["coverage"]
         resolution = hit["resolution"]
 
-        # if pdb_renum_db is None:
-        #    pdb_f = fetch_remote_pdbrenum(pdb_id)
-        # else:
-        #    pdb_f = fetch_local_pdbrenum(pdb_id, pdb_renum_db)
         pdb_fname = f"{pdb_id}.pdb"
         if pdb_fname not in os.listdir():
             pdb_f = fetch_pdb(pdb_id)
         else:
             pdb_f = Path(pdb_fname)
-        log.info(f"pdb_f {pdb_f}")
+        log.debug(f"pdb_f {pdb_f}")
         if pdb_f is not None:
             check_list.append(True)
         else:
@@ -350,11 +361,15 @@ def preprocess_pdb(pdb_fname, chain_id):
 
     Parameters
     ----------
+    pdb_fname : str or Path
+        input pdb file
+    chain_id : str
+        chain ID
 
     Returns
     -------
-
-
+    tidy_pdb_f : Path
+        preprocessed pdb file
     """
     atoms_pdb_f = keep_atoms(pdb_fname)
     chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
@@ -366,6 +381,24 @@ def preprocess_pdb(pdb_fname, chain_id):
     occ_pdb_f.unlink()
 
     return tidy_pdb_f
+
+
+def unlink_files(suffix="pdb", to_exclude=None):
+    """
+    Remove all files with suffix in the cwd except for those in to_exclude.
+
+    Parameters
+    ----------
+    suffix : str
+
+    to_exclude : None or list
+        files to exclude
+    """
+    suffix_fnames = list(Path(".").glob(f"*{suffix}"))
+    for fname in suffix_fnames:
+        fpath = Path(fname)
+        if fpath.is_file() and fpath not in to_exclude:
+            fpath.unlink()
 
 
 def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
@@ -400,7 +433,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
             # refactor renumbering
             tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
 
-            curr_renum_pdb_f = renumber_pdb_from_cif(
+            curr_renum_pdb_f, curr_cif_f = renumber_pdb_from_cif(
                 pdb_id, uniprot_id, chain_id, tidy_pdb_f
             )
             tidy_pdb_f.unlink()
@@ -416,12 +449,13 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
                 max_nint = curr_nint
                 filtered_interfaces = tmp_filtered_interfaces.copy()
                 pdb_f = curr_renum_pdb_f
+                cif_f = curr_cif_f
                 hit = curr_hit
-        # unlink pdb files
-        for curr_pdb, curr_hit in validated_pdbs:
-            if os.path.exists(curr_pdb):
-                if curr_pdb != pdb_f:
-                    curr_pdb.unlink()
+        # unlink pdb files.
+        log.info(f"calling the unlinking excluding {pdb_f} and {cif_f}")
+        unlink_files("pdb", to_exclude=[pdb_f])
+        unlink_files("cif", to_exclude=[cif_f])
+
         if max_nint != 0:
             log.info(f"filtered_interfaces {filtered_interfaces}")
             log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
