@@ -451,7 +451,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
                 pdb_f = curr_renum_pdb_f
                 cif_f = curr_cif_f
                 hit = curr_hit
-        # unlink pdb files.
+        # unlink pdb files
         log.info(f"calling the unlinking excluding {pdb_f} and {cif_f}")
         unlink_files("pdb", to_exclude=[pdb_f])
         unlink_files("cif", to_exclude=[cif_f])
