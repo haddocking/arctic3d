@@ -287,7 +287,7 @@ def validate_api_hit(
     fetch_list,
     resolution_cutoff=3.0,
     coverage_cutoff=0.7,
-    max_pdb_num=10,
+    max_pdb_num=20,
 ):
     """
     Validate PDB fetch request file.
@@ -424,7 +424,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
         Dictionary of the retained and filtered interfaces.
     """
     log.info("Selecting pdb retaining the most interfaces")
-    pdb_f, hit, filtered_interfaces = None, None, None
+    cif_f, pdb_f, hit, filtered_interfaces = None, None, None, None
     if validated_pdbs != []:
         max_nint = 0
         for curr_pdb, curr_hit in validated_pdbs:
@@ -452,7 +452,6 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
                 cif_f = curr_cif_f
                 hit = curr_hit
         # unlink pdb files
-        log.info(f"calling the unlinking excluding {pdb_f} and {cif_f}")
         unlink_files("pdb", to_exclude=[pdb_f])
         unlink_files("cif", to_exclude=[cif_f])
 
