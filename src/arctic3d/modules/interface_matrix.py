@@ -179,7 +179,7 @@ def filter_interfaces(interface_dict, pdb_resids):
             # formatting the interface name to avoid spaces
             formatted_key = format_interface_name(key)
             retained_interfaces[formatted_key] = filtered_interface
-    log.info(f"{len(retained_interfaces.keys())} retained_interfaces")
+    log.debug(f"{len(retained_interfaces.keys())} retained_interfaces")
     return retained_interfaces
 
 
