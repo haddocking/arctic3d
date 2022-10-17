@@ -105,9 +105,16 @@ def test_validate_api_hit(pdb_hit_no_resolution):
 
 
 def test_get_best_pdb():
-    pdb, filtered_interfaces = get_best_pdb("P20023", {"P01024": [103, 104, 105]})
-    assert pdb is None
-    assert filtered_interfaces is None
+    orig_interfaces = {
+        "P01024": [103, 104, 105],
+        "P-dummy": [103, 104, 105, 1049, 1050],
+    }
+    pdb, filtered_interfaces = get_best_pdb("P20023", orig_interfaces)
+    exp_pdb = Path("P20023-1ghq-B.pdb")
+    exp_interfaces = {"P01024": [103, 104, 105]}
+    assert pdb == exp_pdb
+    assert filtered_interfaces == exp_interfaces
+    exp_pdb.unlink()
 
 
 def test_get_maxint_pdb():
