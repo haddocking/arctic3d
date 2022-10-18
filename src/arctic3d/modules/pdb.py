@@ -483,7 +483,6 @@ def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
     for hit in fetch_list:
         pdb_id = hit["pdb_id"]
         chain_id = hit["chain_id"]
-        log.info(f"pdb {pdb_id} chain {chain_id}")
         pdb_check, chain_check = True, True
 
         if pdb_to_use and pdb_id != pdb_to_use:
