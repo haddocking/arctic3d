@@ -65,6 +65,30 @@ def good_hits():
             "experimental_method": "X-ray diffraction",
             "tax_id": 9913,
         },
+        {
+            "end": 246,
+            "chain_id": "B",
+            "pdb_id": "4gux",
+            "start": 1,
+            "unp_end": 246,
+            "coverage": 1,
+            "unp_start": 1,
+            "resolution": 1.803,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 9913,
+        },
+        {
+            "end": 246,
+            "chain_id": "C",
+            "pdb_id": "4gux",
+            "start": 1,
+            "unp_end": 246,
+            "coverage": 1,
+            "unp_start": 1,
+            "resolution": 1.803,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 9913,
+        },
     ]
     return hits_list
 
@@ -132,9 +156,13 @@ def test_get_maxint_pdb():
 
 def test_filter_pdb_list(good_hits):
     """Test filter_pdb_list."""
-    observed_red_list = filter_pdb_list(good_hits, "1abc")
+    observed_red_list = filter_pdb_list(good_hits, pdb_to_use="1abc")
     expected_red_list = []
     assert observed_red_list == expected_red_list
-    observed_red_list = filter_pdb_list(good_hits, "6sy3")
+    observed_red_list = filter_pdb_list(good_hits, pdb_to_use="6sy3")
     expected_red_list = [good_hits[1]]
+    assert observed_red_list == expected_red_list
+    # testing chain information
+    observed_red_list = filter_pdb_list(good_hits, pdb_to_use="4gux", chain_to_use="C")
+    expected_red_list = [good_hits[3]]
     assert observed_red_list == expected_red_list

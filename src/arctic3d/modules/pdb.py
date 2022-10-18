@@ -462,7 +462,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
     return pdb_f, hit, filtered_interfaces
 
 
-def filter_pdb_list(fetch_list, pdb_to_use):
+def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
     """
     Filter the PDB fetch list.
 
@@ -478,19 +478,26 @@ def filter_pdb_list(fetch_list, pdb_to_use):
     reduced_list : list
         List containing only the pdb_to_use hit
     """
+
     reduced_list = []
     for hit in fetch_list:
         pdb_id = hit["pdb_id"]
-        if pdb_id == pdb_to_use:
+        chain_id = hit["chain_id"]
+        pdb_check, chain_check = True, True
+
+        if pdb_to_use and pdb_id != pdb_to_use:
+            pdb_check = False
+        if chain_to_use and chain_id != chain_to_use:
+            chain_check = False
+        if (pdb_check, chain_check) == (True, True):
             reduced_list.append(hit)
-            break
-    #
+
     if len(reduced_list) == 0:
         log.warning(f"PDB ID {pdb_to_use} not found in fetched pdb list.")
     return reduced_list
 
 
-def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, pdb_renum_db=None):
+def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, chain_to_use=None):
     """
     Get best PDB ID.
 
@@ -521,11 +528,13 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, pdb_renum_db=N
         return
 
     # if pdb_to_use is not None, already filter the list
+
     if pdb_to_use:
-        pdb_code = pdb_to_use.lower()
-        pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_code)
-    else:
-        pdb_list = pdb_dict[uniprot_id]
+        pdb_to_use = pdb_to_use.lower()
+    if chain_to_use:
+        chain_to_use = chain_to_use.upper()
+    pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_to_use, chain_to_use)
+
     validated_pdbs = validate_api_hit(pdb_list)
 
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
