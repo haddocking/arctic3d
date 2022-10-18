@@ -57,8 +57,8 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--pdb_renum_db",
-    help="path to a local version of the PDBrenum database",
+    "--chain_to_use",
+    help="the chain to be used",
 )
 
 argument_parser.add_argument(
@@ -113,8 +113,8 @@ def main(
     out_uniprot,
     out_pdb,
     pdb_to_use,
+    chain_to_use,
     run_dir,
-    pdb_renum_db,
 ):
     """Main function."""
     log.setLevel("DEBUG")
@@ -160,7 +160,7 @@ def main(
                 )
         else:
             pdb_f, filtered_interfaces = get_best_pdb(
-                uniprot_id, interface_residues, pdb_to_use, pdb_renum_db
+                uniprot_id, interface_residues, pdb_to_use, chain_to_use
             )
 
         if pdb_f is None:
