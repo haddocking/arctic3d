@@ -78,7 +78,7 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
     -------
     numbering_dict : dict
         pdb-resid : uniprot-resid dictionary
-        Example : {"GLY-16" : 20, "TYR-17" : 21, ... }
+        Example : {"GLY-A-16" : 20, "TYR-A-17" : 21, ... }
     """
     atomsite_dict = cif_dict[pdb_id.upper()]["_atom_site"]
     numbering_dict = {}
@@ -89,7 +89,7 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
             atomsite_dict["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
             and atomsite_dict["auth_asym_id"][resid] == chain_id
         ):
-            residue_key = f"{atomsite_dict['auth_comp_id'][resid]}-{atomsite_dict['auth_seq_id'][resid]}"
+            residue_key = f"{atomsite_dict['auth_comp_id'][resid]}-{atomsite_dict['auth_asym_id'][resid]}-{atomsite_dict['auth_seq_id'][resid]}"
             unp_num = atomsite_dict["pdbx_sifts_xref_db_num"][resid]
             if residue_key != prev_residue_key:  # not a duplicate entry
                 numbering_dict[residue_key] = unp_num
@@ -141,7 +141,7 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
                 for ln in rfile:
                     if ln.startswith(records):
                         resid = ln[22:26].strip()
-                        residue_key = f"{ln[17:20].strip()}-{resid}"
+                        residue_key = f"{ln[17:20].strip()}-{ln[20:22].strip()}-{resid}"  # resname-chain_id-resid
 
                         # the residues in the pdb_fname that do not have an entry in the numbering_dict
                         # are discarded. It may happen that the same chain in the input pdb is associated to several
