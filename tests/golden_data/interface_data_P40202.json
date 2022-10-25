@@ -1,0 +1,341 @@
+{
+  "P40202": {
+    "sequence": "MTTNDTYEATYAIPMHCENCVNDIKACLKNVPGINSLNFDIEQQIMSVESSVAPSTIINTLRNCGKDAIIRGAGKPNSSAVAILETFQKYTIDQKKDTAVRGLARIVQVGENKTLFDITVNGVPEAGNYHASIHEKGDVSKGVESTGKVWHKFDEPIECFNESDLGKNLYSGKTFLSAPLPTWQLIGRSFVISKSLNHPENEPSSVKDYSFLGVIARSAGVWENNKQVCACTGKTVWEERKDALANNIK",
+    "length": 249,
+    "dataType": "INTERACTION INTERFACES",
+    "data": [
+      {
+        "name": "Superoxide dismutase [Cu-Zn]",
+        "accession": "P00441",
+        "residues": [
+          {
+            "startIndex": 85,
+            "endIndex": 85,
+            "startCode": "GLU",
+            "endCode": "GLU",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 137,
+            "endIndex": 137,
+            "startCode": "GLY",
+            "endCode": "GLY",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 138,
+            "endIndex": 138,
+            "startCode": "ASP",
+            "endCode": "ASP",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 187,
+            "endIndex": 187,
+            "startCode": "GLY",
+            "endCode": "GLY",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 217,
+            "endIndex": 217,
+            "startCode": "ARG",
+            "endCode": "ARG",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 218,
+            "endIndex": 218,
+            "startCode": "SER",
+            "endCode": "SER",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 222,
+            "endIndex": 222,
+            "startCode": "TRP",
+            "endCode": "TRP",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 229,
+            "endIndex": 229,
+            "startCode": "CYS",
+            "endCode": "CYS",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 231,
+            "endIndex": 231,
+            "startCode": "CYS",
+            "endCode": "CYS",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          },
+          {
+            "startIndex": 232,
+            "endIndex": 232,
+            "startCode": "THR",
+            "endCode": "THR",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "5u9m", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["5u9m"]
+          }
+        ],
+        "allPDBEntries": ["5u9m"],
+        "additionalData": { "type": "UNP" }
+      },
+      {
+        "name": "Superoxide dismutase [Cu-Zn]",
+        "accession": "P00445",
+        "residues": [
+          {
+            "startIndex": 136,
+            "endIndex": 136,
+            "startCode": "LYS",
+            "endCode": "LYS",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 137,
+            "endIndex": 137,
+            "startCode": "GLY",
+            "endCode": "GLY",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 138,
+            "endIndex": 138,
+            "startCode": "ASP",
+            "endCode": "ASP",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 187,
+            "endIndex": 187,
+            "startCode": "GLY",
+            "endCode": "GLY",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 217,
+            "endIndex": 217,
+            "startCode": "ARG",
+            "endCode": "ARG",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 218,
+            "endIndex": 218,
+            "startCode": "SER",
+            "endCode": "SER",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 226,
+            "endIndex": 226,
+            "startCode": "LYS",
+            "endCode": "LYS",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 229,
+            "endIndex": 229,
+            "startCode": "CYS",
+            "endCode": "CYS",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          },
+          {
+            "startIndex": 230,
+            "endIndex": 230,
+            "startCode": "ALA",
+            "endCode": "ALA",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1jk9", "entityId": 1, "chainIds": "C,A" }
+            ],
+            "allPDBEntries": ["1jk9"]
+          }
+        ],
+        "allPDBEntries": ["1jk9"],
+        "additionalData": { "type": "UNP" }
+      },
+      {
+        "name": "Superoxide dismutase 1 copper chaperone",
+        "accession": "P40202",
+        "residues": [
+          {
+            "startIndex": 136,
+            "endIndex": 136,
+            "startCode": "LYS",
+            "endCode": "LYS",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 137,
+            "endIndex": 137,
+            "startCode": "GLY",
+            "endCode": "GLY",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 138,
+            "endIndex": 138,
+            "startCode": "ASP",
+            "endCode": "ASP",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 183,
+            "endIndex": 183,
+            "startCode": "TRP",
+            "endCode": "TRP",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 184,
+            "endIndex": 184,
+            "startCode": "GLN",
+            "endCode": "GLN",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 186,
+            "endIndex": 186,
+            "startCode": "ILE",
+            "endCode": "ILE",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 187,
+            "endIndex": 187,
+            "startCode": "GLY",
+            "endCode": "GLY",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 217,
+            "endIndex": 217,
+            "startCode": "ARG",
+            "endCode": "ARG",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9", "1ej8"]
+          },
+          {
+            "startIndex": 218,
+            "endIndex": 218,
+            "startCode": "SER",
+            "endCode": "SER",
+            "indexType": "UNIPROT",
+            "interactingPDBEntries": [
+              { "pdbId": "1qup", "entityId": 1, "chainIds": "B,A" }
+            ],
+            "allPDBEntries": ["1qup", "5u9m", "1jk9"]
+          }
+        ],
+        "allPDBEntries": ["1qup"],
+        "additionalData": { "type": "UNP" }
+      }
+    ]
+  }
+}
