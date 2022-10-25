@@ -538,7 +538,7 @@ def get_best_pdb(
         except Exception as e:
             log.warning(f"Could not read input interface_data {pdb_data}, {e}")
             return
-    log.info(f"pdb_dict {pdb_dict}")
+
     # if pdb_to_use is not None, already filter the list
 
     if pdb_to_use:
