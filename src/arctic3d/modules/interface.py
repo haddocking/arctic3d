@@ -227,25 +227,23 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_se
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
         if partner_uniprotid not in out_uniprot_set:
-            interface_dict[partner_uniprotid] = []
+            log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
             for residue_entry in element["residues"]:
                 start = residue_entry["startIndex"]
                 end = residue_entry["endIndex"]
-                # check on pdb exclusion
-                accept = True
-                if out_pdb_set:
-                    int_pdbs_list = residue_entry["interactingPDBEntries"]
-                    int_pdbs = set([data["pdbId"] for data in int_pdbs_list])
-                    if int_pdbs.issubset(out_pdb_set):
-                        # all interacting pdbs must be excluded
-                        accept = False
-                if accept:
-                    for interface_res in range(start, end + 1):
-                        interface_dict[partner_uniprotid].append(interface_res)
-            # if the list is empty, pop the key away
-            if len(interface_dict[partner_uniprotid]) == 0:
-                log.info(f"Discarding uniprot ID {partner_uniprotid} due to out_pdb")
-                interface_dict.pop(partner_uniprotid)
+                # iterate over pdb records
+                for pdb_record in residue_entry["interactingPDBEntries"]:
+                    # entries can have missing chainIds field, especially for PRD_* like uniprot IDs
+                    chain_str = ""
+                    if 'chainIds' in pdb_record.keys():
+                        chain_str = pdb_record['chainIds']
+                    # if there are two or more chainIds, we discard the current entry
+                    if pdb_record["pdbId"] not in out_pdb_set and len(chain_str.split(",")) < 2:
+                        key = f"{partner_uniprotid}-{pdb_record['pdbId']}-{chain_str}"
+                        if key not in interface_dict.keys():
+                            interface_dict[key] = []
+                        for interface_res in range(start, end + 1):
+                            interface_dict[key].append(interface_res)
         else:
             log.info(f"found uniprot ID {partner_uniprotid}. It will be discarded.")
 
