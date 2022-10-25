@@ -66,6 +66,16 @@ argument_parser.add_argument(
     help="directory where to store the run",
 )
 
+argument_parser.add_argument(
+    "--interface_data",
+    help=".json file containing the interface data",
+)
+
+argument_parser.add_argument(
+    "--pdb_data",
+    help=".json file containing the pdb data",
+)
+
 
 def load_args(arguments):
     """
@@ -115,6 +125,8 @@ def main(
     pdb_to_use,
     chain_to_use,
     run_dir,
+    interface_data,
+    pdb_data,
 ):
     """Main function."""
     log.setLevel("DEBUG")
@@ -136,16 +148,29 @@ def main(
             input_files["interface_file"] = Path(interface_file)
             uniprot_id = None
 
+    # save json files
+    if interface_data:
+        input_files["interface_data"] = Path(interface_data)
+    if pdb_data:
+        input_files["pdb_data"] = Path(pdb_data)
+
     log.info(f"Target UNIPROTID: {uniprot_id}")
 
     input_files = setup_output_folder(uniprot_id, input_files, run_dir)
 
-    # retrieve interfaces
+    # retrieve interfaces.
     if interface_file:
         log.info(f"input interface file {interface_file}")
         interface_residues = read_interface_residues(input_files["interface_file"])
     else:
-        interface_residues = get_interface_residues(uniprot_id, out_uniprot, out_pdb)
+        if interface_data:
+            interface_residues = get_interface_residues(
+                uniprot_id, out_uniprot, out_pdb, input_files["interface_data"]
+            )
+        else:
+            interface_residues = get_interface_residues(
+                uniprot_id, out_uniprot, out_pdb
+            )
 
     log.info(f"Interface Residues: {interface_residues}")
 
@@ -159,9 +184,18 @@ def main(
                     """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
                 )
         else:
-            pdb_f, filtered_interfaces = get_best_pdb(
-                uniprot_id, interface_residues, pdb_to_use, chain_to_use
-            )
+            if pdb_data:
+                pdb_f, filtered_interfaces = get_best_pdb(
+                    uniprot_id,
+                    interface_residues,
+                    pdb_to_use,
+                    chain_to_use,
+                    input_files["pdb_data"],
+                )
+            else:
+                pdb_f, filtered_interfaces = get_best_pdb(
+                    uniprot_id, interface_residues, pdb_to_use, chain_to_use
+                )
 
         if pdb_f is None:
             log.error(

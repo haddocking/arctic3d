@@ -1,6 +1,8 @@
 import logging
 import os
 
+import jsonpickle
+
 from arctic3d.functions import make_request
 
 log = logging.getLogger("arctic3dlog")
@@ -162,7 +164,9 @@ def read_interface_residues(interface_file):
     return interface_dict
 
 
-def get_interface_residues(uniprot_id, out_uniprot_string, out_pdb_string):
+def get_interface_residues(
+    uniprot_id, out_uniprot_string, out_pdb_string, interface_data=None
+):
     """
     Get interface residues.
 
@@ -187,12 +191,21 @@ def get_interface_residues(uniprot_id, out_uniprot_string, out_pdb_string):
     out_pdb_set = parse_out_pdb(out_pdb_string)
 
     interface_dict = {}
-    url = f"{INTERFACE_URL}/{uniprot_id}"
-    try:
-        interface_api_data = make_request(url, None)
-    except Exception as e:
-        log.warning(f"Could not make InterfaceResidues request for {uniprot_id}, {e}")
-        return interface_dict
+    if not interface_data:
+        url = f"{INTERFACE_URL}/{uniprot_id}"
+        try:
+            interface_api_data = make_request(url, None)
+        except Exception as e:
+            log.warning(
+                f"Could not make InterfaceResidues request for {uniprot_id}, {e}"
+            )
+            return interface_dict
+    else:
+        try:
+            interface_api_data = jsonpickle.decode(open(interface_data, "r").read())
+        except Exception as e:
+            log.warning(f"Could not read input interface_data {interface_data}, {e}")
+            return interface_dict
 
     if interface_api_data and len(interface_api_data) != 0:
         interface_dict = parse_interface_data(
