@@ -22,6 +22,11 @@ def inp_pdb():
 
 
 @pytest.fixture
+def inp_pdb_data():
+    return Path(golden_data, "pdb_data_P40202.json")
+
+
+@pytest.fixture
 def pdb_hit_no_resolution():
     hit = {
         "end": 951,
@@ -166,3 +171,14 @@ def test_filter_pdb_list(good_hits):
     observed_red_list = filter_pdb_list(good_hits, pdb_to_use="4gux", chain_to_use="C")
     expected_red_list = [good_hits[3]]
     assert observed_red_list == expected_red_list
+
+
+def test_pdb_data(inp_pdb_data):
+    """Test pdb_data input json file."""
+    orig_interfaces = {"P00441": [85, 137, 138]}
+    pdb, filtered_interfaces = get_best_pdb(
+        "P40202", orig_interfaces, pdb_data=inp_pdb_data
+    )
+
+    assert filtered_interfaces == orig_interfaces
+    pdb.unlink()

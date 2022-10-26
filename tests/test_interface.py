@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from arctic3d.modules.interface import (
+    get_interface_residues,
     parse_interface_line,
     parse_out_pdb,
     parse_out_uniprot,
@@ -10,6 +11,11 @@ from arctic3d.modules.interface import (
 )
 
 from . import golden_data
+
+
+@pytest.fixture
+def inp_interface_data():
+    return Path(golden_data, "interface_data_P40202.json")
 
 
 def test_read_int_file_nonexisting():
@@ -86,3 +92,16 @@ def test_error_parse_out_pdb():
     for string in out_pdb_strings:
         with pytest.raises(Exception):
             parse_out_pdb(string)
+
+
+def test_interface_data(inp_interface_data):
+    """Test interface_data input json file."""
+    obs_interface_residues = get_interface_residues(
+        "P40202", None, None, interface_data=inp_interface_data
+    )
+    exp_interface_residues = {
+        "P00441": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
+        "P00445": [136, 137, 138, 187, 217, 218, 226, 229, 230],
+        "P40202": [136, 137, 138, 183, 184, 186, 187, 217, 218],
+    }
+    assert obs_interface_residues == exp_interface_residues
