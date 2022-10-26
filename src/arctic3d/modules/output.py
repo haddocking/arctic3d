@@ -210,9 +210,11 @@ def make_plotly_plot(conv_resids, probs):
         hoverlabel=dict(font_size=16, font_family="Helvetica"),
     )
     # save html
-    output_filename = "sequence_probability.html"
-    fig.write_html(output_filename)
-    log.info(f"Interactive plot {output_filename} successfully created.")
+    html_output_filename = "sequence_probability.html"
+    json_output_filename = "sequence_probability.json"
+    fig.write_html(html_output_filename)
+    fig.write_json(json_output_filename)
+    log.info(f"Interactive plot {html_output_filename} successfully created.")
 
 
 def plot_interactive_probs(pdb_f, cl_residues_probs):
@@ -251,8 +253,10 @@ def plot_interactive_probs(pdb_f, cl_residues_probs):
     # plotly
     try:
         make_plotly_plot(conv_resids, probs)
-    except Exception:
-        log.warning("Could not create interactive plot")
+    except Exception as e:
+        log.warning(
+            f"Could not create interactive plot. The following error occurred {e}"
+        )
 
 
 def make_output(pdb_f, cl_dict, cl_residues, cl_residues_probs):
