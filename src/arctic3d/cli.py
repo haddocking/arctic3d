@@ -76,6 +76,12 @@ argument_parser.add_argument(
     help=".json file containing the pdb data",
 )
 
+argument_parser.add_argument(
+    "--full",
+    help="consider full uniprot-pdb-chain information in the retrieval",
+    default=False
+)
+
 
 def load_args(arguments):
     """
@@ -127,6 +133,7 @@ def main(
     run_dir,
     interface_data,
     pdb_data,
+    full
 ):
     """Main function."""
     log.setLevel("DEBUG")
@@ -165,11 +172,11 @@ def main(
     else:
         if interface_data:
             interface_residues = get_interface_residues(
-                uniprot_id, out_uniprot, out_pdb, input_files["interface_data"]
+                uniprot_id, out_uniprot, out_pdb, input_files["interface_data"], full
             )
         else:
             interface_residues = get_interface_residues(
-                uniprot_id, out_uniprot, out_pdb
+                uniprot_id, out_uniprot, out_pdb, full
             )
 
     log.info(f"Interface Residues: {interface_residues}")
