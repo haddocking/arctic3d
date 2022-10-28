@@ -2,6 +2,7 @@ import logging
 import os
 from pathlib import Path
 
+import jsonpickle
 import MDAnalysis as mda
 import requests
 from pdbecif.mmcif_io import MMCIF2Dict
@@ -497,7 +498,9 @@ def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
     return reduced_list
 
 
-def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, chain_to_use=None):
+def get_best_pdb(
+    uniprot_id, interface_residues, pdb_to_use=None, chain_to_use=None, pdb_data=None
+):
     """
     Get best PDB ID.
 
@@ -509,8 +512,10 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, chain_to_use=N
         Dictionary of all the interfaces (each one with its uniprot ID as key).
     pdb_to_use : str (default None)
         Pdb code to be used.
-    pdb_renum_db : str or Path or None
-        path to the pdb renum local db
+    chain_to_use : str (default None)
+        Chain id to be used.
+    pdb_data : Path or None
+        pdb json file for offline mode.
 
     Returns
     -------
@@ -520,12 +525,19 @@ def get_best_pdb(uniprot_id, interface_residues, pdb_to_use=None, chain_to_use=N
         Dictionary of the retained and filtered interfaces.
     """
     pdb_dict = {}
-    url = f"{BESTPDB_URL}/{uniprot_id}"
-    try:
-        pdb_dict = make_request(url, None)
-    except Exception as e:
-        log.warning(f"Could not make BestStructure request for {uniprot_id}, {e}")
-        return
+    if not pdb_data:
+        url = f"{BESTPDB_URL}/{uniprot_id}"
+        try:
+            pdb_dict = make_request(url, None)
+        except Exception as e:
+            log.warning(f"Could not make BestStructure request for {uniprot_id}, {e}")
+            return
+    else:
+        try:
+            pdb_dict = jsonpickle.decode(open(pdb_data, "r").read())
+        except Exception as e:
+            log.warning(f"Could not read input interface_data {pdb_data}, {e}")
+            return
 
     # if pdb_to_use is not None, already filter the list
 
