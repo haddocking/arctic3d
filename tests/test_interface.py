@@ -97,11 +97,27 @@ def test_error_parse_out_pdb():
 def test_interface_data(inp_interface_data):
     """Test interface_data input json file."""
     obs_interface_residues = get_interface_residues(
-        "P40202", None, None, interface_data=inp_interface_data
+        "P40202", None, None, full=False, interface_data=inp_interface_data
     )
     exp_interface_residues = {
         "P00441": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
         "P00445": [136, 137, 138, 187, 217, 218, 226, 229, 230],
         "P40202": [136, 137, 138, 183, 184, 186, 187, 217, 218],
+    }
+    assert obs_interface_residues == exp_interface_residues
+
+
+def test_full_interface(inp_interface_data):
+    """Test interface_data input json file with full option."""
+    obs_interface_residues = get_interface_residues(
+        "P40202", None, None, full=True, interface_data=inp_interface_data
+    )
+    exp_interface_residues = {
+        "P00441-5u9m-A": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
+        "P00441-5u9m-C": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
+        "P00445-1jk9-A": [136, 137, 138, 187, 217, 218, 226, 229, 230],
+        "P00445-1jk9-C": [136, 137, 138, 187, 217, 218, 226, 229, 230],
+        "P40202-1qup-A": [136, 137, 138, 183, 184, 186, 187, 217, 218],
+        "P40202-1qup-B": [136, 137, 138, 183, 184, 186, 187, 217, 218],
     }
     assert obs_interface_residues == exp_interface_residues
