@@ -219,7 +219,9 @@ def get_interface_residues(
     return interface_dict
 
 
-def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_set, full):
+def parse_interface_data(
+    uniprot_id, interface_data, out_uniprot_set, out_pdb_set, full
+):
     """
     Parse interface data.
 
@@ -251,7 +253,7 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_se
                 start = residue_entry["startIndex"]
                 end = residue_entry["endIndex"]
                 if full is False:
-                    # consider all the pdb files as a whole
+                    # consider all pdb files as a whole
                     accept = True
                     key = partner_uniprotid
                     if out_pdb_set:
@@ -262,7 +264,7 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_se
                             accept = False
                     if accept:
                         if key not in interface_dict.keys():
-                                interface_dict[key] = []
+                            interface_dict[key] = []
                         for interface_res in range(start, end + 1):
                             interface_dict[partner_uniprotid].append(interface_res)
                 else:
@@ -270,8 +272,8 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_se
                     for pdb_record in residue_entry["interactingPDBEntries"]:
                         # entries can have missing chainIds field, especially for PRD_* like uniprot IDs
                         chain_ids = [""]
-                        if 'chainIds' in pdb_record.keys():
-                            chain_ids = pdb_record['chainIds'].split(",")
+                        if "chainIds" in pdb_record.keys():
+                            chain_ids = pdb_record["chainIds"].split(",")
                         # if there are two or more chainIds, we discard the current entry
                         if pdb_record["pdbId"] not in out_pdb_set:
                             for chain_id in chain_ids:

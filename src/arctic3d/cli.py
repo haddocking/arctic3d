@@ -79,7 +79,7 @@ argument_parser.add_argument(
 argument_parser.add_argument(
     "--full",
     help="consider full uniprot-pdb-chain information in the retrieval",
-    default=False
+    default=False,
 )
 
 
@@ -133,7 +133,7 @@ def main(
     run_dir,
     interface_data,
     pdb_data,
-    full
+    full,
 ):
     """Main function."""
     log.setLevel("DEBUG")

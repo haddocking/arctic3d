@@ -287,7 +287,7 @@ def keep_atoms(inp_pdb_f):
 def validate_api_hit(
     fetch_list,
     resolution_cutoff=3.0,
-    coverage_cutoff=0.1,
+    coverage_cutoff=0.0,
     max_pdb_num=20,
 ):
     """
