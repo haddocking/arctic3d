@@ -165,7 +165,7 @@ def read_interface_residues(interface_file):
 
 
 def get_interface_residues(
-    uniprot_id, out_uniprot_string, out_pdb_string, interface_data=None
+    uniprot_id, out_uniprot_string, out_pdb_string, full, interface_data=None
 ):
     """
     Get interface residues.
@@ -178,6 +178,10 @@ def get_interface_residues(
         comma-separated uniprot IDs to exclude.
     out_pdb_string : str or None
         comma-separated pdb IDs to exclude.
+    full : bool
+        consider full information in interface retrieval
+    interface_data : str or Path or None
+        interface data .json file
 
     Returns
     -------
@@ -209,13 +213,15 @@ def get_interface_residues(
 
     if interface_api_data and len(interface_api_data) != 0:
         interface_dict = parse_interface_data(
-            uniprot_id, interface_api_data, out_uniprot_set, out_pdb_set
+            uniprot_id, interface_api_data, out_uniprot_set, out_pdb_set, full
         )
 
     return interface_dict
 
 
-def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_set):
+def parse_interface_data(
+    uniprot_id, interface_data, out_uniprot_set, out_pdb_set, full
+):
     """
     Parse interface data.
 
@@ -229,6 +235,8 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_se
         Set of Uniprot IDs to exclude. Empty if none.
     out_pdb_set : set
         Set of PDB files to exclude.
+    full : bool
+        Consider full information in interface retrieval.
 
     Returns
     -------
@@ -240,25 +248,40 @@ def parse_interface_data(uniprot_id, interface_data, out_uniprot_set, out_pdb_se
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
         if partner_uniprotid not in out_uniprot_set:
-            interface_dict[partner_uniprotid] = []
+            log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
             for residue_entry in element["residues"]:
                 start = residue_entry["startIndex"]
                 end = residue_entry["endIndex"]
-                # check on pdb exclusion
-                accept = True
-                if out_pdb_set:
-                    int_pdbs_list = residue_entry["interactingPDBEntries"]
-                    int_pdbs = set([data["pdbId"] for data in int_pdbs_list])
-                    if int_pdbs.issubset(out_pdb_set):
-                        # all interacting pdbs must be excluded
-                        accept = False
-                if accept:
-                    for interface_res in range(start, end + 1):
-                        interface_dict[partner_uniprotid].append(interface_res)
-            # if the list is empty, pop the key away
-            if len(interface_dict[partner_uniprotid]) == 0:
-                log.info(f"Discarding uniprot ID {partner_uniprotid} due to out_pdb")
-                interface_dict.pop(partner_uniprotid)
+                if full is False:
+                    # consider all pdb files as a whole
+                    accept = True
+                    key = partner_uniprotid
+                    if out_pdb_set:
+                        int_pdbs_list = residue_entry["interactingPDBEntries"]
+                        int_pdbs = set([data["pdbId"] for data in int_pdbs_list])
+                        if int_pdbs.issubset(out_pdb_set):
+                            # all interacting pdbs must be excluded
+                            accept = False
+                    if accept:
+                        if key not in interface_dict.keys():
+                            interface_dict[key] = []
+                        for interface_res in range(start, end + 1):
+                            interface_dict[partner_uniprotid].append(interface_res)
+                else:
+                    # iterate over pdb records
+                    for pdb_record in residue_entry["interactingPDBEntries"]:
+                        # entries can have missing chainIds field, especially for PRD_* like uniprot IDs
+                        chain_ids = [""]
+                        if "chainIds" in pdb_record.keys():
+                            chain_ids = pdb_record["chainIds"].split(",")
+                        # if there are two or more chainIds, we discard the current entry
+                        if pdb_record["pdbId"] not in out_pdb_set:
+                            for chain_id in chain_ids:
+                                key = f"{partner_uniprotid}-{pdb_record['pdbId']}-{chain_id}"
+                                if key not in interface_dict.keys():
+                                    interface_dict[key] = []
+                                for interface_res in range(start, end + 1):
+                                    interface_dict[key].append(interface_res)
         else:
             log.info(f"found uniprot ID {partner_uniprotid}. It will be discarded.")
 
