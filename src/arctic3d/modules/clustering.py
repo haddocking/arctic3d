@@ -46,7 +46,7 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=100):
         p=p,
     )
     plt.xlabel("Interface Names")
-    plt.ylabel("Similarity")
+    plt.ylabel("Dissimilarity")
     plt.title("ARCTIC3D dendrogram")
     plt.savefig(filename)
     plt.close()

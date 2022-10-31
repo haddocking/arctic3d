@@ -181,7 +181,13 @@ def make_plotly_plot(conv_resids, probs):
         dictionary of probability (y axis)
     """
     log.info("Creating interactive plot.")
-    colors = [f"rgb{key}" for key in plt.cm.Set1.colors]
+    # create a qualitatively diverse set of colors
+    ref_colors = plt.cm.tab20.colors
+    odd_colors = [f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 1]
+    even_colors = [f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 0]
+    colors = odd_colors + even_colors
+
+    # create figure
     fig = go.Figure(layout={"width": len(conv_resids) * 10, "height": 500})
     for key_idx, key in enumerate(probs.keys()):
         fig.add_trace(
