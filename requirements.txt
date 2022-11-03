@@ -9,6 +9,6 @@ matplotlib==3.6.1
 pdb-tools==2.5.0
 pandas==1.5.1
 openpyxl==3.0.10
-plotly==5.10.0
+plotly==5.11.0
 pdbecif==1.5
 jsonpickle==2.2.0
