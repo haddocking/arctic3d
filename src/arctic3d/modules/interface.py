@@ -183,8 +183,8 @@ def get_interface_residues(
         consider full information in interface retrieval
     interface_data : str or Path or None
         interface data .json file
-    ligand : True, False or "both"
-        retrieve ligand binding residues 
+    ligand : str
+        retrieve ligand binding residues
 
     Returns
     -------
@@ -232,13 +232,17 @@ def get_interface_residues(
     if ligand in ["yes", "both"]:
         if interface_lig_api_data and len(interface_lig_api_data) != 0:
             interface_lig_dict = parse_interface_data(
-                uniprot_id, interface_lig_api_data, out_uniprot_set, out_pdb_set, full=full
+                uniprot_id,
+                interface_lig_api_data,
+                out_uniprot_set,
+                out_pdb_set,
+                full=full,
             )
     if ligand == "yes":
         interface_dict = interface_lig_dict
     if ligand == "both":
         interface_dict.update(interface_lig_dict)
-    
+
     log.info(f"interface_dict {interface_dict}")
 
     return interface_dict
