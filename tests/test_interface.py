@@ -129,13 +129,14 @@ def test_ligandyes_interface():
         "P40202", None, None, full=True, interface_data=None, ligand="yes"
     )
     exp_interface_residues = {
-        "SO4-1qup-A" : [76, 77, 188, 217],
-        "SO4-1jk9-D" : [226, 229, 230],
-        "ZN-1jk9-B" : [16],
-        "ZN-5u9m-B" : [17,20],
-        "CA-1ej8-A" : [124,168]
+        "SO4-1qup-A": [76, 77, 188, 217],
+        "SO4-1jk9-D": [226, 229, 230],
+        "ZN-1jk9-B": [16],
+        "ZN-5u9m-B": [17, 20],
+        "CA-1ej8-A": [124, 168],
     }
     assert obs_interface_residues == exp_interface_residues
+
 
 def test_ligandboth_interface():
     """Test get_interface_residues when ligand == both."""
@@ -149,10 +150,10 @@ def test_ligandboth_interface():
         "P00445-1jk9-C": [136, 137, 138, 187, 217, 218, 226, 229, 230],
         "P40202-1qup-A": [136, 137, 138, 183, 184, 186, 187, 217, 218],
         "P40202-1qup-B": [136, 137, 138, 183, 184, 186, 187, 217, 218],
-        "SO4-1qup-A" : [76, 77, 188, 217],
-        "SO4-1jk9-D" : [226, 229, 230],
-        "ZN-1jk9-B" : [16],
-        "ZN-5u9m-B" : [17,20],
-        "CA-1ej8-A" : [124,168]
+        "SO4-1qup-A": [76, 77, 188, 217],
+        "SO4-1jk9-D": [226, 229, 230],
+        "ZN-1jk9-B": [16],
+        "ZN-5u9m-B": [17, 20],
+        "CA-1ej8-A": [124, 168],
     }
     assert obs_interface_residues == exp_interface_residues

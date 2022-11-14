@@ -86,7 +86,7 @@ argument_parser.add_argument(
     "--ligand",
     help="retrieve ligand binding residues",
     default="no",
-    choices=["yes", "no", "both"]
+    choices=["yes", "no", "both"],
 )
 
 
