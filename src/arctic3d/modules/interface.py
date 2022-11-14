@@ -8,6 +8,7 @@ from arctic3d.functions import make_request
 log = logging.getLogger("arctic3dlog")
 
 INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues"
+LIGAND_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/ligand_sites/"
 # maximum number of interfaces in interface file
 MAX_INTERFACES = 10000
 # ALLPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot"
@@ -165,7 +166,7 @@ def read_interface_residues(interface_file):
 
 
 def get_interface_residues(
-    uniprot_id, out_uniprot_string, out_pdb_string, full, interface_data=None
+    uniprot_id, out_uniprot_string, out_pdb_string, full, ligand, interface_data=None
 ):
     """
     Get interface residues.
@@ -182,6 +183,8 @@ def get_interface_residues(
         consider full information in interface retrieval
     interface_data : str or Path or None
         interface data .json file
+    ligand : True, False or "both"
+        retrieve ligand binding residues 
 
     Returns
     -------
@@ -196,14 +199,24 @@ def get_interface_residues(
 
     interface_dict = {}
     if not interface_data:
-        url = f"{INTERFACE_URL}/{uniprot_id}"
-        try:
-            interface_api_data = make_request(url, None)
-        except Exception as e:
-            log.warning(
-                f"Could not make InterfaceResidues request for {uniprot_id}, {e}"
-            )
-            return interface_dict
+        if ligand in ["no", "both"]:
+            url = f"{INTERFACE_URL}/{uniprot_id}"
+            try:
+                interface_api_data = make_request(url, None)
+            except Exception as e:
+                log.warning(
+                    f"Could not make InterfaceResidues request for {uniprot_id}, {e}"
+                )
+                return interface_dict
+        if ligand in ["yes", "both"]:
+            url = f"{LIGAND_URL}/{uniprot_id}"
+            try:
+                interface_lig_api_data = make_request(url, None)
+            except Exception as e:
+                log.warning(
+                    f"Could not make InterfaceResidues request for {uniprot_id}, {e}"
+                )
+                return interface_dict
     else:
         try:
             interface_api_data = jsonpickle.decode(open(interface_data, "r").read())
@@ -211,10 +224,23 @@ def get_interface_residues(
             log.warning(f"Could not read input interface_data {interface_data}, {e}")
             return interface_dict
 
-    if interface_api_data and len(interface_api_data) != 0:
-        interface_dict = parse_interface_data(
-            uniprot_id, interface_api_data, out_uniprot_set, out_pdb_set, full
-        )
+    if ligand in ["no", "both"]:
+        if interface_api_data and len(interface_api_data) != 0:
+            interface_dict = parse_interface_data(
+                uniprot_id, interface_api_data, out_uniprot_set, out_pdb_set, full
+            )
+    if ligand in ["yes", "both"]:
+        if interface_lig_api_data and len(interface_lig_api_data) != 0:
+            interface_lig_dict = parse_interface_data(
+                uniprot_id, interface_lig_api_data, [], [], full=full
+                #uniprot_id, interface_lig_api_data, out_uniprot_set, out_pdb_set, full=full
+            )
+    if ligand == "yes":
+        interface_dict = interface_lig_dict
+    if ligand == "both":
+        interface_dict.update(interface_lig_dict)
+    
+    log.info(f"interface_dict {interface_dict}")
 
     return interface_dict
 

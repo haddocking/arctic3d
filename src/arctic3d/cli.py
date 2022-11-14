@@ -82,6 +82,13 @@ argument_parser.add_argument(
     default=False,
 )
 
+argument_parser.add_argument(
+    "--ligand",
+    help="retrieve ligand binding residues",
+    default="no",
+    choices=["yes", "no", "both"]
+)
+
 
 def load_args(arguments):
     """
@@ -134,6 +141,7 @@ def main(
     interface_data,
     pdb_data,
     full,
+    ligand,
 ):
     """Main function."""
     log.setLevel("DEBUG")
@@ -176,7 +184,7 @@ def main(
             )
         else:
             interface_residues = get_interface_residues(
-                uniprot_id, out_uniprot, out_pdb, full
+                uniprot_id, out_uniprot, out_pdb, full, ligand
             )
 
     log.info(f"Interface Residues: {interface_residues}")
