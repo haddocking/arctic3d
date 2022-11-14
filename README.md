@@ -49,6 +49,10 @@ arctic3d example/1ppe_E.fasta
 arctic3d example/1ppe_E.fasta --db db/swissprot
 # it is also possible to provide a pdb file with a set of interfaces
 arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
+# small-molecule interaction information can be retrieved
+arctic3d P00760 --ligand=yes
+# or combined with standard interface information
+arctic3d P00760 --ligand=both
 ```
 
 ---
