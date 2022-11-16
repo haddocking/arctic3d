@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 from arctic3d.functions import make_request
 from arctic3d.modules.output import parse_clusters, setup_output_folder
 
-LOGNAME = "arctic3d-localise.log"
+LOGNAME = "arctic3d_localise.log"
 logging.basicConfig(filename=LOGNAME)
 log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
@@ -151,8 +151,7 @@ def main(input_arg, run_dir):
                         cl_bins[cl_id][subloc] = 0
                     cl_bins[cl_id][subloc] += 1
 
-    log.info(f"cl_bins {cl_bins}")
-
+    log.info("Plotting cluster localisations...")
     # plotting histograms
     for cluster in cl_bins.keys():
         if cl_bins[cluster] != {}:
@@ -169,11 +168,13 @@ def main(input_arg, run_dir):
             plt.xticks(xints, fontsize=18)
             plt.yticks(fontsize=14)
             plt.tight_layout()
-            plt.savefig(f"cluster_{cluster}.png")
+            fig_fname = f"cluster_{cluster}.png"
+            plt.savefig(fig_fname)
+            log.info(f"Figure {fig_fname} created")
             plt.close()
 
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"arctic3d-localise run took {elap_time} seconds")
+    log.info(f"arctic3d_localise run took {elap_time} seconds")
     shutil.move(f"../{LOGNAME}", LOGNAME)
 
 
