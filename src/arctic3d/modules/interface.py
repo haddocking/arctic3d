@@ -243,8 +243,6 @@ def get_interface_residues(
     if ligand == "both":
         interface_dict.update(interface_lig_dict)
 
-    log.info(f"interface_dict {interface_dict}")
-
     return interface_dict
 
 
@@ -277,7 +275,7 @@ def parse_interface_data(
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
         if partner_uniprotid not in out_uniprot_set:
-            log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
+            #log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
             for residue_entry in element["residues"]:
                 start = residue_entry["startIndex"]
                 end = residue_entry["endIndex"]
