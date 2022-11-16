@@ -34,31 +34,31 @@ MAX_INTERFACES = 10000
 # PDB_DB = []
 
 
-def parse_out_uniprot(out_uniprot_string):
+def parse_out_partner(out_partner_string):
     """
     Parse the string of uniprot IDs to exclude.
 
     Parameters
     ----------
-    out_uniprot_string : str
+    out_partner_string : str
         comma-separated uniprot IDs to exclude.
 
     Returns
     -------
-    out_uniprot_list : set
+    out_partner_list : set
         set of uniprot IDs to exclude.
     """
-    out_uniprot_list = []
-    if out_uniprot_string:
-        uniprot_split = out_uniprot_string.split(",")
+    out_partner_list = []
+    if out_partner_string:
+        uniprot_split = out_partner_string.split(",")
         for uni in uniprot_split:
             if not uni.isalnum():
                 raise Exception(f"Invalid Uniprot ID {uni} in --out_pdb.")
-            if uni in out_uniprot_list:
-                log.warning(f"Warning: duplicated pdb entry {uni} in --out_uniprot.")
+            if uni in out_partner_list:
+                log.warning(f"Warning: duplicated pdb entry {uni} in --out_partner.")
             else:
-                out_uniprot_list.append(uni)
-    return set(out_uniprot_list)
+                out_partner_list.append(uni)
+    return set(out_partner_list)
 
 
 def parse_out_pdb(out_pdb_string):
@@ -166,7 +166,7 @@ def read_interface_residues(interface_file):
 
 
 def get_interface_residues(
-    uniprot_id, out_uniprot_string, out_pdb_string, full, ligand, interface_data=None
+    uniprot_id, out_partner_string, out_pdb_string, full, ligand, interface_data=None
 ):
     """
     Get interface residues.
@@ -175,7 +175,7 @@ def get_interface_residues(
     ----------
     uniprot_id : str
         Uniprot ID.
-    out_uniprot_string : str or None
+    out_partner_string : str or None
         comma-separated uniprot IDs to exclude.
     out_pdb_string : str or None
         comma-separated pdb IDs to exclude.
@@ -193,7 +193,7 @@ def get_interface_residues(
 
     """
     # get the uniprot IDs to exclude
-    out_uniprot_set = parse_out_uniprot(out_uniprot_string)
+    out_partner_set = parse_out_partner(out_partner_string)
     # get the PDB IDs to exclude
     out_pdb_set = parse_out_pdb(out_pdb_string)
 
@@ -238,14 +238,14 @@ def get_interface_residues(
     if ligand in ["no", "both"]:
         if interface_api_data and len(interface_api_data) != 0:
             interface_dict = parse_interface_data(
-                uniprot_id, interface_api_data, out_uniprot_set, out_pdb_set, full
+                uniprot_id, interface_api_data, out_partner_set, out_pdb_set, full
             )
     if ligand in ["yes", "both"]:
         if interface_lig_api_data and len(interface_lig_api_data) != 0:
             interface_lig_dict = parse_interface_data(
                 uniprot_id,
                 interface_lig_api_data,
-                out_uniprot_set,
+                out_partner_set,
                 out_pdb_set,
                 full=full,
             )
@@ -258,7 +258,7 @@ def get_interface_residues(
 
 
 def parse_interface_data(
-    uniprot_id, interface_data, out_uniprot_set, out_pdb_set, full
+    uniprot_id, interface_data, out_partner_set, out_pdb_set, full
 ):
     """
     Parse interface data.
@@ -269,7 +269,7 @@ def parse_interface_data(
         Uniprot ID.
     interface_data : dict
         Interface data.
-    out_uniprot_list : set
+    out_partner_list : set
         Set of Uniprot IDs to exclude. Empty if none.
     out_pdb_set : set
         Set of PDB files to exclude.
@@ -285,7 +285,7 @@ def parse_interface_data(
     interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
-        if partner_uniprotid not in out_uniprot_set:
+        if partner_uniprotid not in out_partner_set:
             # log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
             for residue_entry in element["residues"]:
                 start = residue_entry["startIndex"]

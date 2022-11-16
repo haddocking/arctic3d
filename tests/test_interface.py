@@ -5,8 +5,8 @@ import pytest
 from arctic3d.modules.interface import (
     get_interface_residues,
     parse_interface_line,
+    parse_out_partner,
     parse_out_pdb,
-    parse_out_uniprot,
     read_interface_residues,
 )
 
@@ -58,21 +58,21 @@ def test_parse_interface_line():
         parse_interface_line(interface_lines[2], 2)
 
 
-def test_parse_out_uniprot():
+def test_parse_out_partner():
     uniprot_strings = [None, "P00760", "P00760,P00974"]
     expected_uniprot_strings = [set([]), set(["P00760"]), set(["P00760", "P00974"])]
     observed_uniprot_strings = []
     for string in uniprot_strings:
-        obs_list = parse_out_uniprot(string)
+        obs_list = parse_out_partner(string)
         observed_uniprot_strings.append(obs_list)
     assert expected_uniprot_strings == observed_uniprot_strings
 
 
-def test_error_parse_out_uniprot():
-    out_uniprot_strings = ["P00760+", "P00760/"]
-    for string in out_uniprot_strings:
+def test_error_parse_out_partner():
+    out_partner_strings = ["P00760+", "P00760/"]
+    for string in out_partner_strings:
         with pytest.raises(Exception):
-            parse_out_uniprot(string)
+            parse_out_partner(string)
 
 
 def test_parse_out_pdb():

@@ -42,7 +42,7 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--out_uniprot",
+    "--out_partner",
     help="",
 )
 
@@ -133,7 +133,7 @@ def main(
     input_arg,
     db,
     interface_file,
-    out_uniprot,
+    out_partner,
     out_pdb,
     pdb_to_use,
     chain_to_use,
@@ -180,11 +180,11 @@ def main(
     else:
         if interface_data:
             interface_residues = get_interface_residues(
-                uniprot_id, out_uniprot, out_pdb, input_files["interface_data"], full
+                uniprot_id, out_partner, out_pdb, input_files["interface_data"], full
             )
         else:
             interface_residues = get_interface_residues(
-                uniprot_id, out_uniprot, out_pdb, full, ligand
+                uniprot_id, out_partner, out_pdb, full, ligand
             )
 
     log.info(f"Interface Residues: {interface_residues}")
