@@ -232,7 +232,7 @@ def main(
         log.info(f"Clustered interfaces {cl_ints}")
         log.info(f"Clustered interface residues: {cl_residues}")
 
-        make_output(pdb_f, cl_ints, cl_residues, cl_residues_probs)
+        make_output(interface_residues, pdb_f, cl_ints, cl_residues, cl_residues_probs)
     else:
         log.info("No interfaces found.")
 

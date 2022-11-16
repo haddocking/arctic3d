@@ -198,7 +198,26 @@ def get_interface_residues(
     out_pdb_set = parse_out_pdb(out_pdb_string)
 
     interface_dict = {}
-    if not interface_data:
+    if interface_data:
+        if ligand == "no":
+            try:
+                interface_api_data = jsonpickle.decode(open(interface_data, "r").read())
+            except Exception as e:
+                log.warning(
+                    f"Could not read input interface_data {interface_data}, {e}"
+                )
+                return interface_dict
+        elif ligand == "yes":
+            try:
+                interface_lig_api_data = jsonpickle.decode(
+                    open(interface_data, "r").read()
+                )
+            except Exception as e:
+                log.warning(
+                    f"Could not read input interface_data {interface_data}, {e}"
+                )
+                return interface_dict
+    else:
         if ligand in ["no", "both"]:
             url = f"{INTERFACE_URL}/{uniprot_id}"
             try:
@@ -213,16 +232,8 @@ def get_interface_residues(
             try:
                 interface_lig_api_data = make_request(url, None)
             except Exception as e:
-                log.warning(
-                    f"Could not make InterfaceResidues request for {uniprot_id}, {e}"
-                )
+                log.warning(f"Could not make LigandSites request for {uniprot_id}, {e}")
                 return interface_dict
-    else:
-        try:
-            interface_api_data = jsonpickle.decode(open(interface_data, "r").read())
-        except Exception as e:
-            log.warning(f"Could not read input interface_data {interface_data}, {e}")
-            return interface_dict
 
     if ligand in ["no", "both"]:
         if interface_api_data and len(interface_api_data) != 0:
@@ -242,8 +253,6 @@ def get_interface_residues(
         interface_dict = interface_lig_dict
     if ligand == "both":
         interface_dict.update(interface_lig_dict)
-
-    log.info(f"interface_dict {interface_dict}")
 
     return interface_dict
 
@@ -277,7 +286,7 @@ def parse_interface_data(
     for element in interface_data[uniprot_id]["data"]:
         partner_uniprotid = element["accession"]
         if partner_uniprotid not in out_uniprot_set:
-            log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
+            # log.info(f"Parsing partner uniprot ID {partner_uniprotid}")
             for residue_entry in element["residues"]:
                 start = residue_entry["startIndex"]
                 end = residue_entry["endIndex"]
