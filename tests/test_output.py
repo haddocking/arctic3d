@@ -6,8 +6,7 @@ import pytest
 from arctic3d.modules.output import (
     output_pdb,
     setup_output_folder,
-    write_clusters,
-    write_residues,
+    write_dict,
     write_residues_probs,
 )
 
@@ -34,9 +33,9 @@ def reference_res_dict():
 
 
 def test_write_clusters(reference_cl_dict):
-    """Test write_clusters."""
+    """Test write_dict for clusters."""
     cl_filename = "clusters_test.out"
-    write_clusters(reference_cl_dict, cl_filename)
+    write_dict(reference_cl_dict, cl_filename, keyword = "Cluster")
     expected_content = (
         f"Cluster 1 -> int_1 int_2{os.linesep}Cluster 2 -> int_3{os.linesep}"
     )
@@ -46,11 +45,23 @@ def test_write_clusters(reference_cl_dict):
 
 
 def test_write_residues(reference_res_dict):
-    """Test write_residues."""
+    """Test write_dict for residues."""
     res_filename = "residues_test.out"
-    write_residues(reference_res_dict, res_filename)
+    write_dict(reference_res_dict, res_filename, keyword = "Cluster")
     expected_content = (
         f"Cluster 1 -> 1 2 3 4 5{os.linesep}Cluster 2 -> 27 28 29{os.linesep}"
+    )
+    observed_content = open(res_filename, "r").read()
+    assert expected_content == observed_content
+    os.unlink(res_filename)
+
+
+def test_write_interfaes(reference_res_dict):
+    """Test write_dict for interfaces."""
+    res_filename = "residues_test.out"
+    write_dict(reference_res_dict, res_filename, keyword = "Interface")
+    expected_content = (
+        f"Interface 1 -> 1 2 3 4 5{os.linesep}Interface 2 -> 27 28 29{os.linesep}"
     )
     observed_content = open(res_filename, "r").read()
     assert expected_content == observed_content
