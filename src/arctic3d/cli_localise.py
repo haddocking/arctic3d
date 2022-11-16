@@ -8,19 +8,25 @@ USAGE::
 
     arctic3d_resclust ./example/clustered_interfaces.out
 
+Use the run_dir parameter if you want to specify a specific output directory
+
+    arctic3d_resclust ./example/clustered_interfaces.out --run_dir=arctic3d-localise-example
+
 """
 import argparse
 import logging
 import sys
 from pathlib import Path
 import time
-import numpy as np
 import matplotlib.pyplot as plt
+import shutil
 
 from arctic3d.functions import make_request
-from arctic3d.modules.output import parse_clusters
+from arctic3d.modules.output import parse_clusters, setup_output_folder
 
-log = logging.getLogger("arctic3dlog")
+LOGNAME = "arctic3d-localise.log"
+logging.basicConfig(filename=LOGNAME)
+log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
 formatter = logging.Formatter(
     " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
@@ -34,6 +40,12 @@ argument_parser = argparse.ArgumentParser()
 argument_parser.add_argument(
     "input_arg",
     help="Input clustered_interfaces.out file",
+)
+
+argument_parser.add_argument(
+    "--run_dir",
+    help="directory where to store the run",
+    default="arctic3d-localise"
 )
 
 
@@ -76,22 +88,23 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg):
+def main(input_arg, run_dir):
     """Main function."""
     log.setLevel("INFO")
     start_time = time.time()
 
     # check input existence
-    input_path = Path(input_arg)
-    log.info(f"Input file is {input_path}")
-    if not input_path.exists():
+    input_files = {"cl_filename" : Path(input_arg)}
+    log.info(f"Input file is {input_files['cl_filename']}")
+    if not input_files['cl_filename'].exists():
         raise Exception("non existing input file")
+    
+    input_files = setup_output_folder(None, input_files, run_dir)
 
-
-    clustering_dict = parse_clusters(input_path)
+    clustering_dict = parse_clusters(input_files["cl_filename"])
     log.info(f"Retrieved clustering_dict with {len(clustering_dict.keys())} clusters.")
 
-    log.info("Retrieving subcellular localisations...")
+    log.info("Retrieving subcellular localisations...(this may take a while)")
     locs = {} # partner-specific localisations. Can be empty
     failed_ids = []
     bins = [] # different localisations retrieved
@@ -117,13 +130,14 @@ def main(input_arg):
                                     if el not in bins:
                                         bins.append(el)
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"Subcellular localisation took {elap_time} seconds")
+    log.info(f"Subcellular localisation retrieval took {elap_time} seconds")
     log.info(f"Retrieved subcellular localisation for {len(locs.keys())} partners.")
 
     log.info(f"Unique subcellular localisations {bins}")
     
+    
+    # creating the histograms according to the clustering
     cl_bins = {}
-    # according to the clustering
     for cl_id in clustering_dict.keys():
         cl_bins[cl_id] = {}
         processed_uniprot_ids = []
@@ -138,22 +152,25 @@ def main(input_arg):
             
     log.info(f"cl_bins {cl_bins}")
 
-    # histograms
+    # plotting histograms
     for cluster in cl_bins.keys():
         if cl_bins[cluster] != {}:
-            sort_dict = {k: v for k, v in sorted(cl_bins[cluster].items(), reverse=True, key=lambda item: item[1])}
-            log.info(f"sort_dict for cluster {cluster} = {sort_dict}")
+            sort_dict = {k: v for k, v in sorted(cl_bins[cluster].items(), key=lambda item: item[1])}
+            labels = list(sort_dict.keys())
+            values = list(sort_dict.values())
+            xints = range(min(values), max(values)+1)
             plt.figure(figsize=(12,12))
-            plt.title(f"cluster_{cluster}")
-            plt.bar(sort_dict.keys(), sort_dict.values(), color='g')
-            plt.xticks(rotation=45, fontsize=14)
+            plt.title(f"cluster {cluster}", fontsize=24)
+            plt.barh(labels, values, height=0.3, color='g')
+            plt.xticks(xints, fontsize=18)
+            plt.yticks(fontsize = 14)
             plt.tight_layout()
             plt.savefig(f"cluster_{cluster}.png")
             plt.close()
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d-localise run took {elap_time} seconds")
-
+    shutil.move(f"../{LOGNAME}", LOGNAME)
 
 if __name__ == "__main__":
     sys.exit(maincli())
