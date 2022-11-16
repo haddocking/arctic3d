@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 from arctic3d.functions import make_request
 from arctic3d.modules.output import parse_clusters
@@ -88,20 +89,22 @@ def main(input_arg):
 
 
     clustering_dict = parse_clusters(input_path)
-    log.info(f"Retrieved clustering_dict {clustering_dict}")
+    log.info(f"Retrieved clustering_dict with {len(clustering_dict.keys())} clusters.")
 
-    log.info("Retrieving subcellular locations.")
+    log.info("Retrieving subcellular localisations...")
     locs = {} # partner-specific localisations. Can be empty
+    failed_ids = []
     bins = [] # different localisations retrieved
     for cl_id in clustering_dict.keys():
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
-            if uniprot_id not in locs.keys():
+            if uniprot_id not in locs.keys() and uniprot_id not in failed_ids:
                 uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
                 try:
                     prot_data = make_request(uniprot_url, None)
                 except Exception as e:
                     log.warning(f"Could not make UNIPROT request for {uniprot_id}, {e}")
+                    failed_ids.append(uniprot_id)
                 if 'comments' in prot_data.keys():
                     for tup in prot_data['comments']:
                         if tup['type'] == "SUBCELLULAR_LOCATION":
@@ -113,21 +116,40 @@ def main(input_arg):
                                 for el in splt_list:
                                     if el not in bins:
                                         bins.append(el)
+    elap_time = round((time.time() - start_time), 3)
+    log.info(f"Subcellular localisation took {elap_time} seconds")
     log.info(f"Retrieved subcellular localisation for {len(locs.keys())} partners.")
 
     log.info(f"Unique subcellular localisations {bins}")
-
-    base_histo_bins = {el : 0 for el in bins}
-    cl_bins = {cl_id : base_histo_bins.copy() for cl_id in clustering_dict.keys()}
+    
+    cl_bins = {}
     # according to the clustering
     for cl_id in clustering_dict.keys():
+        cl_bins[cl_id] = {}
+        processed_uniprot_ids = []
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
-            if uniprot_id in locs.keys():
+            if uniprot_id in locs.keys() and uniprot_id not in processed_uniprot_ids:
+                processed_uniprot_ids.append(uniprot_id)
                 for subloc in locs[uniprot_id]:
+                    if subloc not in cl_bins[cl_id].keys():
+                        cl_bins[cl_id][subloc] = 0
                     cl_bins[cl_id][subloc] += 1
             
     log.info(f"cl_bins {cl_bins}")
+
+    # histograms
+    for cluster in cl_bins.keys():
+        if cl_bins[cluster] != {}:
+            sort_dict = {k: v for k, v in sorted(cl_bins[cluster].items(), reverse=True, key=lambda item: item[1])}
+            log.info(f"sort_dict for cluster {cluster} = {sort_dict}")
+            plt.figure(figsize=(12,12))
+            plt.title(f"cluster_{cluster}")
+            plt.bar(sort_dict.keys(), sort_dict.values(), color='g')
+            plt.xticks(rotation='vertical',fontsize=12)
+            plt.tight_layout()
+            plt.savefig(f"cluster_{cluster}.png")
+            plt.close()
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d-localise run took {elap_time} seconds")
