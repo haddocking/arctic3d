@@ -78,6 +78,27 @@ def write_dict(input_dict, out_filename, keyword):
             wfile.write(f"{keyword} {key} -> " + cl_string + os.linesep)
 
 
+def parse_clusters(cl_filename):
+    """
+    Reads clusters file.
+
+    Parameters
+    ----------
+    cl_filename : str or Path
+        name of the input filename
+
+    Returns
+    cl_dict : dict
+        dictionary of clustered interfaces
+    """
+    cl_dict = {}
+    with open(cl_filename, "r") as rfile:
+        for ln in rfile:
+            splt_ln = ln.split()
+            cl_dict[splt_ln[1]] = splt_ln[3:]
+    return cl_dict
+
+
 def write_residues_probs(cl_residues_probs, res_probs_filename):
     """
     Writes clustered residues to file with their probability.
