@@ -80,13 +80,13 @@ def write_dict(input_dict, out_filename, keyword):
 
 def parse_clusters(cl_filename):
     """
-    Writes clusters to file.
+    Reads clusters file.
 
     Parameters
     ----------
     cl_filename : str or Path
         name of the input filename
-    
+
     Returns
     cl_dict : dict
         dictionary of clustered interfaces

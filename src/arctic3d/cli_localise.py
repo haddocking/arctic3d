@@ -15,11 +15,12 @@ Use the run_dir parameter if you want to specify a specific output directory
 """
 import argparse
 import logging
-import sys
-from pathlib import Path
-import time
-import matplotlib.pyplot as plt
 import shutil
+import sys
+import time
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 
 from arctic3d.functions import make_request
 from arctic3d.modules.output import parse_clusters, setup_output_folder
@@ -43,9 +44,7 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--run_dir",
-    help="directory where to store the run",
-    default="arctic3d-localise"
+    "--run_dir", help="directory where to store the run", default="arctic3d-localise"
 )
 
 
@@ -94,20 +93,20 @@ def main(input_arg, run_dir):
     start_time = time.time()
 
     # check input existence
-    input_files = {"cl_filename" : Path(input_arg)}
+    input_files = {"cl_filename": Path(input_arg)}
     log.info(f"Input file is {input_files['cl_filename']}")
-    if not input_files['cl_filename'].exists():
+    if not input_files["cl_filename"].exists():
         raise Exception("non existing input file")
-    
+
     input_files = setup_output_folder(None, input_files, run_dir)
 
     clustering_dict = parse_clusters(input_files["cl_filename"])
     log.info(f"Retrieved clustering_dict with {len(clustering_dict.keys())} clusters.")
 
     log.info("Retrieving subcellular localisations...(this may take a while)")
-    locs = {} # partner-specific localisations. Can be empty
+    locs = {}  # partner-specific localisations. Can be empty
     failed_ids = []
-    bins = [] # different localisations retrieved
+    bins = []  # different localisations retrieved
     for cl_id in clustering_dict.keys():
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
@@ -118,13 +117,16 @@ def main(input_arg, run_dir):
                 except Exception as e:
                     log.warning(f"Could not make UNIPROT request for {uniprot_id}, {e}")
                     failed_ids.append(uniprot_id)
-                if 'comments' in prot_data.keys():
-                    for tup in prot_data['comments']:
-                        if tup['type'] == "SUBCELLULAR_LOCATION":
+                if "comments" in prot_data.keys():
+                    for tup in prot_data["comments"]:
+                        if tup["type"] == "SUBCELLULAR_LOCATION":
                             if uniprot_id not in locs.keys():
                                 locs[uniprot_id] = []
-                            for loc in tup['locations']:
-                                splt_list = [el.strip() for el in loc['location']['value'].split(",")]
+                            for loc in tup["locations"]:
+                                splt_list = [
+                                    el.strip()
+                                    for el in loc["location"]["value"].split(",")
+                                ]
                                 locs[uniprot_id].extend(splt_list)
                                 for el in splt_list:
                                     if el not in bins:
@@ -134,8 +136,7 @@ def main(input_arg, run_dir):
     log.info(f"Retrieved subcellular localisation for {len(locs.keys())} partners.")
 
     log.info(f"Unique subcellular localisations {bins}")
-    
-    
+
     # creating the histograms according to the clustering
     cl_bins = {}
     for cl_id in clustering_dict.keys():
@@ -149,21 +150,24 @@ def main(input_arg, run_dir):
                     if subloc not in cl_bins[cl_id].keys():
                         cl_bins[cl_id][subloc] = 0
                     cl_bins[cl_id][subloc] += 1
-            
+
     log.info(f"cl_bins {cl_bins}")
 
     # plotting histograms
     for cluster in cl_bins.keys():
         if cl_bins[cluster] != {}:
-            sort_dict = {k: v for k, v in sorted(cl_bins[cluster].items(), key=lambda item: item[1])}
+            sort_dict = {
+                k: v
+                for k, v in sorted(cl_bins[cluster].items(), key=lambda item: item[1])
+            }
             labels = list(sort_dict.keys())
             values = list(sort_dict.values())
-            xints = range(min(values), max(values)+1)
-            plt.figure(figsize=(12,12))
+            xints = range(min(values), max(values) + 1)
+            plt.figure(figsize=(12, 12))
             plt.title(f"cluster {cluster}", fontsize=24)
-            plt.barh(labels, values, height=0.3, color='g')
+            plt.barh(labels, values, height=0.3, color="g")
             plt.xticks(xints, fontsize=18)
-            plt.yticks(fontsize = 14)
+            plt.yticks(fontsize=14)
             plt.tight_layout()
             plt.savefig(f"cluster_{cluster}.png")
             plt.close()
@@ -171,6 +175,7 @@ def main(input_arg, run_dir):
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d-localise run took {elap_time} seconds")
     shutil.move(f"../{LOGNAME}", LOGNAME)
+
 
 if __name__ == "__main__":
     sys.exit(maincli())
