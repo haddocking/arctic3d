@@ -18,6 +18,11 @@ def inp_interface_data():
     return Path(golden_data, "interface_data_P40202.json")
 
 
+@pytest.fixture
+def inp_interface_ligand_data():
+    return Path(golden_data, "interface_data_P40202_ligand.json")
+
+
 def test_read_int_file_nonexisting():
     """Test error on non-existing path."""
     non_ex_path = "../dummy"
@@ -123,37 +128,18 @@ def test_full_interface(inp_interface_data):
     assert obs_interface_residues == exp_interface_residues
 
 
-def test_ligandyes_interface():
+def test_ligandyes_interface(inp_interface_ligand_data):
     """Test get_interface_residues when ligand == yes."""
     obs_interface_residues = get_interface_residues(
-        "P40202", None, None, full=True, interface_data=None, ligand="yes"
+        "P40202",
+        None,
+        None,
+        full=True,
+        interface_data=inp_interface_ligand_data,
+        ligand="yes",
     )
     exp_interface_residues = {
         "SO4-1qup-A": [76, 77, 188, 217],
-        "SO4-1jk9-D": [226, 229, 230],
-        "ZN-1jk9-B": [16],
-        "ZN-5u9m-B": [17, 20],
-        "CA-1ej8-A": [124, 168],
-    }
-    assert obs_interface_residues == exp_interface_residues
-
-
-def test_ligandboth_interface():
-    """Test get_interface_residues when ligand == both."""
-    obs_interface_residues = get_interface_residues(
-        "P40202", None, None, full=True, interface_data=None, ligand="both"
-    )
-    exp_interface_residues = {
-        "P00441-5u9m-A": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
-        "P00441-5u9m-C": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
-        "P00445-1jk9-A": [136, 137, 138, 187, 217, 218, 226, 229, 230],
-        "P00445-1jk9-C": [136, 137, 138, 187, 217, 218, 226, 229, 230],
-        "P40202-1qup-A": [136, 137, 138, 183, 184, 186, 187, 217, 218],
-        "P40202-1qup-B": [136, 137, 138, 183, 184, 186, 187, 217, 218],
-        "SO4-1qup-A": [76, 77, 188, 217],
-        "SO4-1jk9-D": [226, 229, 230],
-        "ZN-1jk9-B": [16],
-        "ZN-5u9m-B": [17, 20],
-        "CA-1ej8-A": [124, 168],
+        "ZN-5u9m-D": [17, 20],
     }
     assert obs_interface_residues == exp_interface_residues
