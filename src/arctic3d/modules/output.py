@@ -57,6 +57,7 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
         copied_input_files[key] = Path("input_data", filename)
     return copied_input_files
 
+
 def write_dict(input_dict, out_filename, keyword):
     """
     Writes dictionary to file.
@@ -75,41 +76,6 @@ def write_dict(input_dict, out_filename, keyword):
         for key in input_dict.keys():
             cl_string = " ".join([str(el) for el in input_dict[key]])
             wfile.write(f"{keyword} {key} -> " + cl_string + os.linesep)
-
-#def write_clusters(cl_dict, cl_filename):
-#    """
-#    Writes clusters to file.
-#
-#    Parameters
-#    ----------
-#    cl_dict : dict
-#        dictionary of clustered interfaces
-#    cl_filename : str or Path
-#        name of the output filename
-#    """
-#    log.info(f"Writing clusters to file {cl_filename}")
-#    with open(cl_filename, "w") as wfile:
-#        for key in cl_dict.keys():
-#            cl_string = " ".join(cl_dict[key])
-#            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
-#
-#
-#def write_residues(res_dict, res_filename):
-#    """
-#    Writes clustered residues to file.
-#
-#    Parameters
-#    ----------
-#    res_dict : dict
-#        dictionary of clustered residues
-#    res_filename : str or Path
-#        output filename
-#    """
-#    # write to file
-#    with open(res_filename, "w") as wfile:
-#        for key in res_dict.keys():
-#            cl_string = " ".join([str(el) for el in res_dict[key]])
-#            wfile.write(f"Cluster {key} -> " + cl_string + os.linesep)
 
 
 def write_residues_probs(cl_residues_probs, res_probs_filename):
@@ -305,13 +271,15 @@ def make_output(interface_residues, pdb_f, cl_dict, cl_residues, cl_residues_pro
     """
     # writing full set of retrieved interfaces to file
     int_filename = "retrieved_interfaces.out"
-    write_dict(interface_residues, int_filename, keyword = "Interface")
+    write_dict(interface_residues, int_filename, keyword="Interface")
 
     # writing cluster information to files
     cl_filename = "clustered_interfaces.out"
-    write_dict(cl_dict, cl_filename, keyword = "Cluster")
+    write_dict(cl_dict, cl_filename, keyword="Cluster")
+
     res_filename = "clustered_residues.out"
-    write_dict(cl_residues, res_filename, keyword = "Cluster")
+    write_dict(cl_residues, res_filename, keyword="Cluster")
+
     res_probs_filename = "clustered_residues_probs.out"
     write_residues_probs(cl_residues_probs, res_probs_filename)
 
