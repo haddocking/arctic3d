@@ -146,7 +146,7 @@ def main(input_arg):
             plt.figure(figsize=(12,12))
             plt.title(f"cluster_{cluster}")
             plt.bar(sort_dict.keys(), sort_dict.values(), color='g')
-            plt.xticks(rotation='vertical',fontsize=12)
+            plt.xticks(rotation=45, fontsize=14)
             plt.tight_layout()
             plt.savefig(f"cluster_{cluster}.png")
             plt.close()
