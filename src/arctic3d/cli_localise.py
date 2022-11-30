@@ -48,6 +48,24 @@ argument_parser.add_argument(
 )
 
 
+def get_subcellular_location(prot_data):
+    locs = []
+    if "comments" in prot_data.keys():
+        for tup in prot_data["comments"]:
+            if tup["type"] == "SUBCELLULAR_LOCATION":
+                # if uniprot_id not in locs.keys():
+                #    locs[uniprot_id] = []
+                for loc in tup["locations"]:
+                    splt_list = [
+                        el.strip() for el in loc["location"]["value"].split(",")
+                    ]
+                    locs.extend(splt_list)
+                    # for el in splt_list:
+                    #    if el not in bins:
+                    #        bins.append(el)
+    return locs
+
+
 def load_args(arguments):
     """
     Load argument parser.
@@ -105,34 +123,41 @@ def main(input_arg, run_dir):
 
     log.info("Retrieving subcellular localisations...(this may take a while)")
     locs = {}  # partner-specific localisations. Can be empty
-    failed_ids = []
+    failed_ids, none_ids = (
+        [],
+        [],
+    )  # uniprot ids whose call failed/returned None location
     bins = []  # different localisations retrieved
     for cl_id in clustering_dict.keys():
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
-            if uniprot_id not in locs.keys() and uniprot_id not in failed_ids:
+            if (
+                uniprot_id not in locs.keys()
+                and uniprot_id not in failed_ids
+                and uniprot_id not in none_ids
+            ):
+                log.info(f"calling uniprot with uniprot ID {uniprot_id}")
                 uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
                 try:
                     prot_data = make_request(uniprot_url, None)
                 except Exception as e:
                     log.warning(f"Could not make UNIPROT request for {uniprot_id}, {e}")
                     failed_ids.append(uniprot_id)
-                if "comments" in prot_data.keys():
-                    for tup in prot_data["comments"]:
-                        if tup["type"] == "SUBCELLULAR_LOCATION":
-                            if uniprot_id not in locs.keys():
-                                locs[uniprot_id] = []
-                            for loc in tup["locations"]:
-                                splt_list = [
-                                    el.strip()
-                                    for el in loc["location"]["value"].split(",")
-                                ]
-                                locs[uniprot_id].extend(splt_list)
-                                for el in splt_list:
-                                    if el not in bins:
-                                        bins.append(el)
+                locations = get_subcellular_location(prot_data)
+                if locations == []:
+                    log.info(f"no location retrieved for {uniprot_id}")
+                    none_ids.append(uniprot_id)
+                else:
+                    log.info(f"location retrieved for {uniprot_id}")
+                    locs[uniprot_id] = locations
+                    # append to bins
+                    for location in locations:
+                        if location not in bins:
+                            bins.append(location)
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Subcellular localisation retrieval took {elap_time} seconds")
+    log.info(f"{len(failed_ids)} partners failed uniprot calls.")
+    log.info(f"{len(none_ids)} contain None subcellular localisation information.")
     log.info(f"Retrieved subcellular localisation for {len(locs.keys())} partners.")
 
     log.info(f"Unique subcellular localisations {bins}")
@@ -161,7 +186,8 @@ def main(input_arg, run_dir):
             }
             labels = list(sort_dict.keys())
             values = list(sort_dict.values())
-            xints = range(min(values), max(values) + 1)
+            gap = (max(values) - min(values)) // 12 + 1
+            xints = range(min(values), max(values) + 1, gap)
             plt.figure(figsize=(12, 12))
             plt.title(f"cluster {cluster}", fontsize=24)
             plt.barh(labels, values, height=0.3, color="g")
