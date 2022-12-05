@@ -8,7 +8,7 @@ import MDAnalysis as mda
 import numpy as np
 import plotly.graph_objects as go
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 
 def setup_output_folder(uniprot_id, input_files, output_dir):
