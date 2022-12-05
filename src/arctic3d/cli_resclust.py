@@ -23,7 +23,9 @@ from scipy.spatial.distance import pdist
 from arctic3d.modules.clustering import cluster_similarity_matrix, get_clustering_dict
 from arctic3d.modules.input import Input
 
-log = logging.getLogger("arctic3dlog")
+LOGNAME = "arctic3d_resclust.log"
+logging.basicConfig(filename=LOGNAME, filemode="w")
+log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
 formatter = logging.Formatter(
     " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
@@ -146,6 +148,7 @@ def main(input_arg, residue_list, chain, threshold, linkage):
         sys.exit(1)
 
     # do the clustering
+    log.info(f"Clustering distance matrix with linkage {linkage} and threshold {threshold}")
     distmap = pdist(u.positions)
     clusters = cluster_similarity_matrix(
         distmap, unique_sorted_resids, threshold=threshold, linkage_strategy=linkage
