@@ -3,7 +3,7 @@ import logging
 from arctic3d.modules.clustering import interface_clustering
 from arctic3d.modules.interface_matrix import interface_matrix
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 
 def cluster_interfaces(interface_dict, pdb_path):

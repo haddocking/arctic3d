@@ -9,7 +9,7 @@ from pathlib import Path
 from Bio.Blast import NCBIWWW
 from defusedxml import lxml as ET
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 
 def run_blast(fasta_f, db=None):

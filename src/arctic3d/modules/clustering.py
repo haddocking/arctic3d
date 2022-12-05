@@ -13,7 +13,7 @@ LINKAGE = "average"
 # THRESHOLD = 0.7071  # np.sqrt(2)/2
 THRESHOLD = 0.8660  # np.sqrt(3)/2
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 
 def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):

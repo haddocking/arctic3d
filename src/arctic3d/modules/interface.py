@@ -5,7 +5,7 @@ import jsonpickle
 
 from arctic3d.functions import make_request
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 INTERFACE_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/interface_residues"
 LIGAND_URL = "https://www.ebi.ac.uk/pdbe/graph-api/uniprot/ligand_sites/"
