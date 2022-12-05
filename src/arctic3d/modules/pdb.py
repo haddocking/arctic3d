@@ -13,7 +13,7 @@ from pdbtools.pdb_tidy import tidy_pdbfile
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"

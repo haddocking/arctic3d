@@ -10,7 +10,7 @@ from scipy.spatial.distance import cdist
 SIGMA = 1.9
 INTERFACE_COV_CUTOFF = 0.7
 
-log = logging.getLogger("arctic3dlog")
+log = logging.getLogger("arctic3d.log")
 
 
 def check_residues_coverage(interface, pdb_resids):
