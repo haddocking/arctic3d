@@ -148,7 +148,9 @@ def main(input_arg, residue_list, chain, threshold, linkage):
         sys.exit(1)
 
     # do the clustering
-    log.info(f"Clustering distance matrix with linkage {linkage} and threshold {threshold}")
+    log.info(
+        f"Clustering distance matrix with linkage {linkage} and threshold {threshold}"
+    )
     distmap = pdist(u.positions)
     clusters = cluster_similarity_matrix(
         distmap, unique_sorted_resids, threshold=threshold, linkage_strategy=linkage

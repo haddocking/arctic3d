@@ -1,10 +1,10 @@
 """Main CLI."""
 import argparse
 import logging
-import sys
-from pathlib import Path
 import shutil
+import sys
 import time
+from pathlib import Path
 
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
@@ -239,9 +239,10 @@ def main(
         make_output(interface_residues, pdb_f, cl_ints, cl_residues, cl_residues_probs)
     else:
         log.info("No interfaces found.")
-    
+
     log.info(f"arctic3d run completed in {(time.time() - st_time):.2f} seconds.")
     shutil.move(f"../{LOGNAME}", LOGNAME)
+
 
 if __name__ == "__main__":
     sys.exit(maincli())
