@@ -16,7 +16,7 @@ THRESHOLD = 0.8660  # np.sqrt(3)/2
 log = logging.getLogger("arctic3dlog")
 
 
-def plot_dendrogram(linkage_matrix, entries, filename, max_entries=100):
+def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
     """
     Plots the dendrogram.
 
@@ -44,10 +44,12 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=100):
         labels=entries,
         truncate_mode=truncate_mode,
         p=p,
+        orientation="right",
     )
-    plt.xlabel("Interface Names")
-    plt.ylabel("Dissimilarity")
+    plt.ylabel("Interface Names")
+    plt.xlabel("Dissimilarity")
     plt.title("ARCTIC3D dendrogram")
+    plt.tight_layout()
     plt.savefig(filename)
     plt.close()
 
