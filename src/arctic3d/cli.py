@@ -184,7 +184,7 @@ def main(
     else:
         if interface_file:
             log.warning(
-                f"input interface file submitted without pdb. It will be ignored."
+                "input interface file submitted without pdb. It will be ignored."
             )
         if interface_data:
             interface_residues = get_interface_residues(
