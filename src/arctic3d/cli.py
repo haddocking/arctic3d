@@ -13,7 +13,7 @@ from arctic3d.modules.cluster_interfaces import cluster_interfaces
 from arctic3d.modules.input import Input
 from arctic3d.modules.interface import get_interface_residues, read_interface_residues
 from arctic3d.modules.output import make_output, setup_output_folder
-from arctic3d.modules.pdb import get_best_pdb
+from arctic3d.modules.pdb import get_best_pdb, renumber_pdb_from_uniprot
 from arctic3d.modules.sequence import to_fasta
 
 # from arctic3d.modules.sequence import load_seq
@@ -196,12 +196,13 @@ def main(
     if interface_residues:
         # retrieve pdb file
         if inp.is_pdb():
-            # interfaces will be filtered later
-            pdb_f, filtered_interfaces = input_files["pdb"], None
             if not interface_file:
                 log.warning(
-                    """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
+                    f"""Input pdb file submitted without interface file. Renumbering input pdb to match uniprot ID {uniprot_id}."""
                 )
+            # interfaces will be filtered later
+            filtered_interfaces = None
+            pdb_f = renumber_pdb_from_uniprot(input_files["pdb"], uniprot_id)
         else:
             if pdb_data:
                 pdb_f, filtered_interfaces = get_best_pdb(

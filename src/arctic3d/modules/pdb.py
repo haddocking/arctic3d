@@ -1,10 +1,12 @@
 import logging
 import os
+import shutil
 from pathlib import Path
 
 import jsonpickle
 import MDAnalysis as mda
 import requests
+from Bio import SeqIO
 from pdbecif.mmcif_io import MMCIF2Dict
 from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
@@ -12,11 +14,14 @@ from pdbtools.pdb_tidy import tidy_pdbfile
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
+from arctic3d.modules.sequence import align_sequences, to_fasta
 
 log = logging.getLogger("arctic3d.log")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"
+UNIPROT_API_URL = "https://www.ebi.ac.uk/proteins/api/proteins"
+RECORDS = ("ATOM", "TER")
 
 
 def fetch_updated_cif(pdb_id, cif_fname):
@@ -135,12 +140,11 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
         log.info(f"Renumbering pdb {pdb_fname}")
         pdb_renum_fname = Path(f"{pdb_fname.stem}_renum.pdb")
 
-        records = ("ATOM", "TER")
         file_content = ""
         with open(pdb_renum_fname, "w") as wfile:
             with open(pdb_fname, "r") as rfile:
                 for ln in rfile:
-                    if ln.startswith(records):
+                    if ln.startswith(RECORDS):
                         resid = ln[22:26].strip()
                         residue_key = f"{ln[17:20].strip()}-{ln[20:22].strip()}-{resid}"  # resname-chain_id-resid
 
@@ -158,6 +162,82 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
         log.info(f"Renumbering failed for pdb {pdb_fname}")
         pdb_renum_fname = None
     return pdb_renum_fname, cif_fname
+
+
+def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
+    """
+    Renumbers a pdb file based on the information coming from the corresponding
+    uniprot sequence.
+
+    Parameters
+    ----------
+    pdb_f : str or Path
+        input pdb file
+    uniprot_id : str
+        Uniprot ID
+
+    Returns
+    -------
+    out_pdb_renum : Path
+        renumbered pdb file
+    """
+    url = f"{UNIPROT_API_URL}/{uniprot_id}"
+    try:
+        pdb_dict = make_request(url, None)
+    except Exception as e:
+        log.warning(f"Could not make Sequence request for {uniprot_id}, {e}")
+        return pdb_f
+    ref_seq = pdb_dict["sequence"]["sequence"]
+
+    # extracting sequences from input pdb
+    fasta_f = to_fasta(pdb_f, temp=False)
+    fasta_sequences = SeqIO.parse(open(fasta_f.name), "fasta")
+
+    # looping over sequences
+    max_id = -1.0
+    for fasta in fasta_sequences:
+        name, seq = fasta.id, str(fasta.seq)
+        aln_fname, top_aln = align_sequences(ref_seq, seq)
+        identity = str(top_aln).count("|") / float(min(len(ref_seq), len(seq)))
+
+        log.info(f"sequence {name} has identity {identity}")
+        if identity > max_id:
+            max_id = identity
+            max_id_chain = name.split("|")[1]
+            shutil.copy(aln_fname, f"{uniprot_id}.aln")
+    os.unlink(aln_fname)
+
+    # preprocess pdb before renumbering
+    log.info(
+        f"Renumbering chain {max_id_chain} of {pdb_f} ({max_id} identity with {uniprot_id})"
+    )
+    pdb_torenum = preprocess_pdb(pdb_f, max_id_chain)
+    pdb_numb = open(f"{uniprot_id}.aln", "r").read().split("\n")[2]
+    pdb_renum = Path(f"{pdb_torenum.stem}-renum.pdb")
+
+    # renumbering. Pdb is aligned to uniprot, so each letter in the alignment
+    # is positioned at the correct residue index (adjusted with + 1)
+    numbering_list = [n + 1 for n in range(len(pdb_numb)) if pdb_numb[n] != "-"]
+    resid_idx, prev_resid = -1, -1
+    file_content = ""
+    with open(pdb_renum, "w") as wfile:
+        with open(pdb_torenum) as rfile:
+            for ln in rfile:
+                if ln.startswith(RECORDS):
+                    resid = ln[22:26].strip()
+                    if resid != prev_resid:
+                        resid_idx += 1
+                    prev_resid = resid
+                    # renumbering takes place here
+                    n_spaces = 4 - len(str(numbering_list[resid_idx]))
+                    resid_str = f"{' ' * n_spaces}{numbering_list[resid_idx]} "
+                    file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
+                else:
+                    file_content += f"{ln}"
+            wfile.write(file_content)
+    os.unlink(pdb_torenum)
+    out_pdb_renum = pdb_renum.rename(f"{pdb_f.stem}-{uniprot_id}.pdb")
+    return out_pdb_renum
 
 
 def fetch_pdb(pdb_id):

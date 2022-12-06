@@ -1,5 +1,7 @@
 import tempfile
 
+from Bio import Align
+from Bio.Align import substitution_matrices
 from pdbtools.pdb_tofasta import pdb_to_fasta
 
 
@@ -48,3 +50,31 @@ def to_fasta(pdb_f, temp):
     fasta_fh.close()
 
     return fasta_fh
+
+
+def align_sequences(seq1, seq2):
+    """
+    Performs a pairwise alignment between two sequences.
+
+    Parameters
+    ----------
+    seq1 : str
+        sequence
+    seq2 : str
+        sequence
+
+    Returns
+    -------
+    aln_fname : str
+        alignment file name
+    top_aln : str
+        top alignment
+    """
+    aln_fname = "blosum80.aln"
+    aligner = Align.PairwiseAligner()
+    aligner.substitution_matrix = substitution_matrices.load("BLOSUM80")
+    alns = aligner.align(seq1, seq2)
+    top_aln = alns[0]
+    with open(aln_fname, "w") as fh:
+        fh.write(str(top_aln))
+    return aln_fname, top_aln
