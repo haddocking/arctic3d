@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from arctic3d.modules.pdb import (
     get_maxint_pdb,
     keep_atoms,
     occ_pdb,
+    renumber_pdb_from_uniprot,
     selchain_pdb,
     tidy_pdb,
     validate_api_hit,
@@ -19,6 +21,11 @@ from . import golden_data
 @pytest.fixture
 def inp_pdb():
     return Path(golden_data, "1rypB_r_b.pdb")
+
+
+@pytest.fixture
+def inp_nonrenum_pdb():
+    return Path(golden_data, "pdb4xoj.pdb")
 
 
 @pytest.fixture
@@ -182,3 +189,18 @@ def test_pdb_data(inp_pdb_data):
 
     assert filtered_interfaces == orig_interfaces
     pdb.unlink()
+
+
+def test_renumber_pdb_from_uniprot(inp_nonrenum_pdb):
+    """Test renumber_pdb_from_uniprot."""
+    renum_pdbf = renumber_pdb_from_uniprot(inp_nonrenum_pdb, "P00760")
+    exp_resids = [5, 14]
+    exp_resids.extend(list(range(26, 246)))
+    renum_pdbf_content = open(renum_pdbf, "r").read().split(os.linesep)
+    print(renum_pdbf_content)
+    obs_resids = [
+        int(ln[22:26].strip())
+        for ln in renum_pdbf_content
+        if ln.startswith("ATOM") and ln[13:15] == "CA"
+    ]
+    assert exp_resids == obs_resids
