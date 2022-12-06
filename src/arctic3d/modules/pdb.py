@@ -181,6 +181,7 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
     out_pdb_renum : Path
         renumbered pdb file
     """
+    log.warning("Uniprot-based numbering should not be completely trusted...")
     url = f"{UNIPROT_API_URL}/{uniprot_id}"
     try:
         pdb_dict = make_request(url, None)
