@@ -178,10 +178,14 @@ def main(
     input_files = setup_output_folder(uniprot_id, input_files, run_dir)
 
     # retrieve interfaces.
-    if interface_file:
+    if "interface_file" in input_files:
         log.info(f"input interface file {interface_file}")
         interface_residues = read_interface_residues(input_files["interface_file"])
     else:
+        if interface_file:
+            log.warning(
+                "input interface file submitted without pdb. It will be ignored."
+            )
         if interface_data:
             interface_residues = get_interface_residues(
                 uniprot_id, out_partner, out_pdb, input_files["interface_data"], full
