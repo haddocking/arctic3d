@@ -32,39 +32,6 @@ bash install_blast_deps.sh
 
 And put `blastp` in your `$PATH`.
 
-## Example
+## Example usage
 
-```bash
-# the default input is an uniprotID
-arctic3d P00760
-# one or more uniprot IDs can be excluded from the interface calls
-arctic3d P00760 --out_uniprot=P00760,P00974
-# one or more pdb IDs can be excluded from the interface calls
-arctic3d P00760 --out_pdb=4xoj,6sy3
-# the pdb that must be retrieved can be specified
-arctic3d P00760 --pdb_to_use=4xoj
-# the uniprotID can be identifed from the sequence, either remotely
-arctic3d example/1ppe_E.fasta
-# or locally
-arctic3d example/1ppe_E.fasta --db db/swissprot
-# it is also possible to provide a pdb file with a set of interfaces
-arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
-# small-molecule interaction information can be retrieved
-arctic3d P00760 --ligand=yes
-# or combined with standard interface information
-arctic3d P00760 --ligand=both
-```
-
----
-
-## Residue-based clustering
-
-It is also possible to clusters separate residues with the following command:
-
-```bash
-arctic3d example/1ppe_E.pdb --residue_list 49,50,51,100,101,102 --threshold=12.0 --chain=E --linkage=average
-```
-
-Here each residue is treated as an independent entity and the standard CA-CA distance matrix between the selected amino acids is clustered according to the `threshold` value and the `linkage` criterion. This can be useful if one wants to automatically separate groups of residues on a pdb structure.
-
-The user can change the `linkage` strategy employed to create the dendrogram by choosing between one of the keywords specified [here](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html).
+Please refer to the [examples](docs/examples.md) documentation page.
