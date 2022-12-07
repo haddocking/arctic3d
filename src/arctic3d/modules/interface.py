@@ -1,3 +1,4 @@
+"Interface library."
 import logging
 import os
 
@@ -259,7 +260,7 @@ def parse_interface_data(
     -------
     interface_dict : dict
         Interface residue dictionary.
-            {partner_uniprotid_1: [1,2,3], partner_uniprotid_2: [20,22,23]}
+        *example* : {partner_uniprotid_1: [1,2,3], partner_uniprotid_2: [20,22,23]}
     """
     interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:

@@ -1,3 +1,4 @@
+"Output library."
 import logging
 import os
 import shutil
@@ -22,6 +23,7 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
         dict of input files
     output_dir : str or None
         user-defined name of the run
+
     Returns
     -------
     copied_input_files : dict of Paths
@@ -125,13 +127,13 @@ def write_residues_probs(cl_residues_probs, res_probs_filename):
 
 
 def output_pdb(pdb_f, cl_residues_probs):
-    """Outputs pdb containing probabilities
+    """
+    Outputs pdb containing probabilities.
 
     Parameters
     ----------
     pdb_f : str or Path
         Path to PDB file.
-
     cl_residues_probs : dict of dicts
         dictionary of probabilities for clustered residues
         example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
@@ -230,13 +232,12 @@ def make_plotly_plot(conv_resids, probs):
 
 def plot_interactive_probs(pdb_f, cl_residues_probs):
     """
-    Interactive plot
+    Interactive plot.
 
     Parameters
     ----------
     pdb_f : str or Path
         Path to PDB file.
-
     cl_residues_probs : dict of dicts
         dictionary of probabilities for clustered residues
         example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
@@ -277,9 +278,9 @@ def make_output(interface_residues, pdb_f, cl_dict, cl_residues, cl_residues_pro
     Parameters
     ----------
     interface_residues : dict
-        dictionary of all interfaces.
+        dictionary of all interfaces
     pdb_f : str or Path
-        Path to PDB file.
+        Path to PDB file
     cl_dict : dict
         dictionary of clustered interfaces
     cl_residues : dict
@@ -287,11 +288,12 @@ def make_output(interface_residues, pdb_f, cl_dict, cl_residues, cl_residues_pro
     cl_residues_probs : dict of dicts
         dictionary of probabilities for clustered residues
         example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
-                  ...
-                }
+                ...
+        }
     """
     # writing full set of retrieved interfaces to file
     int_filename = "retrieved_interfaces.out"
+
     write_dict(interface_residues, int_filename, keyword="Interface")
 
     # writing cluster information to files

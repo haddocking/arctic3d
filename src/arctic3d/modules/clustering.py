@@ -100,10 +100,7 @@ def get_clustering_dict(clusters, ligands):
     -------
     cl_dict : dict
         dictionary of clustered interfaces
-        example { 1 : ['interface_1', 'interface_3'] ,
-                  2 : ['interface_2'],
-                  ...
-                }
+        *example* { 1 : ['interface_1', 'interface_3'] , 2 : ['interface_2'], ... }
     """
     cl_dict = {}
     # loop over clusters
@@ -131,15 +128,10 @@ def get_residue_dict(cl_dict, interface_dict):
     -------
     clustered_residues : dict
         dictionary of clustered residues
-        example { 1 : [1,2,3,5,6,8] ,
-                  2 : [29,30,31],
-                  ...
-                }
+        *example* { 1 : [1,2,3,5,6,8] , 2 : [29,30,31], ... }
     cl_residues_probs : dict of dicts
         dictionary of probabilities for clustered residues
-        example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
-                  ...
-                }
+        *example* { 1 : {1:0.7, 2:0.2, 3:0.4 ...}, ... }
     """
     clustered_residues = {}
     cl_residues_probs = {}
