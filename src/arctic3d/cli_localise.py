@@ -12,9 +12,9 @@ Use the run_dir parameter if you want to specify a specific output directory::
 
     arctic3d_resclust ./example/clustered_interfaces.out --run_dir=arctic3d-localise-example
 
-Use the out_partner to exclude one or more uniprot IDs from the search
+Use the out_partner to exclude one or more uniprot IDs from the search::
 
-    arctic3d_resclust ./example/clustered_interfaces.out --out_partner=P00760
+    arctic3d_resclust ./example/clustered_interfaces.out --out_partner=P00760,P00761
 """
 import argparse
 import logging
