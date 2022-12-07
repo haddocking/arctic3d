@@ -25,30 +25,6 @@ arctic3d.modules.clustering module
    :undoc-members:
    :show-inheritance:
 
-arctic3d.modules.example\_clustering module
--------------------------------------------
-
-.. automodule:: arctic3d.modules.example_clustering
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-arctic3d.modules.example\_get\_interface module
------------------------------------------------
-
-.. automodule:: arctic3d.modules.example_get_interface
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-arctic3d.modules.example\_interface\_matrix module
---------------------------------------------------
-
-.. automodule:: arctic3d.modules.example_interface_matrix
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 arctic3d.modules.input module
 -----------------------------
 

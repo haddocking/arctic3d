@@ -12,16 +12,16 @@ ARCTIC3D can be executed in several ways:
 
 The following examples are here described:
 
-
 ## standard-uniprot-input
 
-In this example a uniprot ID is provided as input to arctic3d. 
+In this example a uniprot ID is provided as input to arctic3d.
 
 ```bash
 arctic3d P00760
 ```
 
 This is the basic ARCTIC3D scenario: here the program performs the following tasks sequentially:
+
 1. retrieval of all the partners interacting with the selected uniprot ID;
 2. gathering of the corresponding interfaces
 3. structural projection of the interfaces on the [best available pdb](https://www.ebi.ac.uk/pdbe/api/doc/sifts.html)
@@ -58,6 +58,7 @@ arctic3d example/1ppe_E.fasta --db db/swissprot
 Once the uniprot ID is retrieved the workflow proceeds as explained in [standard-uniprot-input](standard-uniprot-input).
 
 To run blast remotely simply remove the db reference:
+
 ```bash
 arctic3d example/1ppe_E.fasta
 ```
@@ -82,13 +83,13 @@ arctic3d P00760 --full=True
 
 ## uniprot-ligand-input
 
-Small-molecule interaction information is not retrieved by default by ARCTIC3D.
+Small-molecule interaction information is not retrieved by default by ARCTIC3D. By setting the `ligand` option to `yes` the retrieval can be limited to ligands:
 
 ```bash
 arctic3d P00760 --ligand=yes
 ```
 
-Such information can be combined with standard interface information by setting the `ligand` option to `both`
+Such information can be combined with standard interface information by setting the `ligand` option to `both`:
 
 ```bash
 arctic3d P00760 --ligand=both

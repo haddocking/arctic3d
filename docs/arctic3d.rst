@@ -1,7 +1,7 @@
 arctic3d package
 ================
 
-Subpackages
+Functions
 -----------
 
 .. toctree::
@@ -9,8 +9,8 @@ Subpackages
 
    arctic3d.modules
 
-Submodules
-----------
+Command Line Interfaces
+-----------------------
 
 arctic3d.cli module
 -------------------

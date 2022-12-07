@@ -5,7 +5,7 @@ Welcome to ARCTIC3D Documentation!
    :start-after: .. start-description
    :end-before: .. end-description
 
-You can read now through the **contents** bellow.
+You can read now through the **contents** below.
 
 
 Contents
