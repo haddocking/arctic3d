@@ -41,7 +41,7 @@ Please refer to the [examples](docs/examples.md) documentation page.
 In order to generate a detailed html documentation please execute these commands
 
 ```text
-conda install myst_parser
+pip install myst_parser
 conda install sphinx
 sphinx-build -E docs ./arctic3d-docs
 ```

@@ -1,17 +1,20 @@
 """
-Get subcellular localisation of arctic3d data.
+Get subcellular location of arctic3d data.
 
 Given clustered_interfaces.out input file it iterates over the different partners to detect their
-subcellular localisation (as provided by https://www.ebi.ac.uk/proteins/api/proteins)
+subcellular location (as provided by https://www.ebi.ac.uk/proteins/api/proteins)
 
 USAGE::
 
     arctic3d_resclust ./example/clustered_interfaces.out
 
-Use the run_dir parameter if you want to specify a specific output directory
+Use the run_dir parameter if you want to specify a specific output directory::
 
     arctic3d_resclust ./example/clustered_interfaces.out --run_dir=arctic3d-localise-example
 
+Use the out_partner to exclude one or more uniprot IDs from the search::
+
+    arctic3d_resclust ./example/clustered_interfaces.out --out_partner=P00760,P00761
 """
 import argparse
 import logging
@@ -23,7 +26,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 from arctic3d.functions import make_request
-from arctic3d.modules.output import parse_clusters, setup_output_folder
+from arctic3d.modules.interface import parse_out_partner
+from arctic3d.modules.output import parse_clusters, setup_output_folder, write_dict
 
 LOGNAME = "arctic3d_localise.log"
 logging.basicConfig(filename=LOGNAME)
@@ -47,22 +51,22 @@ argument_parser.add_argument(
     "--run_dir", help="directory where to store the run", default="arctic3d-localise"
 )
 
+argument_parser.add_argument(
+    "--out_partner",
+    help="Set of comma-separated partner IDs to exclude from the search",
+)
+
 
 def get_subcellular_location(prot_data):
     locs = []
     if "comments" in prot_data.keys():
         for tup in prot_data["comments"]:
             if tup["type"] == "SUBCELLULAR_LOCATION":
-                # if uniprot_id not in locs.keys():
-                #    locs[uniprot_id] = []
                 for loc in tup["locations"]:
                     splt_list = [
                         el.strip() for el in loc["location"]["value"].split(",")
                     ]
                     locs.extend(splt_list)
-                    # for el in splt_list:
-                    #    if el not in bins:
-                    #        bins.append(el)
     return locs
 
 
@@ -105,7 +109,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, run_dir):
+def main(input_arg, run_dir, out_partner):
     """Main function."""
     log.setLevel("INFO")
     start_time = time.time()
@@ -118,24 +122,33 @@ def main(input_arg, run_dir):
 
     input_files = setup_output_folder(None, input_files, run_dir)
 
+    # parsing arctic3d clustering output
     clustering_dict = parse_clusters(input_files["cl_filename"])
     log.info(f"Retrieved clustering_dict with {len(clustering_dict.keys())} clusters.")
 
-    log.info("Retrieving subcellular localisations...(this may take a while)")
-    locs = {}  # partner-specific localisations. Can be empty
+    # parsing out_partner string
+    out_partner_set = parse_out_partner(out_partner)
+    if out_partner:
+        log.info(f"Excluding uniprot IDs {out_partner_set}.")
+
+    log.info("Retrieving subcellular locations...(this may take a while)")
+    locs = {}  # partner-specific locations. Can be empty
     failed_ids, none_ids = (
         [],
         [],
     )  # uniprot ids whose call failed/returned None location
-    bins = []  # different localisations retrieved
+    bins = []  # different locations retrieved
     for cl_id in clustering_dict.keys():
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
+            # ugly if-clause to avoid calling uniprot with one of the ids to be excluded
             if (
                 uniprot_id not in locs.keys()
                 and uniprot_id not in failed_ids
                 and uniprot_id not in none_ids
+                and uniprot_id not in out_partner_set
             ):
+                # uniprot call
                 log.info(f"calling uniprot with uniprot ID {uniprot_id}")
                 uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
                 try:
@@ -143,6 +156,8 @@ def main(input_arg, run_dir):
                 except Exception as e:
                     log.warning(f"Could not make UNIPROT request for {uniprot_id}, {e}")
                     failed_ids.append(uniprot_id)
+                    continue
+                # parsing
                 locations = get_subcellular_location(prot_data)
                 if locations == []:
                     log.info(f"no location retrieved for {uniprot_id}")
@@ -155,12 +170,17 @@ def main(input_arg, run_dir):
                         if location not in bins:
                             bins.append(location)
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"Subcellular localisation retrieval took {elap_time} seconds")
+    log.info(f"Subcellular location retrieval took {elap_time} seconds")
     log.info(f"{len(failed_ids)} partners failed uniprot calls.")
-    log.info(f"{len(none_ids)} contain None subcellular localisation information.")
-    log.info(f"Retrieved subcellular localisation for {len(locs.keys())} partners.")
+    log.info(f"{len(none_ids)} contain None subcellular location information.")
+    log.info(f"Retrieved subcellular location for {len(locs.keys())} partners.")
 
-    log.info(f"Unique subcellular localisations {bins}")
+    log.info(f"Unique subcellular locations {bins}")
+
+    # writing locations to file
+    loc_filename = "Subcellular_locations.txt"
+    log.info(f"Saving retrieved subcellular locations to file {loc_filename}")
+    write_dict(locs, loc_filename, keyword="Subcellular location")
 
     # creating the histograms according to the clustering
     cl_bins = {}
@@ -176,7 +196,7 @@ def main(input_arg, run_dir):
                         cl_bins[cl_id][subloc] = 0
                     cl_bins[cl_id][subloc] += 1
 
-    log.info("Plotting cluster localisations...")
+    log.info("Plotting cluster locations...")
     # plotting histograms
     for cluster in cl_bins.keys():
         if cl_bins[cluster] != {}:
