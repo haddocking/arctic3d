@@ -35,3 +35,15 @@ And put `blastp` in your `$PATH`.
 ## Example usage
 
 Please refer to the [examples](docs/examples.md) documentation page.
+
+## Detailed documentation
+
+In order to generate a detailed html documentation please execute these commands
+
+```text
+conda install myst_parser
+conda install sphinx
+sphinx-build -E docs ./arctic3d-docs
+```
+
+Then you can open the file `arctic3d-docs/index.html`, which contains all the necessary documentation.
