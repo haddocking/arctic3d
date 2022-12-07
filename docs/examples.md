@@ -10,8 +10,6 @@ ARCTIC3D can be executed in several ways:
 1. [arctic3d-resclust](#arctic3d-resclust)
 1. [arctic3d-localise](#arctic3d-localise)
 
-The following examples are here described:
-
 ## standard-uniprot-input
 
 In this example a uniprot ID is provided as input to arctic3d.
