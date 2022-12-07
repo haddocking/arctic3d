@@ -1,10 +1,6 @@
 Welcome to ARCTIC3D Documentation!
 ==================================
 
-.. include:: ../README.md
-   :start-after: .. start-description
-   :end-before: .. end-description
-
 You can read now through the **contents** below.
 
 
