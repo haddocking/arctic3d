@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from arctic3d.modules.clustering import (
     cluster_similarity_matrix,
@@ -7,12 +8,29 @@ from arctic3d.modules.clustering import (
 )
 
 
-def test_cluster_similarity_matrix():
-    """Test correct clustering"""
-    int_matrix = np.array([0.9972, 0.3742, 0.9736, 0.9996, 0.8841, 0.9991])
-    ligands = ["int_1", "int_2", "int_3", "int_4"]
-    clusters = cluster_similarity_matrix(int_matrix, ligands)
+@pytest.fixture
+def int_matrix():
+    return np.array([0.9972, 0.3742, 0.9736, 0.9996, 0.8841, 0.9991])
+
+
+@pytest.fixture
+def int_names():
+    return ["int_1", "int_2", "int_3", "int_4"]
+
+
+def test_cluster_similarity_matrix(int_matrix, int_names):
+    """Test correct clustering."""
+    clusters = cluster_similarity_matrix(int_matrix, int_names)
     expected_clusters = [1, 2, 1, 3]
+    assert (clusters == expected_clusters).all()
+
+
+def test_complete_strategy_clustering(int_matrix, int_names):
+    """Test clustering with complete strategy."""
+    clusters = cluster_similarity_matrix(
+        int_matrix, int_names, linkage_strategy="complete", threshold=0.9
+    )
+    expected_clusters = [1, 2, 1, 2]
     assert (clusters == expected_clusters).all()
 
 
