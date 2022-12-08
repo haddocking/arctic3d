@@ -8,15 +8,13 @@ from pathlib import Path
 
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
-
-# from arctic3d.modules.geometry import cluster_interface
 from arctic3d.modules.input import Input
 from arctic3d.modules.interface import get_interface_residues, read_interface_residues
 from arctic3d.modules.output import make_output, setup_output_folder
 from arctic3d.modules.pdb import get_best_pdb
 from arctic3d.modules.sequence import to_fasta
 
-# from arctic3d.modules.sequence import load_seq
+# logging
 LOGNAME = "arctic3d.log"
 logging.basicConfig(filename=LOGNAME)
 log = logging.getLogger(LOGNAME)
@@ -41,22 +39,22 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--interface_file",
-    help="",
+    help="input interface file",
 )
 
 argument_parser.add_argument(
     "--out_partner",
-    help="",
+    help="set of comma-separated partner IDs to exclude from the search",
 )
 
 argument_parser.add_argument(
     "--out_pdb",
-    help="",
+    help="set of comma-separated pdb IDs to exclude from the search",
 )
 
 argument_parser.add_argument(
     "--pdb_to_use",
-    help="",
+    help="pdb file to be used",
 )
 
 argument_parser.add_argument(
@@ -90,6 +88,23 @@ argument_parser.add_argument(
     help="retrieve ligand binding residues",
     default="no",
     choices=["yes", "no", "both"],
+)
+
+argument_parser.add_argument(
+    "--threshold",
+    help="Threshold for clustering",
+    type=float,
+    required=False,
+    default=0.866,
+)
+
+argument_parser.add_argument(
+    "--linkage_strategy",
+    help="Linkage strategy for clustering",
+    type=str,
+    required=False,
+    choices=["average", "single", "complete", "median", "centroid", "ward", "weighted"],
+    default="average",
 )
 
 
@@ -145,6 +160,8 @@ def main(
     pdb_data,
     full,
     ligand,
+    linkage_strategy,
+    threshold,
 ):
     """Main function."""
     st_time = time.time()
@@ -231,11 +248,11 @@ def main(
         # cluster interfaces
         if filtered_interfaces:
             cl_ints, cl_residues, cl_residues_probs = cluster_interfaces(
-                filtered_interfaces, pdb_f
+                filtered_interfaces, pdb_f, linkage_strategy, threshold
             )
         else:
             cl_ints, cl_residues, cl_residues_probs = cluster_interfaces(
-                interface_residues, pdb_f
+                interface_residues, pdb_f, linkage_strategy, threshold
             )
         log.info(f"Clustered interfaces {cl_ints}")
         log.info(f"Clustered interface residues: {cl_residues}")

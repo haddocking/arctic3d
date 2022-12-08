@@ -9,14 +9,10 @@ from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 
 from arctic3d.modules.interface_matrix import read_int_matrix
 
-LINKAGE = "average"
-# THRESHOLD = 0.7071  # np.sqrt(2)/2
-THRESHOLD = 0.8660  # np.sqrt(3)/2
-
 log = logging.getLogger("arctic3d.log")
 
 
-def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
+def plot_dendrogram(linkage_matrix, entries, filename, threshold, max_entries=50):
     """
     Plots the dendrogram.
 
@@ -28,6 +24,8 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
         list of interface names
     filename : str or Path
         plot filename
+    threshold : float
+        threshold for coloring
     max_entries : int
         maximum number of entries to plot
     """
@@ -40,7 +38,7 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
         p = max_entries
     dendrogram(
         linkage_matrix,
-        color_threshold=THRESHOLD,
+        color_threshold=threshold,
         labels=entries,
         truncate_mode=truncate_mode,
         p=p,
@@ -55,7 +53,7 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
 
 
 def cluster_similarity_matrix(
-    int_matrix, entries, threshold=THRESHOLD, plot=False, linkage_strategy=LINKAGE
+    int_matrix, entries, linkage_strategy="average", threshold=0.866, plot=False
 ):
     """
     Does the clustering.
@@ -66,18 +64,23 @@ def cluster_similarity_matrix(
         1D condensed interface similarity matrix
     entries : list
         names of the ligands
+    linkage_strategy : str
+        linkage strategy for clustering
+    threshold : float
+        threshold for clustering
     plot : bool
         if True, plot the dendrogram
+
     Returns
     -------
     clusters : list
         list of clusters ID, each one associated to an entry
     """
-    log.info(f"Clustering with threshold {threshold}")
+    log.info(f"Clustering with linkage {linkage_strategy} and threshold {threshold}")
     Z = linkage(int_matrix, linkage_strategy)
     if plot:
-        dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
-        plot_dendrogram(Z, entries, dendrogram_figure_filename)
+        dendrogram_figure_filename = "dendrogram_" + linkage_strategy + ".png"
+        plot_dendrogram(Z, entries, dendrogram_figure_filename, threshold)
     # clustering
     clusters = fcluster(Z, t=threshold, criterion="distance")
     log.info("Dendrogram created and clustered.")
@@ -150,7 +153,7 @@ def get_residue_dict(cl_dict, interface_dict):
     return clustered_residues, cl_residues_probs
 
 
-def interface_clustering(interface_dict, matrix_filename):
+def interface_clustering(interface_dict, matrix_filename, linkage_strategy, threshold):
     """
     Clusters the interface matrix.
 
@@ -160,6 +163,10 @@ def interface_clustering(interface_dict, matrix_filename):
         dictionary of all the interfaces (each one with its uniprot ID as key)
     matrix_filename : str or Path
         input interface matrix
+    linkage_strategy : str
+        linkage strategy for clustering
+    threshold : float
+        threshold for clustering
 
     Returns
     -------
@@ -180,7 +187,9 @@ def interface_clustering(interface_dict, matrix_filename):
     else:
         int_matrix, entries = read_int_matrix(matrix_filename)  # read matrix
         # cluster matrix.
-        clusters = cluster_similarity_matrix(int_matrix, entries, plot=True)
+        clusters = cluster_similarity_matrix(
+            int_matrix, entries, linkage_strategy, threshold, plot=True
+        )
 
     # get clustering dictionary and clustered_residues
     cl_dict = get_clustering_dict(clusters, entries)
