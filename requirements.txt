@@ -1,6 +1,6 @@
 bio==1.5.2
 defusedxml==0.7.1
-lxml==4.9.1
+lxml==4.9.2
 mdanalysis==2.3.0
 requests==2.28.1
 biopython==1.79
