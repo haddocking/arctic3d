@@ -11,4 +11,4 @@ pandas==1.5.2
 openpyxl==3.0.10
 plotly==5.11.0
 pdbecif==1.5
-jsonpickle==3.0.0
+jsonpickle==3.0.1
