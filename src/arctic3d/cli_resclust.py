@@ -43,7 +43,9 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--residue_list", help="List of (comma-separated) residues to cluster", required=True
+    "--residue_list",
+    help="List of (comma-separated) residues to cluster",
+    required=True,
 )
 
 argument_parser.add_argument(
