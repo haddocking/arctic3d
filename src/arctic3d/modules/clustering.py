@@ -53,7 +53,12 @@ def plot_dendrogram(linkage_matrix, entries, filename, threshold, max_entries=50
 
 
 def cluster_similarity_matrix(
-    int_matrix, entries, linkage_strategy="average", threshold=0.866, plot=False
+    int_matrix,
+    entries,
+    linkage_strategy="average",
+    threshold=0.866,
+    crit="distance",
+    plot=False,
 ):
     """
     Does the clustering.
@@ -82,7 +87,7 @@ def cluster_similarity_matrix(
         dendrogram_figure_filename = "dendrogram_" + linkage_strategy + ".png"
         plot_dendrogram(Z, entries, dendrogram_figure_filename, threshold)
     # clustering
-    clusters = fcluster(Z, t=threshold, criterion="distance")
+    clusters = fcluster(Z, t=threshold, criterion=crit)
     log.info("Dendrogram created and clustered.")
     log.debug(f"Clusters = {clusters}")
     return clusters
