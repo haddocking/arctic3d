@@ -14,6 +14,10 @@ Input arguments:
     `threshold` : the number to be used as threshold for hierarchical clustering.
 
     `chain` : the chain ID to be used.
+
+    `linkage` : the linkage strategy.
+
+    `criterion` : the criterion to extract the clusters.
 """
 import argparse
 import logging
