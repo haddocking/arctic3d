@@ -14,6 +14,10 @@ Input arguments:
     `threshold` : the number to be used as threshold for hierarchical clustering.
 
     `chain` : the chain ID to be used.
+
+    `linkage` : the linkage strategy.
+
+    `criterion` : the criterion to extract the clusters.
 """
 import argparse
 import logging
@@ -54,6 +58,15 @@ argument_parser.add_argument(
     type=float,
     required=False,
     default=10.0,
+)
+
+argument_parser.add_argument(
+    "--criterion",
+    help="Criterion for clustering",
+    type=str,
+    required=False,
+    choices=["distance", "maxclust"],
+    default="distance",
 )
 
 argument_parser.add_argument(
@@ -109,7 +122,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, residue_list, chain, threshold, linkage):
+def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     """Main function."""
     log.setLevel("INFO")
 
@@ -152,12 +165,18 @@ def main(input_arg, residue_list, chain, threshold, linkage):
         sys.exit(1)
 
     # do the clustering
+    if criterion == "maxclust":
+        threshold = int(threshold)
     log.info(
-        f"Clustering distance matrix with linkage {linkage} and threshold {threshold}"
+        f"Clustering distance matrix with linkage {linkage}, threshold {threshold}, and criterion {criterion}"
     )
     distmap = pdist(u.positions)
     clusters = cluster_similarity_matrix(
-        distmap, unique_sorted_resids, threshold=threshold, linkage_strategy=linkage
+        distmap,
+        unique_sorted_resids,
+        threshold=threshold,
+        linkage_strategy=linkage,
+        crit=criterion,
     )
 
     cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
