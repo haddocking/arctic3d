@@ -2,7 +2,7 @@ bio==1.5.2
 defusedxml==0.7.1
 lxml==4.9.2
 mdanalysis==2.3.0
-requests==2.28.1
+requests==2.28.2
 biopython==1.79
 scipy==1.10.0
 matplotlib==3.6.2
