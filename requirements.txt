@@ -1,4 +1,4 @@
-bio==1.5.2
+bio==1.5.3
 defusedxml==0.7.1
 lxml==4.9.2
 mdanalysis==2.4.2
