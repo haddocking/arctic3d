@@ -3,7 +3,7 @@ defusedxml==0.7.1
 lxml==4.9.2
 mdanalysis==2.3.0
 requests==2.28.2
-biopython==1.79
+biopython==1.80
 scipy==1.10.0
 matplotlib==3.6.2
 pdb-tools==2.5.0
