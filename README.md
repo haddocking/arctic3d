@@ -11,7 +11,7 @@
 
 ## Developing
 
-Check [DEVELOPING.md](DEVELOPING.md) for more information.
+Check [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## Installation
 
