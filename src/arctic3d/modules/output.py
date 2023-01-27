@@ -60,7 +60,7 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
     return copied_input_files
 
 
-def write_dict(input_dict, out_filename, keyword):
+def write_dict(input_dict, out_filename, keyword, sep=" "):
     """
     Writes dictionary to file.
 
@@ -76,7 +76,7 @@ def write_dict(input_dict, out_filename, keyword):
     log.info(f"Writing {keyword} information to file {out_filename}")
     with open(out_filename, "w") as wfile:
         for key in input_dict.keys():
-            cl_string = " ".join([str(el) for el in input_dict[key]])
+            cl_string = sep.join([str(el) for el in input_dict[key]])
             wfile.write(f"{keyword} {key} -> " + cl_string + os.linesep)
 
 

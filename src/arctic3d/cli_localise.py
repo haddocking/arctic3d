@@ -6,18 +6,19 @@ subcellular location (as provided by https://www.ebi.ac.uk/proteins/api/proteins
 
 USAGE::
 
-    arctic3d_resclust ./example/clustered_interfaces.out
+    arctic3d_localise ./example/clustered_interfaces.out
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
-    arctic3d_resclust ./example/clustered_interfaces.out --run_dir=arctic3d-localise-example
+    arctic3d_localise ./example/clustered_interfaces.out --run_dir=arctic3d-localise-example
 
 Use the out_partner to exclude one or more uniprot IDs from the search::
 
-    arctic3d_resclust ./example/clustered_interfaces.out --out_partner=P00760,P00761
+    arctic3d_localise ./example/clustered_interfaces.out --out_partner=P00760,P00761
 """
 import argparse
 import logging
+import os
 import shutil
 import sys
 import time
@@ -56,8 +57,28 @@ argument_parser.add_argument(
     help="Set of comma-separated partner IDs to exclude from the search",
 )
 
+argument_parser.add_argument(
+    "--quickgo",
+    help="Use quickgo () information instead of uniprot",
+    required=False,
+    choices=["C", "F", "P"],
+)
 
-def get_subcellular_location(prot_data):
+
+def get_uniprot_subcellular_location(prot_data):
+    """
+    retrieve uniprot subcellular location
+
+    Parameters
+    ----------
+    prot_data : dict
+        uniprot API parsed output dictionary
+
+    Returns
+    -------
+    locs : list
+        list of uniprot subcellular locations
+    """
     locs = []
     if "comments" in prot_data.keys():
         for tup in prot_data["comments"]:
@@ -67,6 +88,33 @@ def get_subcellular_location(prot_data):
                         el.strip() for el in loc["location"]["value"].split(",")
                     ]
                     locs.extend(splt_list)
+    return locs
+
+
+def get_quickgo_information(prot_data, quickgo_key):
+    """
+    retrieve quickgo information
+
+    Parameters
+    ----------
+    prot_data : dict
+        uniprot API parsed output dictionary
+
+    quickgo_key : str
+        one among C, F and P
+
+    Returns
+    -------
+    locs : list
+        list of locations (C), functions (F) or biol. processes (B)
+    """
+    locs = []
+    if "dbReferences" in prot_data.keys():
+        for tup in prot_data["dbReferences"]:
+            if tup["type"] == "GO":
+                loc = tup["properties"]["term"]
+                if loc.startswith(quickgo_key):
+                    locs.append(loc[2:])
     return locs
 
 
@@ -109,10 +157,14 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, run_dir, out_partner):
+def main(input_arg, run_dir, out_partner, quickgo):
     """Main function."""
     log.setLevel("INFO")
     start_time = time.time()
+    if quickgo:
+        log.info("Running arctic3d_localise with QUICKGO information")
+    else:
+        log.info("Running arctic3d_localise with UNIPROT information")
 
     # check input existence
     input_files = {"cl_filename": Path(input_arg)}
@@ -158,7 +210,11 @@ def main(input_arg, run_dir, out_partner):
                     failed_ids.append(uniprot_id)
                     continue
                 # parsing
-                locations = get_subcellular_location(prot_data)
+                if quickgo:
+                    locations = get_quickgo_information(prot_data, quickgo_key=quickgo)
+                else:
+                    locations = get_uniprot_subcellular_location(prot_data)
+
                 if locations == []:
                     log.info(f"no location retrieved for {uniprot_id}")
                     none_ids.append(uniprot_id)
@@ -180,7 +236,7 @@ def main(input_arg, run_dir, out_partner):
     # writing locations to file
     loc_filename = "Subcellular_locations.txt"
     log.info(f"Saving retrieved subcellular locations to file {loc_filename}")
-    write_dict(locs, loc_filename, keyword="Subcellular location")
+    write_dict(locs, loc_filename, keyword="Subcellular location", sep=",")
 
     # creating the histograms according to the clustering
     cl_bins = {}
@@ -218,6 +274,26 @@ def main(input_arg, run_dir, out_partner):
             plt.savefig(fig_fname)
             log.info(f"Figure {fig_fname} created")
             plt.close()
+
+    # saving histograms
+    os.mkdir("histograms")
+    for cl_id in cl_bins.keys():
+        if cl_bins[cl_id] != {}:
+            log.info(f"writing histogram for cluster {cl_id}")
+            sort_dict = {
+                k: v
+                for k, v in sorted(
+                    cl_bins[cl_id].items(), key=lambda item: item[1], reverse=True
+                )
+            }
+            histo_file = Path("histograms", f"cluster_{cl_id}.tsv")
+            with open(histo_file, "w") as wfile:
+                labels = list(sort_dict.keys())
+                values = list(sort_dict.values())
+                for n in range(len(labels)):
+                    wfile.write(f"{labels[n]}\t{values[n]}{os.linesep}")
+        else:
+            log.warning(f"cluster {cl_id} empty: will be discarded")
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d_localise run took {elap_time} seconds")
