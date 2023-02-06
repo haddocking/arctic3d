@@ -14,7 +14,14 @@ def example_pdbpath():
 
 
 def test_resclust_cli(example_pdbpath):
-    main(example_pdbpath, "100,101,102,133,134,135", None, 7.0, "average", "distance")
+    main(
+        example_pdbpath,
+        "100,101,102,133,134,135",
+        None,
+        7.0,
+        "average",
+        "distance",
+    )
 
 
 def test_wrong_residue_list(example_pdbpath):
@@ -32,4 +39,11 @@ def test_wrong_residue_list(example_pdbpath):
 
 
 def test_resclust_maxclust(example_pdbpath):
-    main(example_pdbpath, "100,101,102,133,134,135", None, 2, "average", "maxclust")
+    main(
+        example_pdbpath,
+        "100,101,102,133,134,135",
+        None,
+        2,
+        "average",
+        "maxclust",
+    )

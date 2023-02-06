@@ -26,7 +26,9 @@ def cluster_interfaces(interface_dict, pdb_path, linkage_strategy, threshold):
     clustered_residues : dict
         dictionary of the clustered interfaces
     """
-    filtered_interfaces, matrix_path = interface_matrix(interface_dict, pdb_path)
+    filtered_interfaces, matrix_path = interface_matrix(
+        interface_dict, pdb_path
+    )
     if len(filtered_interfaces) > 0:
         clustered_residues = interface_clustering(
             filtered_interfaces, matrix_path, linkage_strategy, threshold

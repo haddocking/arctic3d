@@ -74,7 +74,9 @@ def blast_local(fasta_file, db):
     blastp_exec = get_blast_exec()
     cmd = f"{blastp_exec} -query {fasta_file} -db {db} -outfmt 6"
 
-    p = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.run(
+        shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
 
     if p.returncode != 0:
         log.error(p.stderr.decode())

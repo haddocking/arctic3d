@@ -55,7 +55,9 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--run_dir", help="directory where to store the run", default="arctic3d-localise"
+    "--run_dir",
+    help="directory where to store the run",
+    default="arctic3d-localise",
 )
 
 argument_parser.add_argument(
@@ -91,7 +93,8 @@ def get_uniprot_subcellular_location(prot_data):
             if tup["type"] == "SUBCELLULAR_LOCATION":
                 for loc in tup["locations"]:
                     splt_list = [
-                        el.strip() for el in loc["location"]["value"].split(",")
+                        el.strip()
+                        for el in loc["location"]["value"].split(",")
                     ]
                     locs.extend(splt_list)
     return locs
@@ -182,7 +185,10 @@ def main(input_arg, run_dir, out_partner, quickgo):
 
     # parsing arctic3d clustering output
     clustering_dict = parse_clusters(input_files["cl_filename"])
-    log.info(f"Retrieved clustering_dict with {len(clustering_dict.keys())} clusters.")
+    log.info(
+        "Retrieved clustering_dict with"
+        f" {len(clustering_dict.keys())} clusters."
+    )
 
     # parsing out_partner string
     out_partner_set = parse_out_partner(out_partner)
@@ -212,12 +218,16 @@ def main(input_arg, run_dir, out_partner, quickgo):
                 try:
                     prot_data = make_request(uniprot_url, None)
                 except Exception as e:
-                    log.warning(f"Could not make UNIPROT request for {uniprot_id}, {e}")
+                    log.warning(
+                        f"Could not make UNIPROT request for {uniprot_id}, {e}"
+                    )
                     failed_ids.append(uniprot_id)
                     continue
                 # parsing
                 if quickgo:
-                    locations = get_quickgo_information(prot_data, quickgo_key=quickgo)
+                    locations = get_quickgo_information(
+                        prot_data, quickgo_key=quickgo
+                    )
                 else:
                     locations = get_uniprot_subcellular_location(prot_data)
 
@@ -235,7 +245,9 @@ def main(input_arg, run_dir, out_partner, quickgo):
     log.info(f"Subcellular location retrieval took {elap_time} seconds")
     log.info(f"{len(failed_ids)} partners failed uniprot calls.")
     log.info(f"{len(none_ids)} contain None subcellular location information.")
-    log.info(f"Retrieved subcellular location for {len(locs.keys())} partners.")
+    log.info(
+        f"Retrieved subcellular location for {len(locs.keys())} partners."
+    )
 
     log.info(f"Unique subcellular locations {bins}")
 
@@ -251,7 +263,10 @@ def main(input_arg, run_dir, out_partner, quickgo):
         processed_uniprot_ids = []
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
-            if uniprot_id in locs.keys() and uniprot_id not in processed_uniprot_ids:
+            if (
+                uniprot_id in locs.keys()
+                and uniprot_id not in processed_uniprot_ids
+            ):
                 processed_uniprot_ids.append(uniprot_id)
                 for subloc in locs[uniprot_id]:
                     if subloc not in cl_bins[cl_id].keys():
@@ -264,7 +279,9 @@ def main(input_arg, run_dir, out_partner, quickgo):
         if cl_bins[cluster] != {}:
             sort_dict = {
                 k: v
-                for k, v in sorted(cl_bins[cluster].items(), key=lambda item: item[1])
+                for k, v in sorted(
+                    cl_bins[cluster].items(), key=lambda item: item[1]
+                )
             }
             labels = list(sort_dict.keys())
             values = list(sort_dict.values())
@@ -289,7 +306,9 @@ def main(input_arg, run_dir, out_partner, quickgo):
             sort_dict = {
                 k: v
                 for k, v in sorted(
-                    cl_bins[cl_id].items(), key=lambda item: item[1], reverse=True
+                    cl_bins[cl_id].items(),
+                    key=lambda item: item[1],
+                    reverse=True,
                 )
             }
             histo_file = Path("histograms", f"cluster_{cl_id}.tsv")

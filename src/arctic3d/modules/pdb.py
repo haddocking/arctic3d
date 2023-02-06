@@ -142,13 +142,17 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
                 for ln in rfile:
                     if ln.startswith(records):
                         resid = ln[22:26].strip()
-                        residue_key = f"{ln[17:20].strip()}-{ln[20:22].strip()}-{resid}"  # resname-chain_id-resid
+                        residue_key = (  # resname-chain_id-resid
+                            f"{ln[17:20].strip()}-{ln[20:22].strip()}-{resid}"
+                        )
 
                         # the residues in the pdb_fname that do not have an entry in the numbering_dict
                         # are discarded. It may happen that the same chain in the input pdb is associated to several
                         # uniprot ids (especially in old files)
                         if residue_key in numbering_dict.keys():
-                            n_spaces = 4 - len(str(numbering_dict[residue_key]))
+                            n_spaces = 4 - len(
+                                str(numbering_dict[residue_key])
+                            )
                             resid_str = f"{' ' * n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
                             file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
                     else:
@@ -444,7 +448,9 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
             mdu = mda.Universe(curr_renum_pdb_f)
             selection_string = f"name CA and chainID {chain_id}"
             pdb_resids = mdu.select_atoms(selection_string).resids
-            tmp_filtered_interfaces = filter_interfaces(interface_residues, pdb_resids)
+            tmp_filtered_interfaces = filter_interfaces(
+                interface_residues, pdb_resids
+            )
             curr_nint = len(tmp_filtered_interfaces)
             if curr_nint > max_nint:  # update "best" hit
                 max_nint = curr_nint
@@ -499,7 +505,11 @@ def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
 
 
 def get_best_pdb(
-    uniprot_id, interface_residues, pdb_to_use=None, chain_to_use=None, pdb_data=None
+    uniprot_id,
+    interface_residues,
+    pdb_to_use=None,
+    chain_to_use=None,
+    pdb_data=None,
 ):
     """
     Get best PDB ID.
@@ -530,7 +540,9 @@ def get_best_pdb(
         try:
             pdb_dict = make_request(url, None)
         except Exception as e:
-            log.warning(f"Could not make BestStructure request for {uniprot_id}, {e}")
+            log.warning(
+                f"Could not make BestStructure request for {uniprot_id}, {e}"
+            )
             return
     else:
         try:
@@ -565,7 +577,9 @@ def get_best_pdb(
     end = top_hit["unp_end"]
 
     log.info(
-        f"BestPDB hit for {uniprot_id}: {pdb_id}_{chain_id} {coverage:.2f} coverage {resolution:.2f} Angstrom / start {start} end {end}"
+        f"BestPDB hit for {uniprot_id}:"
+        f" {pdb_id}_{chain_id} {coverage:.2f} coverage"
+        f" {resolution:.2f} Angstrom / start {start} end {end}"
     )
 
     processed_pdb = pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")

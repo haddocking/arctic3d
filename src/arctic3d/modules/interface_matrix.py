@@ -83,11 +83,14 @@ def get_coupling_matrix(mdu, int_resids):
     Jij_mat : np.array
         coupling matrix
     """
-    sel_residues = "name CA and resid " + " ".join([str(el) for el in int_resids])
+    sel_residues = "name CA and resid " + " ".join(
+        [str(el) for el in int_resids]
+    )
     u = mdu.select_atoms(sel_residues)
     if u.positions.shape[0] != len(int_resids):
         raise Exception(
-            "shape mismatch: positions do not match input residues {int_resids}"
+            "shape mismatch: positions do not match input residues"
+            " {int_resids}"
         )
     distmap = cdist(u.positions, u.positions)
     exp_factor = 4 * SIGMA * SIGMA
@@ -307,7 +310,8 @@ def read_int_matrix(filename):
         int_nligands = int(nligands)
         if abs(nligands - int_nligands) > 0.00001:
             raise Exception(
-                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed similarity matrix"
+                f"npairs {int_matrix.shape[0]}: interface matrix should be a"
+                " 1D condensed similarity matrix"
             )
         # extracting ligands' names
         ligand_names = [int_matrix.iloc[0, 0]]

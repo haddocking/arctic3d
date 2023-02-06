@@ -43,7 +43,9 @@ def get_arctic_io(filename):
 
 def run_arctic(cmd):
     """runs arctic3d command and returns the status"""
-    p = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.run(
+        shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     # out = p.stdout.decode("utf-8").split(os.linesep)
     # check if failed
     if p.returncode != 0:
@@ -127,7 +129,11 @@ def cycle_run(arctic_io):
                 os.unlink(INT_FILENAME)
                 if found:
                     # re-running arctic excluding the paired uniprot id
-                    cmd = f"arctic3d {arctic_io[pdb]['self_uniprot_id']} --out_uniprot {arctic_io[pdb]['paired_uniprot_id']}"
+                    cmd = (
+                        "arctic3d"
+                        f" {arctic_io[pdb]['self_uniprot_id']} --out_uniprot"
+                        f" {arctic_io[pdb]['paired_uniprot_id']}"
+                    )
                     output = run_arctic(cmd)
                     if output == "SUCCESS" and os.path.exists(INT_FILENAME):
                         int_file = Path(
@@ -144,7 +150,8 @@ def cycle_run(arctic_io):
                         os.unlink(INT_FILENAME)
             else:
                 print(
-                    f"Warning: no interface file found for pdb {pdb} uniprot {arctic_io[pdb]['self_uniprot_id']}"
+                    f"Warning: no interface file found for pdb {pdb} uniprot"
+                    f" {arctic_io[pdb]['self_uniprot_id']}"
                 )
         print(f"Final stats : {stats}")
 
@@ -164,7 +171,9 @@ def main():
     start_time = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file")
-    parser.add_argument("output_folder")  # directory where the benchmark must be built
+    parser.add_argument(
+        "output_folder"
+    )  # directory where the benchmark must be built
     args = parser.parse_args()
 
     bm5_input_file = args.input_file

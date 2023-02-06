@@ -61,7 +61,8 @@ def test_write_interfaes(reference_res_dict):
     res_filename = "residues_test.out"
     write_dict(reference_res_dict, res_filename, keyword="Interface")
     expected_content = (
-        f"Interface 1 -> 1 2 3 4 5{os.linesep}Interface 2 -> 27 28 29{os.linesep}"
+        f"Interface 1 -> 1 2 3 4 5{os.linesep}Interface 2 -> 27 28"
+        f" 29{os.linesep}"
     )
     observed_content = open(res_filename, "r").read()
     assert expected_content == observed_content
