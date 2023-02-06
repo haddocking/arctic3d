@@ -24,10 +24,10 @@ def load_bm5_file(bm5_file: str) -> list[tuple[str, str, str]]:
     ligand_ids = bm5_df["PDB ID 2"].values
 
     data = []
-    for complex, receptor, ligand in zip(
+    for target_complex, receptor, ligand in zip(
         complex_ids, receptor_ids, ligand_ids
     ):
-        data.append((complex, receptor, ligand))
+        data.append((target_complex, receptor, ligand))
 
     return data
 
