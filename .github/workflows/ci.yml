@@ -39,8 +39,8 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: coverage.xml
 
-      - uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
+      # - uses: codecov/codecov-action@v3
+      #   with:
+      #     fail_ci_if_error: false
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     files: ./coverage.xml
