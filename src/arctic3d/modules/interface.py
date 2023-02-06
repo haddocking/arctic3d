@@ -328,8 +328,10 @@ def parse_interface_data(
                         #   current entry
                         if pdb_record["pdbId"] not in out_pdb_set:
                             for chain_id in chain_ids:
-                                key = f"{partner_uniprotid}"
-                                f"-{pdb_record['pdbId']}-{chain_id}"
+                                key = (
+                                    f"{partner_uniprotid}"
+                                    f"-{pdb_record['pdbId']}-{chain_id}"
+                                )
                                 if key not in interface_dict.keys():
                                     interface_dict[key] = []
                                 for interface_res in range(start, end + 1):

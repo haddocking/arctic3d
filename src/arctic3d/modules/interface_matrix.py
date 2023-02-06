@@ -122,8 +122,10 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
             for int_two in range(int_one + 1, len(int_names)):
-                string = f"{int_names[int_one]}"
-                f" {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                string = (
+                    f"{int_names[int_one]}"
+                    f" {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                )
                 string += os.linesep
                 matrix_idx += 1
                 wmatrix.write(string)

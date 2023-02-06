@@ -90,9 +90,11 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
             atomsite_dict["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
             and atomsite_dict["auth_asym_id"][resid] == chain_id
         ):
-            residue_key = f"{atomsite_dict['auth_comp_id'][resid]}"
-            f"-{atomsite_dict['auth_asym_id'][resid]}"
-            f"-{atomsite_dict['auth_seq_id'][resid]}"
+            residue_key = (
+                f"{atomsite_dict['auth_comp_id'][resid]}"
+                f"-{atomsite_dict['auth_asym_id'][resid]}"
+                f"-{atomsite_dict['auth_seq_id'][resid]}"
+            )
             unp_num = atomsite_dict["pdbx_sifts_xref_db_num"][resid]
             if residue_key != prev_residue_key:  # not a duplicate entry
                 numbering_dict[residue_key] = unp_num
@@ -161,8 +163,10 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
                             )
                             # there's always one space after to remove
                             #   alternate occupancies
-                            resid_str = f"{' ' * n_spaces}"
-                            f"{numbering_dict[residue_key]} "
+                            resid_str = (
+                                f"{' ' * n_spaces}"
+                                f"{numbering_dict[residue_key]} "
+                            )
                             file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
                     else:
                         file_content += f"{ln}"
