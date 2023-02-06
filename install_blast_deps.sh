@@ -18,7 +18,7 @@ elif [ "${OS}" == "Linux" ]; then
 	BLAST_URL="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.13.0+-x64-linux.tar.gz"
 fi
 
-wget $BLAST_URL >/dev/null 2>&1
+wget "$BLAST_URL" >/dev/null 2>&1
 
 tar -xzf ncbi-blast-2.13.0+-x64-*.tar.gz
 rm ncbi-blast-2.13.0+-x64-*.tar.gz
