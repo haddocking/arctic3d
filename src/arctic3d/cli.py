@@ -239,7 +239,11 @@ def main(
             pdb_f, filtered_interfaces = input_files["pdb"], None
             if not interface_file:
                 log.warning(
-                    """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
+                    (
+                        "Input pdb file submitted without interface file. "
+                        "This assumes the pdb is coherent with the "
+                        "corresponding uniprot numbering."
+                    )
                 )
         else:
             if pdb_data:

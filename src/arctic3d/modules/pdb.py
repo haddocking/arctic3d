@@ -90,7 +90,9 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
             atomsite_dict["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
             and atomsite_dict["auth_asym_id"][resid] == chain_id
         ):
-            residue_key = f"{atomsite_dict['auth_comp_id'][resid]}-{atomsite_dict['auth_asym_id'][resid]}-{atomsite_dict['auth_seq_id'][resid]}"
+            residue_key = f"{atomsite_dict['auth_comp_id'][resid]}"
+            f"-{atomsite_dict['auth_asym_id'][resid]}"
+            f"-{atomsite_dict['auth_seq_id'][resid]}"
             unp_num = atomsite_dict["pdbx_sifts_xref_db_num"][resid]
             if residue_key != prev_residue_key:  # not a duplicate entry
                 numbering_dict[residue_key] = unp_num
@@ -128,8 +130,10 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
     # retrieve mapping
     numbering_dict = get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id)
 
-    # we do not check if all residues in pdb_fname have been correctly renumbered
-    # we only check it's not empty (it could be empty if the cif does not contain
+    # we do not check if all residues in pdb_fname have
+    #   been correctly renumbered
+    # we only check it's not empty (it could be empty
+    #   if the cif does not contain
     # the uniprot information)
     if any(numbering_dict):
         log.info(f"Renumbering pdb {pdb_fname}")
@@ -146,14 +150,19 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
                             f"{ln[17:20].strip()}-{ln[20:22].strip()}-{resid}"
                         )
 
-                        # the residues in the pdb_fname that do not have an entry in the numbering_dict
-                        # are discarded. It may happen that the same chain in the input pdb is associated to several
+                        # the residues in the pdb_fname that do not have an
+                        #   entry in the numbering_dict
+                        # are discarded. It may happen that the same chain
+                        #   in the input pdb is associated to several
                         # uniprot ids (especially in old files)
                         if residue_key in numbering_dict.keys():
                             n_spaces = 4 - len(
                                 str(numbering_dict[residue_key])
                             )
-                            resid_str = f"{' ' * n_spaces}{numbering_dict[residue_key]} "  # there's always one space after to remove alternate occupancies
+                            # there's always one space after to remove
+                            #   alternate occupancies
+                            resid_str = f"{' ' * n_spaces}"
+                            f"{numbering_dict[residue_key]} "
                             file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
                     else:
                         file_content += f"{ln}"
@@ -353,9 +362,9 @@ def validate_api_hit(
                 valid_pdb_set.add(pdb_id)
         else:
             log.debug(f"{pdb_id} failed validation")
-            if (
-                pdb_f is not None and pdb_id not in valid_pdb_set
-            ):  # pdb_f could be None or the pdb (another chain) could be valid and the file should not be removed
+            # pdb_f could be None or the pdb (another chain)
+            #   could be valid and the file should not be removed
+            if pdb_f is not None and pdb_id not in valid_pdb_set:
                 os.unlink(pdb_f)
     return validated_pdbs
 

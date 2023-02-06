@@ -102,8 +102,8 @@ def write_output_file(
             uniprot_ligand,
         ) in parsed_bm:
             f.write(
-                f"{complex},{receptor},{uniprot_receptor},{ligand},{uniprot_ligand}"
-                + os.linesep
+                f"{complex},{receptor},{uniprot_receptor}"
+                f",{ligand},{uniprot_ligand}" + os.linesep
             )
 
 

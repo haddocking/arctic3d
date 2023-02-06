@@ -62,7 +62,8 @@ def compute_scalar_product(interface_one, interface_two, Jij_mat):
     scalar_product : float
         scalar product between the two interfaces
     """
-    # log.debug(f"computing scal_prod between {interface_one} and {interface_two}")
+    # log.debug(f"computing scal_prod between {interface_one}
+    #   and {interface_two}")
     scalar_product = Jij_mat[np.ix_(interface_one, interface_two)].sum()
     return scalar_product
 
@@ -121,7 +122,8 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
             for int_two in range(int_one + 1, len(int_names)):
-                string = f"{int_names[int_one]} {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                string = f"{int_names[int_one]}"
+                f" {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
                 string += os.linesep
                 matrix_idx += 1
                 wmatrix.write(string)
@@ -220,7 +222,8 @@ def interface_matrix(interface_dict, pdb_path):
     Returns
     -------
     retained_interfaces : dict
-        dictionary of the retained interfaces (each one with its formatted uniprot ID as key)
+        dictionary of the retained interfaces
+        (each one with its formatted uniprot ID as key)
     out_fl : str
         path to the output interface matrix
     """

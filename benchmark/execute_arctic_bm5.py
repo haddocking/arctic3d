@@ -85,10 +85,15 @@ def search_interfaces(interfaces, uniprot_id):
 def cycle_run(arctic_io):
     """run arctic for the set of pdb files."""
     stats = {
-        "n_runs": 0,  # number of times arctic runs (no antibodies)
-        "n_founds": 0,  # number of times opponent uniprot id is found
-        "n_clustered_else": 0,  # number of times opponent uniprot id is found clustered with something else
-        "n_failures": 0,  # number of times arctic3d fails. Ideally zero.
+        # number of times arctic runs (no antibodies)
+        "n_runs": 0,
+        # number of times opponent uniprot id is found
+        "n_founds": 0,
+        # number of times opponent uniprot id is found clustered
+        #  with something else
+        "n_clustered_else": 0,
+        # number of times arctic3d fails. Ideally zero.
+        "n_failures": 0,
     }
 
     for pdb in list(arctic_io.keys()):
@@ -117,11 +122,13 @@ def cycle_run(arctic_io):
                 # copy stuff to complex_code directory
                 int_file = Path(
                     complex_code,
-                    f"clustered_interfaces_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_full.out",
+                    f"clustered_interfaces_{pdb[:4]}"
+                    f"_{arctic_io[pdb]['self_uniprot_id']}_full.out",
                 )
                 res_file = Path(
                     complex_code,
-                    f"clustered_residues_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_full.out",
+                    f"clustered_residues_{pdb[:4]}"
+                    f"_{arctic_io[pdb]['self_uniprot_id']}_full.out",
                 )
                 shutil.copy(INT_FILENAME, int_file)
                 shutil.copy(RES_FILENAME, res_file)
@@ -138,11 +145,13 @@ def cycle_run(arctic_io):
                     if output == "SUCCESS" and os.path.exists(INT_FILENAME):
                         int_file = Path(
                             complex_code,
-                            f"clustered_interfaces_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
+                            f"clustered_interfaces_{pdb[:4]}"
+                            f"_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
                         )
                         res_file = Path(
                             complex_code,
-                            f"clustered_residues_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
+                            f"clustered_residues_{pdb[:4]}"
+                            f"_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
                         )
                         shutil.copy(INT_FILENAME, int_file)
                         shutil.copy(RES_FILENAME, res_file)

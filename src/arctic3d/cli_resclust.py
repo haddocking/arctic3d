@@ -6,12 +6,16 @@ residues.
 
 USAGE::
 
-    arctic3d_resclust ./example/1ppe_E.pdb --residue_list 29,30,31,49,50,51 --threshold=20.0 --chain=E
+    arctic3d_resclust ./example/1ppe_E.pdb \
+        --residue_list 29,30,31,49,50,51 \
+        --threshold=20.0 \
+        --chain=E
 
 Input arguments:
     `residue_list` : the comma-separated list of residue IDs.
 
-    `threshold` : the number to be used as threshold for hierarchical clustering.
+    `threshold` : the number to be used as threshold for hierarchical
+        clustering.
 
     `chain` : the chain ID to be used.
 

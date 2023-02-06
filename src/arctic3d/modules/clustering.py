@@ -112,7 +112,15 @@ def get_clustering_dict(clusters, ligands):
     -------
     cl_dict : dict
         dictionary of clustered interfaces
-        *example* { 1 : ['interface_1', 'interface_3'] , 2 : ['interface_2'], ... }
+        *example* {
+            1 : [
+            'interface_1', 'interface_3'
+                ] ,
+            2 : [
+            'interface_2'
+            ],
+            ...
+            }
     """
     cl_dict = {}
     # loop over clusters

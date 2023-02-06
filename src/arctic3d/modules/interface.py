@@ -284,7 +284,10 @@ def parse_interface_data(
     -------
     interface_dict : dict
         Interface residue dictionary.
-        *example* : {partner_uniprotid_1: [1,2,3], partner_uniprotid_2: [20,22,23]}
+        *example* : {
+            partner_uniprotid_1: [1,2,3],
+            partner_uniprotid_2: [20,22,23]
+            }
     """
     interface_dict = {}
     for element in interface_data[uniprot_id]["data"]:
@@ -316,14 +319,17 @@ def parse_interface_data(
                 else:
                     # iterate over pdb records
                     for pdb_record in residue_entry["interactingPDBEntries"]:
-                        # entries can have missing chainIds field, especially for PRD_* like uniprot IDs
+                        # entries can have missing chainIds field, especially
+                        #   for PRD_* like uniprot IDs
                         chain_ids = [""]
                         if "chainIds" in pdb_record.keys():
                             chain_ids = pdb_record["chainIds"].split(",")
-                        # if there are two or more chainIds, we discard the current entry
+                        # if there are two or more chainIds, we discard the
+                        #   current entry
                         if pdb_record["pdbId"] not in out_pdb_set:
                             for chain_id in chain_ids:
-                                key = f"{partner_uniprotid}-{pdb_record['pdbId']}-{chain_id}"
+                                key = f"{partner_uniprotid}"
+                                f"-{pdb_record['pdbId']}-{chain_id}"
                                 if key not in interface_dict.keys():
                                     interface_dict[key] = []
                                 for interface_res in range(start, end + 1):

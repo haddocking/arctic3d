@@ -1,8 +1,10 @@
 """
 Get subcellular location of arctic3d data.
 
-Given clustered_interfaces.out input file it iterates over the different partners to detect their
-subcellular location (as provided by https://www.ebi.ac.uk/proteins/api/proteins)
+Given clustered_interfaces.out input file it iterates over the
+    different partners to detect their
+subcellular location (as provided by
+    https://www.ebi.ac.uk/proteins/api/proteins)
 
 USAGE::
 
@@ -10,17 +12,23 @@ USAGE::
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
-    arctic3d_localise ./example/clustered_interfaces.out --run_dir=arctic3d-localise-example
+    arctic3d_localise ./example/clustered_interfaces.out \
+        --run_dir=arctic3d-localise-example
 
-Use the out_partner parameter to exclude one or more uniprot IDs from the search::
+Use the out_partner parameter to exclude one or more uniprot IDs
+    from the search::
 
-    arctic3d_localise ./example/clustered_interfaces.out --out_partner=P00760,P00761
+    arctic3d_localise ./example/clustered_interfaces.out \
+        --out_partner=P00760,P00761
 
-It is possible to retrieve information from quickGO instead of using the standard uniprot subcellular location.
+It is possible to retrieve information from quickGO instead of using
+the standard uniprot subcellular location.
 
-QuickGO possesses information location (labelled as C), function (F), and biological process (P)::
-    
-    arctic3d_localise ./example/clustered_interfaces.out --quickgo=F
+QuickGO possesses information location (labelled as C), function (F),
+    and biological process (P)::
+
+    arctic3d_localise ./example/clustered_interfaces.out \
+        --quickgo=F
 """
 import argparse
 import logging
@@ -209,7 +217,9 @@ def main(input_arg, run_dir, out_partner, quickgo):
     for cl_id in clustering_dict.keys():
         for partner in clustering_dict[cl_id]:
             uniprot_id = partner.split("-")[0]
-            # ugly if-clause to avoid calling uniprot with one of the ids to be excluded
+            # ugly if-clause to avoid calling uniprot with one of
+            #   the ids to be excluded
+            #  - not that ugly! (:
             if (
                 uniprot_id not in locs.keys()
                 and uniprot_id not in failed_ids
