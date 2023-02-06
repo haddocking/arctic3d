@@ -26,7 +26,10 @@ import sys
 import MDAnalysis as mda
 from scipy.spatial.distance import pdist
 
-from arctic3d.modules.clustering import cluster_similarity_matrix, get_clustering_dict
+from arctic3d.modules.clustering import (
+    cluster_similarity_matrix,
+    get_clustering_dict,
+)
 from arctic3d.modules.input import Input
 
 LOGNAME = "arctic3d_resclust.log"

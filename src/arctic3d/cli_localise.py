@@ -34,7 +34,11 @@ import matplotlib.pyplot as plt
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface import parse_out_partner
-from arctic3d.modules.output import parse_clusters, setup_output_folder, write_dict
+from arctic3d.modules.output import (
+    parse_clusters,
+    setup_output_folder,
+    write_dict,
+)
 
 LOGNAME = "arctic3d_localise.log"
 logging.basicConfig(filename=LOGNAME)
