@@ -95,14 +95,14 @@ def write_output_file(
             + os.linesep
         )
         for (
-            complex,
+            target_complex,
             receptor,
             uniprot_receptor,
             ligand,
             uniprot_ligand,
         ) in parsed_bm:
             f.write(
-                f"{complex},{receptor},{uniprot_receptor}"
+                f"{target_complex},{receptor},{uniprot_receptor}"
                 f",{ligand},{uniprot_ligand}" + os.linesep
             )
 
