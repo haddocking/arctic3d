@@ -7,4 +7,6 @@ interface_dict = {
     "int_4": [],
 }
 
-interface_clustering(interface_dict, "../../../tests/golden_data/interface_matrix.txt")
+interface_clustering(
+    interface_dict, "../../../tests/golden_data/interface_matrix.txt"
+)

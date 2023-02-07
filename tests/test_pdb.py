@@ -168,7 +168,9 @@ def test_filter_pdb_list(good_hits):
     expected_red_list = [good_hits[1]]
     assert observed_red_list == expected_red_list
     # testing chain information
-    observed_red_list = filter_pdb_list(good_hits, pdb_to_use="4gux", chain_to_use="C")
+    observed_red_list = filter_pdb_list(
+        good_hits, pdb_to_use="4gux", chain_to_use="C"
+    )
     expected_red_list = [good_hits[3]]
     assert observed_red_list == expected_red_list
 

@@ -6,12 +6,16 @@ residues.
 
 USAGE::
 
-    arctic3d_resclust ./example/1ppe_E.pdb --residue_list 29,30,31,49,50,51 --threshold=20.0 --chain=E
+    arctic3d_resclust ./example/1ppe_E.pdb \
+        --residue_list 29,30,31,49,50,51 \
+        --threshold=20.0 \
+        --chain=E
 
 Input arguments:
     `residue_list` : the comma-separated list of residue IDs.
 
-    `threshold` : the number to be used as threshold for hierarchical clustering.
+    `threshold` : the number to be used as threshold for hierarchical
+        clustering.
 
     `chain` : the chain ID to be used.
 
@@ -26,7 +30,10 @@ import sys
 import MDAnalysis as mda
 from scipy.spatial.distance import pdist
 
-from arctic3d.modules.clustering import cluster_similarity_matrix, get_clustering_dict
+from arctic3d.modules.clustering import (
+    cluster_similarity_matrix,
+    get_clustering_dict,
+)
 from arctic3d.modules.input import Input
 
 LOGNAME = "arctic3d_resclust.log"
@@ -74,7 +81,15 @@ argument_parser.add_argument(
     help="Linkage strategy for clustering",
     type=str,
     required=False,
-    choices=["average", "single", "complete", "median", "centroid", "ward", "weighted"],
+    choices=[
+        "average",
+        "single",
+        "complete",
+        "median",
+        "centroid",
+        "ward",
+        "weighted",
+    ],
     default="average",
 )
 
@@ -161,14 +176,17 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
 
     n_chains = u.n_segments
     if n_chains != 1:
-        log.error(f"Number of consistent segments ({n_chains}) != 1. Aborting.")
+        log.error(
+            f"Number of consistent segments ({n_chains}) != 1. Aborting."
+        )
         sys.exit(1)
 
     # do the clustering
     if criterion == "maxclust":
         threshold = int(threshold)
     log.info(
-        f"Clustering distance matrix with linkage {linkage}, threshold {threshold}, and criterion {criterion}"
+        f"Clustering distance matrix with linkage {linkage}, threshold"
+        f" {threshold}, and criterion {criterion}"
     )
     distmap = pdist(u.positions)
     clusters = cluster_similarity_matrix(
@@ -182,7 +200,8 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
     for el in cl_dict.keys():
         log.info(
-            f"cluster {el}, residues {' '.join([str(res) for res in cl_dict[el]])}"
+            f"cluster {el}, residues"
+            f" {' '.join([str(res) for res in cl_dict[el]])}"
         )
 
 

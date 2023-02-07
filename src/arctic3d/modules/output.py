@@ -115,13 +115,20 @@ def write_residues_probs(cl_residues_probs, res_probs_filename):
     # write to file
     with open(res_probs_filename, "w") as wfile:
         for key in cl_residues_probs.keys():
-            cl_string = f"Cluster {key} : {len(cl_residues_probs[key].keys())} residues{os.linesep}"
+            cl_string = (
+                f"Cluster {key} :"
+                f" {len(cl_residues_probs[key].keys())} residues{os.linesep}"
+            )
             cl_string += f"rank\tresid\tprobability{os.linesep}"
             sorted_probs = sorted(
-                cl_residues_probs[key].items(), key=lambda x: x[1], reverse=True
+                cl_residues_probs[key].items(),
+                key=lambda x: x[1],
+                reverse=True,
             )
             for pair_idx, pair in enumerate(sorted_probs, start=1):
-                cl_string += f"{pair_idx}\t{pair[0]}\t{pair[1]:.3f}{os.linesep}"
+                cl_string += (
+                    f"{pair_idx}\t{pair[0]}\t{pair[1]:.3f}{os.linesep}"
+                )
             cl_string += os.linesep
             wfile.write(cl_string)
 
@@ -166,7 +173,8 @@ def output_pdb(pdb_f, cl_residues_probs):
                     new_beta = 0.00
                     if resid in cl_residues_probs[cl_id].keys():
                         new_beta = (
-                            st_beta + (100 - st_beta) * cl_residues_probs[cl_id][resid]
+                            st_beta
+                            + (100 - st_beta) * cl_residues_probs[cl_id][resid]
                         )
                     n_blank = 3 - len(str(new_beta).split(".")[0])
                     new_line = f"{ln[:60]}{' '*n_blank}{new_beta:.2f}{ln[66:]}"
@@ -190,15 +198,24 @@ def make_plotly_plot(conv_resids, probs):
     log.info("Creating interactive plot.")
     # create a qualitatively diverse set of colors
     ref_colors = plt.cm.tab20.colors
-    odd_colors = [f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 1]
-    even_colors = [f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 0]
+    odd_colors = [
+        f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 1
+    ]
+    even_colors = [
+        f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 0
+    ]
     colors = odd_colors + even_colors
 
     # create figure
     fig = go.Figure(layout={"width": len(conv_resids) * 10, "height": 500})
     for key_idx, key in enumerate(probs.keys()):
         fig.add_trace(
-            go.Bar(x=conv_resids, y=probs[key], name=key, marker_color=colors[key_idx])
+            go.Bar(
+                x=conv_resids,
+                y=probs[key],
+                name=key,
+                marker_color=colors[key_idx],
+            )
         )
     # prettifying layout
     fig.update_layout(
@@ -267,11 +284,14 @@ def plot_interactive_probs(pdb_f, cl_residues_probs):
         make_plotly_plot(conv_resids, probs)
     except Exception as e:
         log.warning(
-            f"Could not create interactive plot. The following error occurred {e}"
+            "Could not create interactive plot. The following error"
+            f" occurred {e}"
         )
 
 
-def make_output(interface_residues, pdb_f, cl_dict, cl_residues, cl_residues_probs):
+def make_output(
+    interface_residues, pdb_f, cl_dict, cl_residues, cl_residues_probs
+):
     """
     wrapper to call the different output functions.
 

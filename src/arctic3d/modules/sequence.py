@@ -37,7 +37,9 @@ def to_fasta(pdb_f, temp):
 
     """
     if temp:
-        fasta_fh = tempfile.NamedTemporaryFile(mode="w", suffix=".fasta", delete=False)
+        fasta_fh = tempfile.NamedTemporaryFile(
+            mode="w", suffix=".fasta", delete=False
+        )
     else:
         fasta_fh = open(pdb_f.with_suffix(".fasta"), "w")
 

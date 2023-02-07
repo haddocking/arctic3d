@@ -74,7 +74,9 @@ def blast_local(fasta_file, db):
     blastp_exec = get_blast_exec()
     cmd = f"{blastp_exec} -query {fasta_file} -db {db} -outfmt 6"
 
-    p = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.run(
+        shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
 
     if p.returncode != 0:
         log.error(p.stderr.decode())
@@ -112,7 +114,8 @@ def blast_remote(fasta_file):
     tree = ET.parse("blast_res.xml")
     root = tree.getroot()
 
-    # root [BlastOutput_iterations] [Iteration] [Iteration_hits] [Hit #2] [Hit_accession]
+    # root [BlastOutput_iterations] [Iteration] [Iteration_hits] \
+    #   [Hit #2] [Hit_accession]
     # using second hit as the first is the input
     # instead of Hit_accession, [1] for [Hit_id] can be used
     accession_id = root[8][0][4][1][3].text

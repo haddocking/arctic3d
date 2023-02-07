@@ -50,13 +50,19 @@ def test_get_cl_dict():
 
 def test_get_res_dict():
     """Test correct retrieval of res_dict."""
-    interface_dict = {"int_1": [1, 2, 3], "int_2": [3, 4, 5], "int_3": [27, 28, 29]}
+    interface_dict = {
+        "int_1": [1, 2, 3],
+        "int_2": [3, 4, 5],
+        "int_3": [27, 28, 29],
+    }
     cl_dict = {1: ["int_1", "int_2"], 2: ["int_3"]}
     expected_res_dict = {1: [1, 2, 3, 4, 5], 2: [27, 28, 29]}
     expected_res_probs = {
         1: {1: 0.5, 2: 0.5, 3: 1.0, 4: 0.5, 5: 0.5},
         2: {27: 1.0, 28: 1.0, 29: 1.0},
     }
-    observed_res_dict, observed_res_probs = get_residue_dict(cl_dict, interface_dict)
+    observed_res_dict, observed_res_probs = get_residue_dict(
+        cl_dict, interface_dict
+    )
     assert expected_res_dict == observed_res_dict
     assert expected_res_probs == observed_res_probs

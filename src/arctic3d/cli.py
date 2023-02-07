@@ -9,7 +9,10 @@ from pathlib import Path
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
 from arctic3d.modules.input import Input
-from arctic3d.modules.interface import get_interface_residues, read_interface_residues
+from arctic3d.modules.interface import (
+    get_interface_residues,
+    read_interface_residues,
+)
 from arctic3d.modules.output import make_output, setup_output_folder
 from arctic3d.modules.pdb import get_best_pdb
 from arctic3d.modules.sequence import to_fasta
@@ -103,7 +106,15 @@ argument_parser.add_argument(
     help="Linkage strategy for clustering",
     type=str,
     required=False,
-    choices=["average", "single", "complete", "median", "centroid", "ward", "weighted"],
+    choices=[
+        "average",
+        "single",
+        "complete",
+        "median",
+        "centroid",
+        "ward",
+        "weighted",
+    ],
     default="average",
 )
 
@@ -197,15 +208,22 @@ def main(
     # retrieve interfaces.
     if "interface_file" in input_files:
         log.info(f"input interface file {interface_file}")
-        interface_residues = read_interface_residues(input_files["interface_file"])
+        interface_residues = read_interface_residues(
+            input_files["interface_file"]
+        )
     else:
         if interface_file:
             log.warning(
-                "input interface file submitted without pdb. It will be ignored."
+                "input interface file submitted without pdb. It will be"
+                " ignored."
             )
         if interface_data:
             interface_residues = get_interface_residues(
-                uniprot_id, out_partner, out_pdb, input_files["interface_data"], full
+                uniprot_id,
+                out_partner,
+                out_pdb,
+                input_files["interface_data"],
+                full,
             )
         else:
             interface_residues = get_interface_residues(
@@ -221,7 +239,11 @@ def main(
             pdb_f, filtered_interfaces = input_files["pdb"], None
             if not interface_file:
                 log.warning(
-                    """Input pdb file submitted without interface file. This assumes the pdb is coherent with the corresponding uniprot numbering."""
+                    (
+                        "Input pdb file submitted without interface file. "
+                        "This assumes the pdb is coherent with the "
+                        "corresponding uniprot numbering."
+                    )
                 )
         else:
             if pdb_data:
@@ -239,7 +261,8 @@ def main(
 
         if pdb_f is None:
             log.error(
-                "Could not retrieve a valid PDB for the target, please provide one using the --pdb option"
+                "Could not retrieve a valid PDB for the target, please provide"
+                " one using the --pdb option"
             )
             sys.exit()
 
@@ -257,11 +280,15 @@ def main(
         log.info(f"Clustered interfaces {cl_ints}")
         log.info(f"Clustered interface residues: {cl_residues}")
 
-        make_output(interface_residues, pdb_f, cl_ints, cl_residues, cl_residues_probs)
+        make_output(
+            interface_residues, pdb_f, cl_ints, cl_residues, cl_residues_probs
+        )
     else:
         log.info("No interfaces found.")
 
-    log.info(f"arctic3d run completed in {(time.time() - st_time):.2f} seconds.")
+    log.info(
+        f"arctic3d run completed in {(time.time() - st_time):.2f} seconds."
+    )
     shutil.move(f"../{LOGNAME}", LOGNAME)
 
 

@@ -62,7 +62,8 @@ def compute_scalar_product(interface_one, interface_two, Jij_mat):
     scalar_product : float
         scalar product between the two interfaces
     """
-    # log.debug(f"computing scal_prod between {interface_one} and {interface_two}")
+    # log.debug(f"computing scal_prod between {interface_one}
+    #   and {interface_two}")
     scalar_product = Jij_mat[np.ix_(interface_one, interface_two)].sum()
     return scalar_product
 
@@ -83,11 +84,14 @@ def get_coupling_matrix(mdu, int_resids):
     Jij_mat : np.array
         coupling matrix
     """
-    sel_residues = "name CA and resid " + " ".join([str(el) for el in int_resids])
+    sel_residues = "name CA and resid " + " ".join(
+        [str(el) for el in int_resids]
+    )
     u = mdu.select_atoms(sel_residues)
     if u.positions.shape[0] != len(int_resids):
         raise Exception(
-            "shape mismatch: positions do not match input residues {int_resids}"
+            "shape mismatch: positions do not match input residues"
+            " {int_resids}"
         )
     distmap = cdist(u.positions, u.positions)
     exp_factor = 4 * SIGMA * SIGMA
@@ -118,7 +122,10 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
             for int_two in range(int_one + 1, len(int_names)):
-                string = f"{int_names[int_one]} {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                string = (
+                    f"{int_names[int_one]}"
+                    f" {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                )
                 string += os.linesep
                 matrix_idx += 1
                 wmatrix.write(string)
@@ -217,7 +224,8 @@ def interface_matrix(interface_dict, pdb_path):
     Returns
     -------
     retained_interfaces : dict
-        dictionary of the retained interfaces (each one with its formatted uniprot ID as key)
+        dictionary of the retained interfaces
+        (each one with its formatted uniprot ID as key)
     out_fl : str
         path to the output interface matrix
     """
@@ -307,7 +315,8 @@ def read_int_matrix(filename):
         int_nligands = int(nligands)
         if abs(nligands - int_nligands) > 0.00001:
             raise Exception(
-                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed similarity matrix"
+                f"npairs {int_matrix.shape[0]}: interface matrix should be a"
+                " 1D condensed similarity matrix"
             )
         # extracting ligands' names
         ligand_names = [int_matrix.iloc[0, 0]]

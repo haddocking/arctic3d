@@ -24,8 +24,10 @@ def load_bm5_file(bm5_file: str) -> list[tuple[str, str, str]]:
     ligand_ids = bm5_df["PDB ID 2"].values
 
     data = []
-    for complex, receptor, ligand in zip(complex_ids, receptor_ids, ligand_ids):
-        data.append((complex, receptor, ligand))
+    for target_complex, receptor, ligand in zip(
+        complex_ids, receptor_ids, ligand_ids
+    ):
+        data.append((target_complex, receptor, ligand))
 
     return data
 
@@ -63,7 +65,9 @@ def identify_uniprotid(pdb_id: str, target_chain: str) -> Optional[str]:
     return None
 
 
-def parse_bm(bm: list[tuple[str, str, str]]) -> list[tuple[str, str, str, str, str]]:
+def parse_bm(
+    bm: list[tuple[str, str, str]]
+) -> list[tuple[str, str, str, str, str]]:
     """Parse the benchmark and return a list with the Uniprot IDs."""
     parsed_bm: list = []
     for complex, receptor, ligand in bm:
@@ -86,11 +90,20 @@ def write_output_file(
     """Write the output file."""
     logging.info(f"Saving output to {output_file}.")
     with open(output_file, "w") as f:
-        f.write("complex,receptor,uniprot_receptor,ligand,uniprot_ligand" + os.linesep)
-        for complex, receptor, uniprot_receptor, ligand, uniprot_ligand in parsed_bm:
+        f.write(
+            "complex,receptor,uniprot_receptor,ligand,uniprot_ligand"
+            + os.linesep
+        )
+        for (
+            target_complex,
+            receptor,
+            uniprot_receptor,
+            ligand,
+            uniprot_ligand,
+        ) in parsed_bm:
             f.write(
-                f"{complex},{receptor},{uniprot_receptor},{ligand},{uniprot_ligand}"
-                + os.linesep
+                f"{target_complex},{receptor},{uniprot_receptor}"
+                f",{ligand},{uniprot_ligand}" + os.linesep
             )
 
 

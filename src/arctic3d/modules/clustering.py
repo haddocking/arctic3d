@@ -12,7 +12,9 @@ from arctic3d.modules.interface_matrix import read_int_matrix
 log = logging.getLogger("arctic3d.log")
 
 
-def plot_dendrogram(linkage_matrix, entries, filename, threshold, max_entries=50):
+def plot_dendrogram(
+    linkage_matrix, entries, filename, threshold, max_entries=50
+):
     """
     Plots the dendrogram.
 
@@ -81,7 +83,9 @@ def cluster_similarity_matrix(
     clusters : list
         list of clusters ID, each one associated to an entry
     """
-    log.info(f"Clustering with linkage {linkage_strategy} and threshold {threshold}")
+    log.info(
+        f"Clustering with linkage {linkage_strategy} and threshold {threshold}"
+    )
     Z = linkage(int_matrix, linkage_strategy)
     if plot:
         dendrogram_figure_filename = "dendrogram_" + linkage_strategy + ".png"
@@ -108,7 +112,15 @@ def get_clustering_dict(clusters, ligands):
     -------
     cl_dict : dict
         dictionary of clustered interfaces
-        *example* { 1 : ['interface_1', 'interface_3'] , 2 : ['interface_2'], ... }
+        *example* {
+            1 : [
+            'interface_1', 'interface_3'
+                ] ,
+            2 : [
+            'interface_2'
+            ],
+            ...
+            }
     """
     cl_dict = {}
     # loop over clusters
@@ -158,7 +170,9 @@ def get_residue_dict(cl_dict, interface_dict):
     return clustered_residues, cl_residues_probs
 
 
-def interface_clustering(interface_dict, matrix_filename, linkage_strategy, threshold):
+def interface_clustering(
+    interface_dict, matrix_filename, linkage_strategy, threshold
+):
     """
     Clusters the interface matrix.
 

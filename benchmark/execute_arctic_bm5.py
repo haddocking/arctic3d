@@ -43,7 +43,9 @@ def get_arctic_io(filename):
 
 def run_arctic(cmd):
     """runs arctic3d command and returns the status"""
-    p = subprocess.run(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.run(
+        shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     # out = p.stdout.decode("utf-8").split(os.linesep)
     # check if failed
     if p.returncode != 0:
@@ -83,10 +85,15 @@ def search_interfaces(interfaces, uniprot_id):
 def cycle_run(arctic_io):
     """run arctic for the set of pdb files."""
     stats = {
-        "n_runs": 0,  # number of times arctic runs (no antibodies)
-        "n_founds": 0,  # number of times opponent uniprot id is found
-        "n_clustered_else": 0,  # number of times opponent uniprot id is found clustered with something else
-        "n_failures": 0,  # number of times arctic3d fails. Ideally zero.
+        # number of times arctic runs (no antibodies)
+        "n_runs": 0,
+        # number of times opponent uniprot id is found
+        "n_founds": 0,
+        # number of times opponent uniprot id is found clustered
+        #  with something else
+        "n_clustered_else": 0,
+        # number of times arctic3d fails. Ideally zero.
+        "n_failures": 0,
     }
 
     for pdb in list(arctic_io.keys()):
@@ -115,11 +122,13 @@ def cycle_run(arctic_io):
                 # copy stuff to complex_code directory
                 int_file = Path(
                     complex_code,
-                    f"clustered_interfaces_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_full.out",
+                    f"clustered_interfaces_{pdb[:4]}"
+                    f"_{arctic_io[pdb]['self_uniprot_id']}_full.out",
                 )
                 res_file = Path(
                     complex_code,
-                    f"clustered_residues_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_full.out",
+                    f"clustered_residues_{pdb[:4]}"
+                    f"_{arctic_io[pdb]['self_uniprot_id']}_full.out",
                 )
                 shutil.copy(INT_FILENAME, int_file)
                 shutil.copy(RES_FILENAME, res_file)
@@ -127,16 +136,22 @@ def cycle_run(arctic_io):
                 os.unlink(INT_FILENAME)
                 if found:
                     # re-running arctic excluding the paired uniprot id
-                    cmd = f"arctic3d {arctic_io[pdb]['self_uniprot_id']} --out_uniprot {arctic_io[pdb]['paired_uniprot_id']}"
+                    cmd = (
+                        "arctic3d"
+                        f" {arctic_io[pdb]['self_uniprot_id']} --out_uniprot"
+                        f" {arctic_io[pdb]['paired_uniprot_id']}"
+                    )
                     output = run_arctic(cmd)
                     if output == "SUCCESS" and os.path.exists(INT_FILENAME):
                         int_file = Path(
                             complex_code,
-                            f"clustered_interfaces_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
+                            f"clustered_interfaces_{pdb[:4]}"
+                            f"_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
                         )
                         res_file = Path(
                             complex_code,
-                            f"clustered_residues_{pdb[:4]}_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
+                            f"clustered_residues_{pdb[:4]}"
+                            f"_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
                         )
                         shutil.copy(INT_FILENAME, int_file)
                         shutil.copy(RES_FILENAME, res_file)
@@ -144,7 +159,8 @@ def cycle_run(arctic_io):
                         os.unlink(INT_FILENAME)
             else:
                 print(
-                    f"Warning: no interface file found for pdb {pdb} uniprot {arctic_io[pdb]['self_uniprot_id']}"
+                    f"Warning: no interface file found for pdb {pdb} uniprot"
+                    f" {arctic_io[pdb]['self_uniprot_id']}"
                 )
         print(f"Final stats : {stats}")
 
@@ -164,7 +180,9 @@ def main():
     start_time = time.time()
     parser = argparse.ArgumentParser()
     parser.add_argument("input_file")
-    parser.add_argument("output_folder")  # directory where the benchmark must be built
+    parser.add_argument(
+        "output_folder"
+    )  # directory where the benchmark must be built
     args = parser.parse_args()
 
     bm5_input_file = args.input_file
