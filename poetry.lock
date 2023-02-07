@@ -1031,14 +1031,14 @@ files = [
 
 [[package]]
 name = "openpyxl"
-version = "3.0.10"
+version = "3.1.0"
 description = "A Python library to read/write Excel 2010 xlsx/xlsm files"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "openpyxl-3.0.10-py2.py3-none-any.whl", hash = "sha256:0ab6d25d01799f97a9464630abacbb34aafecdcaa0ef3cba6d6b3499867d0355"},
-    {file = "openpyxl-3.0.10.tar.gz", hash = "sha256:e47805627aebcf860edb4edf7987b1309c1b3632f3750538ed962bbcc3bd7449"},
+    {file = "openpyxl-3.1.0-py2.py3-none-any.whl", hash = "sha256:24d7d361025d186ba91eff58135d50855cf035a84371b891e58fb6eb5125660f"},
+    {file = "openpyxl-3.1.0.tar.gz", hash = "sha256:eccedbe1cdd8b2494057e73959b496821141038dbb7eb9266ea59e3f34208231"},
 ]
 
 [package.dependencies]
@@ -1502,4 +1502,4 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "81a8940de94d7849655ae69740c552ad6436590bb1f7fcc16515f1a7ae902696"
+content-hash = "e07a78817d3c584b18c58672c838743f93d41d1dad6ee2f694e1d0fdf2f036a0"
