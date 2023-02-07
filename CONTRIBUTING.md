@@ -4,7 +4,7 @@ This section is still work in progress
 
 ## Installation
 
-We use `poetry` to manage the dependencies and the virtual environment, so you need to install it first; check the [official documentation](https://python-poetry.org/docs/#installation) for more details.
+We use `poetry` to manage the dependencies and the virtual environment, so it makes things easier if you need to install it first; check the [official documentation](https://python-poetry.org/docs/#installation) for more details.
 
 Clone the repository and install the dependencies:
 
@@ -13,17 +13,17 @@ git clone https://github.com/haddocking/arctic3d.git && cd arctic3d
 poetry install
 ```
 
-OR with `pip`
+OR if you prefer `pip`
 
 ```text
 git clone https://github.com/haddocking/arctic3d.git && cd arctic3d
-pip install .
+pip install . pytest-cov
 ```
 
 ## Testing
 
 ```text
-run pytest --cov=./ --cov-report=xml -v
+pytest --cov=./ --cov-report=xml -v
 ```
 
 ## Linting
