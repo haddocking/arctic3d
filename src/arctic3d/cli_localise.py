@@ -174,7 +174,10 @@ def get_sorted_dict(cluster_bins, reverse=False):
 
 
 def create_histograms(uniprot_clustering_dict, locs, weight):
-    """Create histograms"""
+    """
+    Create histograms.
+
+    """
     cl_bins = {}
     for cl_id in uniprot_clustering_dict.keys():
         cl_bins[cl_id] = {}
@@ -190,6 +193,26 @@ def create_histograms(uniprot_clustering_dict, locs, weight):
                     if subloc not in cl_bins[cl_id].keys():
                         cl_bins[cl_id][subloc] = 0
                     cl_bins[cl_id][subloc] += bin_weight
+    return cl_bins
+
+
+def get_uniprot_dict(clustering_dict, out_partner_set):
+    """
+    Get uniprot dictionary
+    """
+    uniprot_clustering_dict = {}
+    uniprot_set = []
+    for cl_id in clustering_dict.keys():
+        uniprot_clustering_dict[cl_id] = []
+        # loop over partners
+        for partner in clustering_dict[cl_id]:
+            uniprot_id = partner.split("-")[0]
+            if uniprot_id not in out_partner_set:
+                if uniprot_id not in uniprot_clustering_dict[cl_id]:
+                    uniprot_clustering_dict[cl_id].append(uniprot_id)
+                uniprot_set.append(uniprot_id)
+    uniprot_set = list(set(uniprot_set))
+    return uniprot_clustering_dict, uniprot_set
 
 
 def load_args(arguments):
@@ -270,18 +293,10 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
         log.info(f"Excluding uniprot IDs {out_partner_set}.")
 
     # writing down uniprot-based clustering (to make sense of the data)
-    uniprot_clustering_dict = {}
-    uniprot_set = []
-    for cl_id in clustering_dict.keys():
-        uniprot_clustering_dict[cl_id] = []
-        # loop over partners
-        for partner in clustering_dict[cl_id]:
-            uniprot_id = partner.split("-")[0]
-            if uniprot_id not in out_partner_set:
-                if uniprot_id not in uniprot_clustering_dict[cl_id]:
-                    uniprot_clustering_dict[cl_id].append(uniprot_id)
-                uniprot_set.append(uniprot_id)
-    uniprot_set = list(set(uniprot_set))
+    uniprot_clustering_dict, uniprot_set = get_uniprot_dict(
+        clustering_dict, out_partner_set
+    )
+
     # write down uniprot_clustering_dict
     write_dict(
         uniprot_clustering_dict,
