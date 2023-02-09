@@ -37,6 +37,7 @@ import shutil
 import sys
 import time
 from pathlib import Path
+import math
 
 import matplotlib.pyplot as plt
 
@@ -48,7 +49,7 @@ from arctic3d.modules.output import (
     write_dict,
 )
 
-LOGNAME = "arctic3d_localise.log"
+LOGNAME = f"arctic3d_localise_{os.getpid()}.log"
 logging.basicConfig(filename=LOGNAME)
 log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
@@ -82,6 +83,14 @@ argument_parser.add_argument(
     help="Use quickgo () information instead of uniprot",
     required=False,
     choices=["C", "F", "P"],
+)
+
+argument_parser.add_argument(
+    "--weight",
+    help="Weight histograms according to uniprot",
+    required=False,
+    choices=["yes", "no"],
+    default="no",
 )
 
 
@@ -139,6 +148,40 @@ def get_quickgo_information(prot_data, quickgo_key):
     return locs
 
 
+def shorten_labels(list_of_labels, max_lab_length=50):
+    """
+    Shorten labels for plotting.
+
+    Parameters
+    ----------
+    list_of_labels : list
+        list of labels for a plot
+
+    max_lab_length : int
+        maximum allowed length (in characters)
+
+    Returns
+    -------
+    new_list_of_labels : list
+        list of shortened labels
+    """
+    new_list_of_labels = []
+    for lab in list_of_labels:
+        if len(lab) > max_lab_length:
+            new_lab = ""
+            len_lab = 0
+            splt_lab = lab.split()
+            for substr in splt_lab:
+                if len_lab < max_lab_length:
+                    new_lab += f"{substr} "
+                    len_lab += len(substr) + 1
+            new_lab = new_lab.strip() + "..."
+        else:
+            new_lab = lab
+        new_list_of_labels.append(new_lab)
+    return new_list_of_labels
+
+
 def load_args(arguments):
     """
     Load argument parser.
@@ -178,14 +221,23 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, run_dir, out_partner, quickgo):
+def main(input_arg, run_dir, out_partner, quickgo, weight):
     """Main function."""
     log.setLevel("INFO")
     start_time = time.time()
+    prop_name = "location"
     if quickgo:
-        log.info("Running arctic3d_localise with QUICKGO information")
+        if quickgo == "F":
+            prop_name = "function"
+        elif quickgo == "P":
+            prop_name = "biological process"
+        log.info(
+            f"Running arctic3d_localise with QUICKGO {prop_name} information"
+        )
     else:
-        log.info("Running arctic3d_localise with UNIPROT information")
+        log.info(
+            f"Running arctic3d_localise with UNIPROT {prop_name} information"
+        )
 
     # check input existence
     input_files = {"cl_filename": Path(input_arg)}
@@ -207,85 +259,94 @@ def main(input_arg, run_dir, out_partner, quickgo):
     if out_partner:
         log.info(f"Excluding uniprot IDs {out_partner_set}.")
 
-    log.info("Retrieving subcellular locations...(this may take a while)")
+    # writing down uniprot-based clustering (to make sense of the data)
+    uniprot_clustering_dict = {}
+    uniprot_set = []
+    for cl_id in clustering_dict.keys():
+        uniprot_clustering_dict[cl_id] = []
+        # loop over partners
+        for partner in clustering_dict[cl_id]:
+            uniprot_id = partner.split("-")[0]
+            if uniprot_id not in out_partner_set:
+                if uniprot_id not in uniprot_clustering_dict[cl_id]:
+                    uniprot_clustering_dict[cl_id].append(uniprot_id)
+                uniprot_set.append(uniprot_id)
+    uniprot_set = list(set(uniprot_set))
+    # write down uniprot_clustering_dict
+    write_dict(
+        uniprot_clustering_dict,
+        "uniprot_clustering.out",
+        keyword="Cluster",
+        sep=",",
+    )
+
+    log.info(
+        f"Retrieving {prop_name} of {len(uniprot_set)} partners..."
+        "(this may take a while)"
+    )
     locs = {}  # partner-specific locations. Can be empty
     failed_ids, none_ids = (
         [],
         [],
     )  # uniprot ids whose call failed/returned None location
     bins = []  # different locations retrieved
-    for cl_id in clustering_dict.keys():
-        for partner in clustering_dict[cl_id]:
-            uniprot_id = partner.split("-")[0]
-            # ugly if-clause to avoid calling uniprot with one of
-            #   the ids to be excluded
-            #  - not that ugly! (:
-            if (
-                uniprot_id not in locs.keys()
-                and uniprot_id not in failed_ids
-                and uniprot_id not in none_ids
-                and uniprot_id not in out_partner_set
-            ):
-                # uniprot call
-                log.info(f"calling uniprot with uniprot ID {uniprot_id}")
-                uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
-                try:
-                    prot_data = make_request(uniprot_url, None)
-                except Exception as e:
-                    log.warning(
-                        f"Could not make UNIPROT request for {uniprot_id}, {e}"
-                    )
-                    failed_ids.append(uniprot_id)
-                    continue
-                # parsing
-                if quickgo:
-                    locations = get_quickgo_information(
-                        prot_data, quickgo_key=quickgo
-                    )
-                else:
-                    locations = get_uniprot_subcellular_location(prot_data)
+    for uniprot_id in uniprot_set:
+        # uniprot call
+        log.info(f"calling uniprot with uniprot ID {uniprot_id}")
+        uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
+        try:
+            prot_data = make_request(uniprot_url, None)
+        except Exception as e:
+            log.warning(
+                f"Could not make UNIPROT request for {uniprot_id}, {e}"
+            )
+            failed_ids.append(uniprot_id)
+            continue
+        # parsing
+        if quickgo:
+            locations = get_quickgo_information(prot_data, quickgo_key=quickgo)
+        else:
+            locations = get_uniprot_subcellular_location(prot_data)
+        if locations == []:
+            log.info(f"no {prop_name} retrieved for {uniprot_id}")
+            none_ids.append(uniprot_id)
+        else:
+            log.info(f"{prop_name} retrieved for {uniprot_id}")
+            locs[uniprot_id] = locations
+            # append to bins
+            for location in locations:
+                if location not in bins:
+                    bins.append(location)
 
-                if locations == []:
-                    log.info(f"no location retrieved for {uniprot_id}")
-                    none_ids.append(uniprot_id)
-                else:
-                    log.info(f"location retrieved for {uniprot_id}")
-                    locs[uniprot_id] = locations
-                    # append to bins
-                    for location in locations:
-                        if location not in bins:
-                            bins.append(location)
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"Subcellular location retrieval took {elap_time} seconds")
+    log.info(f"{prop_name} retrieval took {elap_time} seconds")
     log.info(f"{len(failed_ids)} partners failed uniprot calls.")
-    log.info(f"{len(none_ids)} contain None subcellular location information.")
-    log.info(
-        f"Retrieved subcellular location for {len(locs.keys())} partners."
-    )
+    log.info(f"{len(none_ids)} contain None {prop_name} information.")
+    log.info(f"Retrieved {prop_name} for {len(locs.keys())} partners.")
 
-    log.info(f"Unique subcellular locations {bins}")
+    log.info(f"Unique {prop_name} entries: {bins}")
 
     # writing locations to file
-    loc_filename = "Subcellular_locations.txt"
-    log.info(f"Saving retrieved subcellular locations to file {loc_filename}")
-    write_dict(locs, loc_filename, keyword="Subcellular location", sep=",")
+    loc_filename = f"{prop_name}.txt"
+    log.info(f"Saving retrieved {prop_name} to file {loc_filename}")
+    write_dict(locs, loc_filename, keyword=prop_name, sep=",")
 
     # creating the histograms according to the clustering
     cl_bins = {}
-    for cl_id in clustering_dict.keys():
+    for cl_id in uniprot_clustering_dict.keys():
         cl_bins[cl_id] = {}
-        processed_uniprot_ids = []
-        for partner in clustering_dict[cl_id]:
-            uniprot_id = partner.split("-")[0]
-            if (
-                uniprot_id in locs.keys()
-                and uniprot_id not in processed_uniprot_ids
-            ):
-                processed_uniprot_ids.append(uniprot_id)
+        for uniprot_id in uniprot_clustering_dict[cl_id]:
+            if uniprot_id in locs.keys():
+                # adjusting weight
+                if weight == "yes":
+                    bin_weight = 1 / len(locs[uniprot_id])
+                else:
+                    bin_weight = 1
+                # looping over locations
                 for subloc in locs[uniprot_id]:
                     if subloc not in cl_bins[cl_id].keys():
                         cl_bins[cl_id][subloc] = 0
-                    cl_bins[cl_id][subloc] += 1
+                    cl_bins[cl_id][subloc] += bin_weight
 
     log.info("Plotting cluster locations...")
     # plotting histograms
@@ -297,15 +358,19 @@ def main(input_arg, run_dir, out_partner, quickgo):
                     cl_bins[cluster].items(), key=lambda item: item[1]
                 )
             }
-            labels = list(sort_dict.keys())
-            values = list(sort_dict.values())
-            gap = (max(values) - min(values)) // 12 + 1
-            xints = range(min(values), max(values) + 1, gap)
+            max_labels = 70
+            labels = shorten_labels(list(sort_dict.keys())[-max_labels:])
+            values = list(sort_dict.values())[-max_labels:]
+            max_val = math.ceil(max(values))
+            min_val = math.floor(min(values))
+            gap = (max_val - min_val) // 12 + 1
+            xints = range(min_val, max_val + 1, int(gap))
             plt.figure(figsize=(12, 12))
             plt.title(f"cluster {cluster}", fontsize=24)
             plt.barh(labels, values, height=0.3, color="g")
             plt.xticks(xints, fontsize=18)
             plt.yticks(fontsize=14)
+            plt.xlabel("Occurrencies", fontsize=24)
             plt.tight_layout()
             fig_fname = f"cluster_{cluster}.png"
             plt.savefig(fig_fname)
@@ -336,7 +401,12 @@ def main(input_arg, run_dir, out_partner, quickgo):
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d_localise run took {elap_time} seconds")
-    shutil.move(f"../{LOGNAME}", LOGNAME)
+
+    # copying log file to the run folder (if possible)
+    try:
+        shutil.move(f"../{LOGNAME}", LOGNAME)
+    except FileNotFoundError as e:
+        log.warning(f"Could not find log file: {e}")
 
 
 if __name__ == "__main__":
