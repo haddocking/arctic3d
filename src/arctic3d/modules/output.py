@@ -6,6 +6,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import MDAnalysis as mda
+import math
 import numpy as np
 import plotly.graph_objects as go
 
@@ -331,3 +332,58 @@ def make_output(
 
     # make interactive plot with probabilities
     plot_interactive_probs(pdb_f, cl_residues_probs)
+
+
+def shorten_labels(list_of_labels, max_lab_length=50):
+    """
+    Shorten labels for plotting.
+
+    Parameters
+    ----------
+    list_of_labels : list
+        list of labels for a plot
+
+    max_lab_length : int
+        maximum allowed length (in characters)
+
+    Returns
+    -------
+    new_list_of_labels : list
+        list of shortened labels
+    """
+    new_list_of_labels = []
+    for lab in list_of_labels:
+        if len(lab) > max_lab_length:
+            new_lab = ""
+            len_lab = 0
+            splt_lab = lab.split()
+            for substr in splt_lab:
+                if len_lab < max_lab_length:
+                    new_lab += f"{substr} "
+                    len_lab += len(substr) + 1
+            new_lab = new_lab.strip() + "..."
+        else:
+            new_lab = lab
+        new_list_of_labels.append(new_lab)
+    return new_list_of_labels
+
+
+def create_barplot(cluster, sorted_dict, max_labels=70):
+    """"""
+    labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
+    values = list(sorted_dict.values())[-max_labels:]
+    max_val = math.ceil(max(values))
+    min_val = math.floor(min(values))
+    gap = (max_val - min_val) // 12 + 1
+    xints = range(min_val, max_val + 1, int(gap))
+    plt.figure(figsize=(12, 12))
+    plt.title(f"cluster {cluster}", fontsize=24)
+    plt.barh(labels, values, height=0.3, color="g")
+    plt.xticks(xints, fontsize=18)
+    plt.yticks(fontsize=14)
+    plt.xlabel("Occurrencies", fontsize=24)
+    plt.tight_layout()
+    fig_fname = f"cluster_{cluster}.png"
+    plt.savefig(fig_fname)
+    log.info(f"Figure {fig_fname} created")
+    plt.close()

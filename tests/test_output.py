@@ -6,6 +6,7 @@ import pytest
 from arctic3d.modules.output import (
     output_pdb,
     setup_output_folder,
+    shorten_labels,
     write_dict,
     write_residues_probs,
 )
@@ -30,6 +31,16 @@ def reference_res_dict():
     """Reference dictionary of clustered interfaces."""
     res_dict = {1: [1, 2, 3, 4, 5], 2: [27, 28, 29]}
     return res_dict
+
+
+@pytest.fixture
+def example_B_labels():
+    """Example biological process labels."""
+    return [
+        "activation of cysteine-type endopeptidase activity involved in apoptotic process",  # noqa: E501
+        "apoptotic signaling pathway",
+        "positive regulation of transcription by RNA polymerase II",
+    ]
 
 
 def test_write_clusters(reference_cl_dict):
@@ -121,3 +132,14 @@ def test_run_dir():
     os.chdir(start_cwd)
     os.rmdir(Path(run_dir, "input_data"))
     os.rmdir(run_dir)
+
+
+def test_shorten_labels(example_B_labels):
+    """Test shorten_labels."""
+    obs_shortened_labels = shorten_labels(example_B_labels, 50)
+    exp_shortened_labels = [
+        "activation of cysteine-type endopeptidase activity...",
+        "apoptotic signaling pathway",
+        "positive regulation of transcription by RNA polymerase...",
+    ]
+    assert exp_shortened_labels == obs_shortened_labels

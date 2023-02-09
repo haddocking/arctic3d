@@ -37,13 +37,12 @@ import shutil
 import sys
 import time
 from pathlib import Path
-import math
 
-import matplotlib.pyplot as plt
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface import parse_out_partner
 from arctic3d.modules.output import (
+    create_barplot,
     parse_clusters,
     setup_output_folder,
     write_dict,
@@ -148,38 +147,15 @@ def get_quickgo_information(prot_data, quickgo_key):
     return locs
 
 
-def shorten_labels(list_of_labels, max_lab_length=50):
-    """
-    Shorten labels for plotting.
-
-    Parameters
-    ----------
-    list_of_labels : list
-        list of labels for a plot
-
-    max_lab_length : int
-        maximum allowed length (in characters)
-
-    Returns
-    -------
-    new_list_of_labels : list
-        list of shortened labels
-    """
-    new_list_of_labels = []
-    for lab in list_of_labels:
-        if len(lab) > max_lab_length:
-            new_lab = ""
-            len_lab = 0
-            splt_lab = lab.split()
-            for substr in splt_lab:
-                if len_lab < max_lab_length:
-                    new_lab += f"{substr} "
-                    len_lab += len(substr) + 1
-            new_lab = new_lab.strip() + "..."
-        else:
-            new_lab = lab
-        new_list_of_labels.append(new_lab)
-    return new_list_of_labels
+def get_sorted_dict(cluster_bins, reverse=False):
+    """"""
+    sort_dict = {
+        k: v
+        for k, v in sorted(
+            cluster_bins.items(), key=lambda item: item[1], reverse=reverse
+        )
+    }
+    return sort_dict
 
 
 def load_args(arguments):
@@ -352,44 +328,17 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
     # plotting histograms
     for cluster in cl_bins.keys():
         if cl_bins[cluster] != {}:
-            sort_dict = {
-                k: v
-                for k, v in sorted(
-                    cl_bins[cluster].items(), key=lambda item: item[1]
-                )
-            }
-            max_labels = 70
-            labels = shorten_labels(list(sort_dict.keys())[-max_labels:])
-            values = list(sort_dict.values())[-max_labels:]
-            max_val = math.ceil(max(values))
-            min_val = math.floor(min(values))
-            gap = (max_val - min_val) // 12 + 1
-            xints = range(min_val, max_val + 1, int(gap))
-            plt.figure(figsize=(12, 12))
-            plt.title(f"cluster {cluster}", fontsize=24)
-            plt.barh(labels, values, height=0.3, color="g")
-            plt.xticks(xints, fontsize=18)
-            plt.yticks(fontsize=14)
-            plt.xlabel("Occurrencies", fontsize=24)
-            plt.tight_layout()
-            fig_fname = f"cluster_{cluster}.png"
-            plt.savefig(fig_fname)
-            log.info(f"Figure {fig_fname} created")
-            plt.close()
+            # get sorted dictionary
+            sort_dict = get_sorted_dict(cl_bins[cluster])
+            # plot
+            create_barplot(cluster, sort_dict, max_labels=70)
 
     # saving histograms
     os.mkdir("histograms")
     for cl_id in cl_bins.keys():
         if cl_bins[cl_id] != {}:
             log.info(f"writing histogram for cluster {cl_id}")
-            sort_dict = {
-                k: v
-                for k, v in sorted(
-                    cl_bins[cl_id].items(),
-                    key=lambda item: item[1],
-                    reverse=True,
-                )
-            }
+            sort_dict = get_sorted_dict(cl_bins[cl_id], reverse=True)
             histo_file = Path("histograms", f"cluster_{cl_id}.tsv")
             with open(histo_file, "w") as wfile:
                 labels = list(sort_dict.keys())
