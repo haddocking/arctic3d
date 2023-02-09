@@ -47,6 +47,7 @@ In order to generate a detailed html documentation please execute these commands
 
 ```text
 pip install myst_parser
+pip install chardet
 conda install sphinx
 sphinx-build -E docs ./arctic3d-docs
 ```
