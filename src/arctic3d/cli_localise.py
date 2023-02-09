@@ -148,7 +148,22 @@ def get_quickgo_information(prot_data, quickgo_key):
 
 
 def get_sorted_dict(cluster_bins, reverse=False):
-    """"""
+    """
+    Sorts dictionary
+
+    Parameters
+    ----------
+    cluster_bins : dict
+        dictionary to sort according to its values
+
+    reverse : bool
+        use reverse order
+
+    Returns
+    -------
+    sort_dict : dict
+        sorted dictionary
+    """
     sort_dict = {
         k: v
         for k, v in sorted(
@@ -156,6 +171,25 @@ def get_sorted_dict(cluster_bins, reverse=False):
         )
     }
     return sort_dict
+
+
+def create_histograms(uniprot_clustering_dict, locs, weight):
+    """Create histograms"""
+    cl_bins = {}
+    for cl_id in uniprot_clustering_dict.keys():
+        cl_bins[cl_id] = {}
+        for uniprot_id in uniprot_clustering_dict[cl_id]:
+            if uniprot_id in locs.keys():
+                # adjusting weight
+                if weight == "yes":
+                    bin_weight = 1 / len(locs[uniprot_id])
+                else:
+                    bin_weight = 1
+                # looping over locations
+                for subloc in locs[uniprot_id]:
+                    if subloc not in cl_bins[cl_id].keys():
+                        cl_bins[cl_id][subloc] = 0
+                    cl_bins[cl_id][subloc] += bin_weight
 
 
 def load_args(arguments):
@@ -308,21 +342,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
     write_dict(locs, loc_filename, keyword=prop_name, sep=",")
 
     # creating the histograms according to the clustering
-    cl_bins = {}
-    for cl_id in uniprot_clustering_dict.keys():
-        cl_bins[cl_id] = {}
-        for uniprot_id in uniprot_clustering_dict[cl_id]:
-            if uniprot_id in locs.keys():
-                # adjusting weight
-                if weight == "yes":
-                    bin_weight = 1 / len(locs[uniprot_id])
-                else:
-                    bin_weight = 1
-                # looping over locations
-                for subloc in locs[uniprot_id]:
-                    if subloc not in cl_bins[cl_id].keys():
-                        cl_bins[cl_id][subloc] = 0
-                    cl_bins[cl_id][subloc] += bin_weight
+    cl_bins = create_histograms(uniprot_clustering_dict, locs, weight)
 
     log.info("Plotting cluster locations...")
     # plotting histograms
