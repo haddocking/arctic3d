@@ -369,7 +369,20 @@ def shorten_labels(list_of_labels, max_lab_length=50):
 
 
 def create_barplot(cluster, sorted_dict, max_labels=70):
-    """"""
+    """
+    Create horizontal barplot.
+
+    Parameters
+    ----------
+    cluster : int or str
+        cluster ID
+
+    sorted_dict : dict
+        dictionary of sorted entries
+
+    max_labels : int
+        maximum number of labels to include
+    """
     labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
     values = list(sorted_dict.values())[-max_labels:]
     max_val = math.ceil(max(values))
@@ -387,3 +400,4 @@ def create_barplot(cluster, sorted_dict, max_labels=70):
     plt.savefig(fig_fname)
     log.info(f"Figure {fig_fname} created")
     plt.close()
+    return
