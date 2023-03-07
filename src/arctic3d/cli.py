@@ -289,7 +289,11 @@ def main(
     log.info(
         f"arctic3d run completed in {(time.time() - st_time):.2f} seconds."
     )
-    shutil.move(f"../{LOGNAME}", LOGNAME)
+
+    # move log file to output folder
+    exp_log_path = Path(f"../{LOGNAME}")
+    if exp_log_path.exists():
+        shutil.move(exp_log_path, LOGNAME)
 
 
 if __name__ == "__main__":
