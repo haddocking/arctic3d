@@ -214,6 +214,7 @@ def get_uniprot_dict(clustering_dict, out_partner_set):
     uniprot_set = list(set(uniprot_set))
     return uniprot_clustering_dict, uniprot_set
 
+
 def call_uniprot(uniprot_id):
     """
     Call uniprot API
@@ -222,7 +223,7 @@ def call_uniprot(uniprot_id):
     ----------
     uniprot_id : str
         uniprot ID
-    
+
     Returns
     -------
     prot_data : dict
@@ -234,11 +235,10 @@ def call_uniprot(uniprot_id):
     try:
         prot_data = make_request(uniprot_url, None)
     except Exception as e:
-        log.warning(
-            f"Could not make UNIPROT request for {uniprot_id}, {e}"
-        )
+        log.warning(f"Could not make UNIPROT request for {uniprot_id}, {e}")
         prot_data = None
     return prot_data
+
 
 def get_locations(prot_data, quickgo):
     """
@@ -250,7 +250,7 @@ def get_locations(prot_data, quickgo):
         uniprot API parsed output dictionary
     quickgo : str
         one among C, F and P
-    
+
     Returns
     -------
     locations : list
@@ -369,7 +369,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
             continue
         # parsing
         locations = get_locations(prot_data, quickgo)
-        
+
         if locations == []:
             log.info(f"no {prop_name} retrieved for {uniprot_id}")
             none_ids.append(uniprot_id)
