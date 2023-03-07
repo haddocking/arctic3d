@@ -214,6 +214,53 @@ def get_uniprot_dict(clustering_dict, out_partner_set):
     uniprot_set = list(set(uniprot_set))
     return uniprot_clustering_dict, uniprot_set
 
+def call_uniprot(uniprot_id):
+    """
+    Call uniprot API
+
+    Parameters
+    ----------
+    uniprot_id : str
+        uniprot ID
+    
+    Returns
+    -------
+    prot_data : dict
+        uniprot API parsed output dictionary
+    """
+    # uniprot call
+    log.info(f"calling uniprot with uniprot ID {uniprot_id}")
+    uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
+    try:
+        prot_data = make_request(uniprot_url, None)
+    except Exception as e:
+        log.warning(
+            f"Could not make UNIPROT request for {uniprot_id}, {e}"
+        )
+        prot_data = None
+    return prot_data
+
+def get_locations(prot_data, quickgo):
+    """
+    Get locations from uniprot or quickgo
+
+    Parameters
+    ----------
+    prot_data : dict
+        uniprot API parsed output dictionary
+    quickgo : str
+        one among C, F and P
+    
+    Returns
+    -------
+    locations : list
+    """
+    if quickgo:
+        locations = get_quickgo_information(prot_data, quickgo_key=quickgo)
+    else:
+        locations = get_uniprot_subcellular_location(prot_data)
+    return locations
+
 
 def load_args(arguments):
     """
@@ -316,22 +363,13 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
     )  # uniprot ids whose call failed/returned None location
     bins = []  # different locations retrieved
     for uniprot_id in uniprot_set:
-        # uniprot call
-        log.info(f"calling uniprot with uniprot ID {uniprot_id}")
-        uniprot_url = f"{UNIPROT_API_URL}/{uniprot_id}"
-        try:
-            prot_data = make_request(uniprot_url, None)
-        except Exception as e:
-            log.warning(
-                f"Could not make UNIPROT request for {uniprot_id}, {e}"
-            )
+        prot_data = call_uniprot(uniprot_id)
+        if prot_data is None:
             failed_ids.append(uniprot_id)
             continue
         # parsing
-        if quickgo:
-            locations = get_quickgo_information(prot_data, quickgo_key=quickgo)
-        else:
-            locations = get_uniprot_subcellular_location(prot_data)
+        locations = get_locations(prot_data, quickgo)
+        
         if locations == []:
             log.info(f"no {prop_name} retrieved for {uniprot_id}")
             none_ids.append(uniprot_id)
