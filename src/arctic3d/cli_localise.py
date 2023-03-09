@@ -16,7 +16,7 @@ Use the run_dir parameter if you want to specify a specific output directory::
         --run_dir=arctic3d-localise-example
 
 Use the out_partner parameter to exclude one or more uniprot IDs
-    from the search::
+from the search::
 
     arctic3d_localise ./example/clustered_interfaces.out \
         --out_partner=P00760,P00761
@@ -25,7 +25,7 @@ It is possible to retrieve information from quickGO instead of using
 the standard uniprot subcellular location.
 
 QuickGO possesses information location (labelled as C), function (F),
-    and biological process (P)::
+and biological process (P)::
 
     arctic3d_localise ./example/clustered_interfaces.out \
         --quickgo=F

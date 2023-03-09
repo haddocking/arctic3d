@@ -10,13 +10,13 @@ USAGE::
     arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2
 
 Use the ch1 and ch2 parameters if you want to specify different chains to be
- used for the restraints (default is A for r1 and B for r2)::
+used for the restraints (default is A for r1 and B for r2)::
 
     arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
         --ch1=X --ch2=Y
 
-Remeber that the chain IDs must be consistent with the chain present in your
- PDB file.
+Remember that the chain IDs must be consistent with the chain present in your
+PDB file.
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
@@ -131,7 +131,17 @@ def generate_restraints(residues1, residues2, ch1, ch2, ambig_fname):
     Generate act-act.sh restraint file.
 
     Parameters
-
+    ----------
+    residues1 : list
+        List of residues for the first partner.
+    residues2 : list
+        List of residues for the second partner.
+    ch1 : str
+        Chain ID for the first partner.
+    ch2 : str
+        Chain ID for the second partner.
+    ambig_fname : str
+        Name of the output file.
     """
     with open(ambig_fname, "w") as ambig_file:
         ambig_file.write(

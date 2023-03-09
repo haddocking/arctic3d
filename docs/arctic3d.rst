@@ -44,6 +44,14 @@ arctic3d.cli\_resclust module
    :undoc-members:
    :show-inheritance:
 
+arctic3d.cli\_restraints module
+-------------------------------
+
+.. automodule:: arctic3d.cli_restraints
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 arctic3d.functions module
 -------------------------
 
