@@ -5,6 +5,7 @@ import pytest
 
 from arctic3d.modules.output import (
     output_pdb,
+    read_residues_probs,
     setup_output_folder,
     shorten_labels,
     write_dict,
@@ -17,6 +18,12 @@ from . import golden_data
 @pytest.fixture
 def inp_pdb():
     return Path(golden_data, "1rypB_r_b.pdb")
+
+
+@pytest.fixture
+def clust_probs_example():
+    """Example file with residue probabilities."""
+    return Path(golden_data, "clustered_residues_probs.out")
 
 
 @pytest.fixture
@@ -100,6 +107,33 @@ def test_write_res_probs():
     observed_content = open(res_probs_filename, "r").read()
     assert expected_content == observed_content
     os.unlink(res_probs_filename)
+
+
+def test_read_res_probs(clust_probs_example):
+    """Test read_residues_probs."""
+    example_res_probs = {
+        2: {
+            36: 1.000,
+            37: 1.000,
+            95: 1.000,
+            99: 1.000,
+            211: 1.000,
+            233: 1.000,
+            238: 1.000,
+            237: 0.857,
+            464: 0.714,
+            241: 0.571,
+            365: 0.571,
+            375: 0.571,
+            32: 0.429,
+            33: 0.429,
+            96: 0.286,
+            363: 0.286,
+        },
+        1: {47: 1.0, 48: 1.0, 51: 1.00},
+    }
+    observed_res_probs = read_residues_probs(clust_probs_example)
+    assert example_res_probs == observed_res_probs
 
 
 def test_output_pdb(inp_pdb):
