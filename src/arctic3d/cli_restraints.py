@@ -156,6 +156,7 @@ def generate_restraints(residues1, residues2, ch1, ch2, ambig_fname):
             ambig_file.write(f"       )  2.0 2.0 0.0{os.linesep}!{os.linesep}")
     return
 
+
 def compress_tbl_files(ambig_fnames, out_tgz):
     """
     Compress restraints in a tbl.tgz file.
@@ -173,8 +174,8 @@ def compress_tbl_files(ambig_fnames, out_tgz):
     for name in ambig_fnames:
         tgz.add(name)
     tgz.close()
-    
-    return 
+
+    return
 
 
 def load_args(arguments):
@@ -239,7 +240,7 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
     if not os.path.exists(r2_res_fname):
         log.error(f"Could not find clustered_residues_probs.out in {r2}")
         sys.exit(1)
-    
+
     # Setting up output folder
     input_files = {"r1_res_fname": r1_res_fname, "r2_res_fname": r2_res_fname}
     log.info(f"Input files are {input_files}")
