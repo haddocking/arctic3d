@@ -2,20 +2,21 @@
 Get HADDOCK restraints from arctic3d data.
 
 Given two arctic3d run folders, this script will generate a HADDOCK
-restraints file for the interface residues present in the clustered_residues_probs.out
-file.
+restraints file for the interface residues present in the
+clustered_residues_probs.out file.
 
 USAGE::
 
     arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2
 
-Use the ch1 and ch2 parameters if you want to specify different chains to be used for
-the restraints (default is A for r1 and B for r2)::
+Use the ch1 and ch2 parameters if you want to specify different chains to be
+ used for the restraints (default is A for r1 and B for r2)::
 
     arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
         --ch1=X --ch2=Y
 
-Remeber that the chain IDs must be consistent with the chain present in your PDB file.
+Remeber that the chain IDs must be consistent with the chain present in your
+ PDB file.
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
@@ -117,6 +118,14 @@ def filter_residues_probs(residues_probs, prob_threshold):
     return filtered_residues_probs
 
 
+def assign_line(resid, chain):
+    """return assign line."""
+    ass_line = "assign ( resid "
+    ass_line += f"{resid} and segid {chain})"
+    ass_line += f"{os.linesep}       ({os.linesep}"
+    return ass_line
+
+
 def generate_restraints(residues1, residues2, ch1, ch2, ambig_fname):
     """
     Generate act-act.sh restraint file.
@@ -129,9 +138,7 @@ def generate_restraints(residues1, residues2, ch1, ch2, ambig_fname):
             f"!HADDOCK AIR restraints for 1st partner{os.linesep}!{os.linesep}"
         )
         for res in residues1:
-            ambig_file.write(
-                f"assign ( resid {res} and segid {ch1}){os.linesep}       ({os.linesep}"
-            )
+            ambig_file.write(assign_line(res, ch1))
             res2_group = [
                 f"        ( resid {res2} and segid {ch2})"
                 for res2 in residues2
@@ -141,12 +148,11 @@ def generate_restraints(residues1, residues2, ch1, ch2, ambig_fname):
             ambig_file.write(f"       )  2.0 2.0 0.0{os.linesep}!{os.linesep}")
         # second partner
         ambig_file.write(
-            f"!{os.linesep}!HADDOCK AIR restraints for 2nd partner{os.linesep}!{os.linesep}"
+            f"!{os.linesep}!HADDOCK AIR restraints for "
+            f"2nd partner{os.linesep}!{os.linesep}"
         )
         for res in residues2:
-            ambig_file.write(
-                f"assign ( resid {res} and segid {ch2}){os.linesep}       ({os.linesep}"
-            )
+            ambig_file.write(assign_line(res, ch2))
             res1_group = [
                 f"        ( resid {res1} and segid {ch1})"
                 for res1 in residues1
@@ -259,12 +265,13 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
     tot_nrestrs = len(r1_residues) * len(r2_residues)
     n_ambig = 0
     log.info(f"Creating {tot_nrestrs} restraints")
-    for cluster1, residues1 in r1_residues.items():
-        for cluster2, residues2 in r2_residues.items():
+    for cl1, residues1 in r1_residues.items():
+        for cl2, residues2 in r2_residues.items():
             ambig_fname = f"ambig_{n_ambig}.tbl"
             ambig_fnames.append(ambig_fname)
             log.info(
-                f"Creating {ambig_fname} restraint file by coupling {cluster1} (r1) and {cluster2} (r2)"
+                f"Creating {ambig_fname} restraint file by"
+                "coupling {cl1} (r1) and {cl2} (r2)"
             )
             generate_restraints(residues1, residues2, ch1, ch2, ambig_fname)
             n_ambig += 1
