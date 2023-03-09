@@ -47,17 +47,23 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
     os.mkdir(run_dir)
     datadir = Path(run_dir, "input_data")
     os.mkdir(datadir)
-    for key in input_files:
-        filename = input_files[key].name
-        filepath = Path(datadir, filename)
-        shutil.copy(input_files[key], filepath)
-    os.chdir(run_dir)
 
-    # retrieving info about copied input files
+    # copying input files
     copied_input_files = {}
     for key in input_files:
+        print(key)
         filename = input_files[key].name
+        if os.path.exists(Path(datadir, filename)):
+            log.info(
+                f"File {filename} already exists, adding _1 to the filename"
+            )
+            filename = f"{filename}_1"
+        filepath = Path(datadir, filename)
+        print(f"filepath {filepath}")
+        shutil.copy(input_files[key], filepath)
         copied_input_files[key] = Path("input_data", filename)
+    os.chdir(run_dir)
+
     return copied_input_files
 
 
@@ -132,6 +138,39 @@ def write_residues_probs(cl_residues_probs, res_probs_filename):
                 )
             cl_string += os.linesep
             wfile.write(cl_string)
+
+
+def read_residues_probs(res_probs_filename):
+    """
+    Reads clustered residues from file with their probability.
+
+    Parameters
+    ----------
+    res_probs_filename : str or Path
+        input filename
+
+    Returns
+    -------
+    cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+        example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
+                  ...
+                }
+    """
+    cl_residues_probs = {}
+    with open(res_probs_filename, "r") as rfile:
+        for ln in rfile:
+            if ln.startswith("Cluster"):
+                cl_id = int(ln.split()[1])
+                cl_residues_probs[cl_id] = {}
+            elif ln.startswith("rank"):
+                continue
+            elif ln == os.linesep:
+                continue
+            else:
+                splt_ln = ln.split()
+                cl_residues_probs[cl_id][int(splt_ln[1])] = float(splt_ln[2])
+    return cl_residues_probs
 
 
 def output_pdb(pdb_f, cl_residues_probs):

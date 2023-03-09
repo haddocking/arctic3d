@@ -9,6 +9,7 @@ ARCTIC3D can be executed in several ways:
 1. [uniprot-ligand-input](#uniprot-ligand-input)
 1. [arctic3d-resclust](#arctic3d-resclust)
 1. [arctic3d-localise](#arctic3d-localise)
+1. [arctic3d-restraints](#arctic3d-restraints)
 
 ## standard-uniprot-input
 
@@ -116,3 +117,15 @@ arctic3d_localise ${arctic3d_rundir}/clustered_interfaces.out
 ```
 
 Here `arctic3d_rundir` is the name of the output folder that you want to analyse.
+
+## arctic3d-restraints
+
+It is possible to use the results of two ARCTIC3D runs to generate HADDOCK-specific restraints to inform a data-driven docking process:
+
+```bash
+arctic3d_restraints --r1 ${first_arctic3d_rundir} --r2 ${second_arctic3d_rundir} --prob_threshold=0.5 --ch1=A --ch2=B
+```
+
+This works by extracting the residues that are more likely to occur in the clusters identified by ARCTIC3D, according to the selected probability threshold (0.3 by default). In fact, it does not always make sense to include all the residues found in a cluster. Parameters `ch1` and `ch2` define the chain ID that will be used in the restraint files for each interacting partner.
+
+The output of this command is a new folder (`arctic3-restraints` by default) that contains all the generated restraint .tbl files, one for each pair of interface clusters. For example, if there are three clusters in `first_arctic3d_rundir` and four in `second_arctic3d_rundir`, you will obtain 12 different restraint files. The .tbl files are also zipped in a tgz archive (`ambig.tbl.tgz`), which can be directly [used within HADDOCK3](https://github.com/haddocking/haddock3/blob/main/docs/examples.md#docking-multiple-ambig).
