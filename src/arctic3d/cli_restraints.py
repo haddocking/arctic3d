@@ -90,16 +90,17 @@ argument_parser.add_argument(
     default=0.3,
 )
 
+
 def filter_residues_probs(residues_probs, prob_threshold):
     """Filter residues_probs based on the probability threshold.
-    
+
     Parameters
     ----------
     residues_probs : dict
         Dictionary with the residues probabilities.
     prob_threshold : float
         Probability threshold.
-    
+
     Returns
     -------
     filtered_residues_probs : dict of lists
@@ -115,30 +116,65 @@ def filter_residues_probs(residues_probs, prob_threshold):
         filtered_residues_probs[cluster] = sorted(res_list)
     return filtered_residues_probs
 
+
 def generate_restraints(residues1, residues2, ch1, ch2, ambig_fname):
     """
     Generate act-act.sh restraint file.
-    
+
     Parameters
-    
+
     """
     with open(ambig_fname, "w") as ambig_file:
-        ambig_file.write(f"!HADDOCK AIR restraints for 1st partner{os.linesep}!{os.linesep}")
+        ambig_file.write(
+            f"!HADDOCK AIR restraints for 1st partner{os.linesep}!{os.linesep}"
+        )
         for res in residues1:
-            ambig_file.write(f"assign ( resid {res} and segid {ch1}){os.linesep}       ({os.linesep}")
-            res2_group = [f"        ( resid {res2} and segid {ch2})" for res2 in residues2]
+            ambig_file.write(
+                f"assign ( resid {res} and segid {ch1}){os.linesep}       ({os.linesep}"
+            )
+            res2_group = [
+                f"        ( resid {res2} and segid {ch2})"
+                for res2 in residues2
+            ]
             res2_string = f"{os.linesep}     or{os.linesep}".join(res2_group)
             ambig_file.write(f"{res2_string}{os.linesep}")
             ambig_file.write(f"       )  2.0 2.0 0.0{os.linesep}!{os.linesep}")
         # second partner
-        ambig_file.write(f"!{os.linesep}!HADDOCK AIR restraints for 2nd partner{os.linesep}!{os.linesep}")
+        ambig_file.write(
+            f"!{os.linesep}!HADDOCK AIR restraints for 2nd partner{os.linesep}!{os.linesep}"
+        )
         for res in residues2:
-            ambig_file.write(f"assign ( resid {res} and segid {ch2}){os.linesep}       ({os.linesep}")
-            res1_group = [f"        ( resid {res1} and segid {ch1})" for res1 in residues1]
+            ambig_file.write(
+                f"assign ( resid {res} and segid {ch2}){os.linesep}       ({os.linesep}"
+            )
+            res1_group = [
+                f"        ( resid {res1} and segid {ch1})"
+                for res1 in residues1
+            ]
             res1_string = f"{os.linesep}     or{os.linesep}".join(res1_group)
             ambig_file.write(f"{res1_string}{os.linesep}")
             ambig_file.write(f"       )  2.0 2.0 0.0{os.linesep}!{os.linesep}")
     return
+
+def compress_tbl_files(ambig_fnames, out_tgz):
+    """
+    Compress restraints in a tbl.tgz file.
+
+    Parameters
+    ----------
+    ambig_fnames : list of Path
+        List of restraint files.
+    out_tgz : str
+        Name of the output tgz file.
+    """
+    # compress restraints in a tbl.tgz file
+    log.info(f"Compressing restraints into {out_tgz}")
+    tgz = tarfile.open(out_tgz, "w:gz")
+    for name in ambig_fnames:
+        tgz.add(name)
+    tgz.close()
+    
+    return 
 
 
 def load_args(arguments):
@@ -179,6 +215,7 @@ def maincli():
     """Execute main client."""
     cli(argument_parser, main)
 
+
 def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
     """Main function."""
     log.setLevel("INFO")
@@ -192,7 +229,7 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
     if not os.path.exists(r2):
         log.error(f"Could not find {r2}")
         sys.exit(1)
-    
+
     # checking if r1 and r2 contain the clustered_residues_probs.out file
     r1_res_fname = Path(r1, "clustered_residues_probs.out")
     r2_res_fname = Path(r2, "clustered_residues_probs.out")
@@ -202,11 +239,12 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
     if not os.path.exists(r2_res_fname):
         log.error(f"Could not find clustered_residues_probs.out in {r2}")
         sys.exit(1)
+    
     # Setting up output folder
     input_files = {"r1_res_fname": r1_res_fname, "r2_res_fname": r2_res_fname}
     log.info(f"Input files are {input_files}")
     input_files = setup_output_folder(None, input_files, run_dir)
-    
+
     # read and filter probabilities
     r1_residues_probs = read_residues_probs(input_files["r1_res_fname"])
     r2_residues_probs = read_residues_probs(input_files["r2_res_fname"])
@@ -224,16 +262,13 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
         for cluster2, residues2 in r2_residues.items():
             ambig_fname = f"ambig_{n_ambig}.tbl"
             ambig_fnames.append(ambig_fname)
-            log.info(f"Creating {ambig_fname} restraint file by coupling {cluster1} (r1) and {cluster2} (r2)")
+            log.info(
+                f"Creating {ambig_fname} restraint file by coupling {cluster1} (r1) and {cluster2} (r2)"
+            )
             generate_restraints(residues1, residues2, ch1, ch2, ambig_fname)
             n_ambig += 1
 
-    # compress restraint in a tbl.tgz file
-    log.info("Compressing restraints")
-    tgz = tarfile.open("ambig.tbl.tgz", "w:gz")
-    for name in ambig_fnames:
-        tgz.add(name)
-    tgz.close()
+    compress_tbl_files(ambig_fnames, out_tgz="ambig.tbl.tgz")
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d_restraints run took {elap_time} seconds")
@@ -243,4 +278,3 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
         shutil.move(f"../{LOGNAME}", LOGNAME)
     except FileNotFoundError as e:
         log.warning(f"Could not find log file: {e}")
-
