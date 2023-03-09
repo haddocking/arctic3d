@@ -57,6 +57,21 @@ def test_generate_restraints():
     exp_ambig = os.linesep.join(exp_ambig)
     exp_ambig += os.linesep
     assert obs_ambig == exp_ambig
+    os.unlink(ambig_fname)
+
+
+def test_compress_tbl_files():
+    """Test compress_tbl_files."""
+    ambig_fname = "ambig.tbl"
+    generate_restraints([1], [2], "A", "B", ambig_fname)
+    out_tgz = "ambig.tbl.tgz"
+    compress_tbl_files([ambig_fname], out_tgz=out_tgz)
+    assert Path(out_tgz).exists()
+    os.unlink(ambig_fname)
+    os.unlink(out_tgz) 
+
+
+
 
 
 def test_main():
