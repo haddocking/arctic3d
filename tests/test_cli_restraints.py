@@ -68,10 +68,7 @@ def test_compress_tbl_files():
     compress_tbl_files([ambig_fname], out_tgz=out_tgz)
     assert Path(out_tgz).exists()
     os.unlink(ambig_fname)
-    os.unlink(out_tgz) 
-
-
-
+    os.unlink(out_tgz)
 
 
 def test_main():
