@@ -21,13 +21,13 @@ tests-no-zope = ["cloudpickle", "cloudpickle", "hypothesis", "hypothesis", "mypy
 
 [[package]]
 name = "bio"
-version = "1.5.6"
+version = "1.5.8"
 description = "bio"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "bio-1.5.6-py3-none-any.whl", hash = "sha256:98d4667625f6c84e3632bb77753358f1a462e75a7b2e7671b50e555a961dace4"},
+    {file = "bio-1.5.8-py3-none-any.whl", hash = "sha256:e5cef331756159ad83cbafd2181423498ba4cf6c8a2c288a581fccbeb1fb4857"},
 ]
 
 [package.dependencies]
@@ -1594,4 +1594,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "0d4e8f9c6a1500929b94a4f8d258fbfd7e0392dc69cf3d60d698ea3442a8b516"
+content-hash = "fb2d5f136908155fce369df40219a3665059b7c7ed7c1d3db6a4d23eb728935e"
