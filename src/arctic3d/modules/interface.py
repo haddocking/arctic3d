@@ -238,19 +238,19 @@ def get_interface_residues(
     if ligand in ["no", "both"]:
         if interface_api_data and len(interface_api_data) != 0:
             interface_dict = parse_interface_data(
-                uniprot_id,
-                interface_api_data,
-                out_partner_set,
-                out_pdb_set,
-                full,
+                uniprot_id=uniprot_id,
+                interface_data=interface_api_data,
+                out_partner_set=out_partner_set,
+                out_pdb_set=out_pdb_set,
+                full=full,
             )
     if ligand in ["yes", "both"]:
         if interface_lig_api_data and len(interface_lig_api_data) != 0:
             interface_lig_dict = parse_interface_data(
-                uniprot_id,
-                interface_lig_api_data,
-                out_partner_set,
-                out_pdb_set,
+                uniprot_id=uniprot_id,
+                interface_data=interface_lig_api_data,
+                out_partner_set=out_partner_set,
+                out_pdb_set=out_pdb_set,
                 full=full,
             )
     if ligand == "yes":
