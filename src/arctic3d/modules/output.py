@@ -51,7 +51,6 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
     # copying input files
     copied_input_files = {}
     for key in input_files:
-        print(key)
         filename = input_files[key].name
         if os.path.exists(Path(datadir, filename)):
             log.info(
@@ -59,7 +58,6 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
             )
             filename = f"{filename}_1"
         filepath = Path(datadir, filename)
-        print(f"filepath {filepath}")
         shutil.copy(input_files[key], filepath)
         copied_input_files[key] = Path("input_data", filename)
     os.chdir(run_dir)

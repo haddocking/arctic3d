@@ -303,7 +303,7 @@ def keep_atoms(inp_pdb_f):
 
 def validate_api_hit(
     fetch_list,
-    resolution_cutoff=3.0,
+    resolution_cutoff=4.0,
     coverage_cutoff=0.0,
     max_pdb_num=20,
 ):
@@ -332,7 +332,7 @@ def validate_api_hit(
     valid_pdb_set = set()  # set of valid pdb IDs
 
     for hit in fetch_list[:max_pdb_num]:
-        check_list = []
+        check_list = {}
         pdb_id = hit["pdb_id"]
         coverage = hit["coverage"]
         resolution = hit["resolution"]
@@ -342,30 +342,30 @@ def validate_api_hit(
             pdb_f = fetch_pdb(pdb_id)
         else:
             pdb_f = Path(pdb_fname)
-        log.debug(f"pdb_f {pdb_f}")
+        
         if pdb_f is not None:
-            check_list.append(True)
+            check_list["pdb_f"] = True
         else:
-            check_list.append(False)
+            check_list["pdb_f"] = False
 
         if coverage > coverage_cutoff:
-            check_list.append(True)
+            check_list["cov"] = True
         else:
-            check_list.append(False)
+            check_list["cov"] = False
 
         if resolution is None:
-            check_list.append(False)
+            check_list["res"] = False
         elif resolution < resolution_cutoff:
-            check_list.append(True)
+            check_list["res"] = True
         else:
-            check_list.append(False)
+            check_list["res"] = False
 
-        if all(check_list):
+        if all(check_list.values()):
             validated_pdbs.append((pdb_f, hit))
             if pdb_id not in valid_pdb_set:
                 valid_pdb_set.add(pdb_id)
         else:
-            log.debug(f"{pdb_id} failed validation")
+            log.debug(f"{pdb_id} failed validation ({check_list})")
             # pdb_f could be None or the pdb (another chain)
             #   could be valid and the file should not be removed
             if pdb_f is not None and pdb_id not in valid_pdb_set:

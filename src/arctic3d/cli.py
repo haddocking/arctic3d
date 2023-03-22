@@ -218,16 +218,16 @@ def main(
                 " ignored."
             )
         if interface_data:
-            interface_residues = get_interface_residues(
-                uniprot_id,
-                out_partner,
-                out_pdb,
-                input_files["interface_data"],
-                full,
-            )
+            int_data_path = input_files["interface_data"]
         else:
-            interface_residues = get_interface_residues(
-                uniprot_id, out_partner, out_pdb, full, ligand
+            int_data_path = None
+        interface_residues = get_interface_residues(
+                uniprot_id = uniprot_id,
+                out_partner_string=out_partner,
+                out_pdb_string=out_pdb,
+                full=full,
+                ligand=ligand,
+                interface_data=int_data_path,
             )
 
     log.info(f"Interface Residues: {interface_residues}")
@@ -247,16 +247,16 @@ def main(
                 )
         else:
             if pdb_data:
-                pdb_f, filtered_interfaces = get_best_pdb(
-                    uniprot_id,
-                    interface_residues,
-                    pdb_to_use,
-                    chain_to_use,
-                    input_files["pdb_data"],
-                )
+                pdb_data_path = input_files["pdb_data"]
             else:
-                pdb_f, filtered_interfaces = get_best_pdb(
-                    uniprot_id, interface_residues, pdb_to_use, chain_to_use
+                pdb_data_path = None
+            # get best pdb
+            pdb_f, filtered_interfaces = get_best_pdb(
+                    uniprot_id=uniprot_id,
+                    interface_residues=interface_residues,
+                    pdb_to_use=pdb_to_use,
+                    chain_to_use=chain_to_use,
+                    pdb_data=pdb_data_path,
                 )
 
         if pdb_f is None:
@@ -270,18 +270,25 @@ def main(
 
         # cluster interfaces
         if filtered_interfaces:
-            cl_ints, cl_residues, cl_residues_probs = cluster_interfaces(
-                filtered_interfaces, pdb_f, linkage_strategy, threshold
-            )
+            interface_dict = filtered_interfaces
         else:
-            cl_ints, cl_residues, cl_residues_probs = cluster_interfaces(
-                interface_residues, pdb_f, linkage_strategy, threshold
-            )
-        log.info(f"Clustered interfaces {cl_ints}")
+            interface_dict = interface_residues
+        cl_dict, cl_residues, cl_residues_probs = cluster_interfaces(
+            interface_dict=interface_dict,
+            pdb_path=pdb_f,
+            linkage_strategy=linkage_strategy,
+            threshold=threshold,
+        )
+        
+        log.info(f"Clustered interfaces {cl_dict}")
         log.info(f"Clustered interface residues: {cl_residues}")
 
         make_output(
-            interface_residues, pdb_f, cl_ints, cl_residues, cl_residues_probs
+            interface_residues=interface_residues,
+            pdb_f=pdb_f,
+            cl_dict=cl_dict,
+            cl_residues=cl_residues,
+            cl_residues_probs=cl_residues_probs
         )
     else:
         log.info("No interfaces found.")
