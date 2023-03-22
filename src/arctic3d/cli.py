@@ -4,6 +4,7 @@ import logging
 import shutil
 import sys
 import time
+import os
 from pathlib import Path
 
 from arctic3d.modules.blast import run_blast
@@ -18,7 +19,8 @@ from arctic3d.modules.pdb import get_best_pdb
 from arctic3d.modules.sequence import to_fasta
 
 # logging
-LOGNAME = "arctic3d.log"
+LOGNAME = f"arctic3d_{os.getpid()}.log"
+LOGNAME_FINAL = "arctic3d.log"
 logging.basicConfig(filename=LOGNAME)
 log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
@@ -293,7 +295,7 @@ def main(
     # move log file to output folder
     exp_log_path = Path(f"../{LOGNAME}")
     if exp_log_path.exists():
-        shutil.move(exp_log_path, LOGNAME)
+        shutil.move(exp_log_path, LOGNAME_FINAL)
 
 
 if __name__ == "__main__":
