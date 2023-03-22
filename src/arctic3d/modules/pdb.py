@@ -342,7 +342,7 @@ def validate_api_hit(
             pdb_f = fetch_pdb(pdb_id)
         else:
             pdb_f = Path(pdb_fname)
-        
+
         if pdb_f is not None:
             check_list["pdb_f"] = True
         else:

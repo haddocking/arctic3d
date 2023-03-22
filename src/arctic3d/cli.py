@@ -222,13 +222,13 @@ def main(
         else:
             int_data_path = None
         interface_residues = get_interface_residues(
-                uniprot_id = uniprot_id,
-                out_partner_string=out_partner,
-                out_pdb_string=out_pdb,
-                full=full,
-                ligand=ligand,
-                interface_data=int_data_path,
-            )
+            uniprot_id=uniprot_id,
+            out_partner_string=out_partner,
+            out_pdb_string=out_pdb,
+            full=full,
+            ligand=ligand,
+            interface_data=int_data_path,
+        )
 
     log.info(f"Interface Residues: {interface_residues}")
 
@@ -252,12 +252,12 @@ def main(
                 pdb_data_path = None
             # get best pdb
             pdb_f, filtered_interfaces = get_best_pdb(
-                    uniprot_id=uniprot_id,
-                    interface_residues=interface_residues,
-                    pdb_to_use=pdb_to_use,
-                    chain_to_use=chain_to_use,
-                    pdb_data=pdb_data_path,
-                )
+                uniprot_id=uniprot_id,
+                interface_residues=interface_residues,
+                pdb_to_use=pdb_to_use,
+                chain_to_use=chain_to_use,
+                pdb_data=pdb_data_path,
+            )
 
         if pdb_f is None:
             log.error(
@@ -279,7 +279,7 @@ def main(
             linkage_strategy=linkage_strategy,
             threshold=threshold,
         )
-        
+
         log.info(f"Clustered interfaces {cl_dict}")
         log.info(f"Clustered interface residues: {cl_residues}")
 
@@ -288,7 +288,7 @@ def main(
             pdb_f=pdb_f,
             cl_dict=cl_dict,
             cl_residues=cl_residues,
-            cl_residues_probs=cl_residues_probs
+            cl_residues_probs=cl_residues_probs,
         )
     else:
         log.info("No interfaces found.")
