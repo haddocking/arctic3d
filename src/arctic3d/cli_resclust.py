@@ -15,7 +15,8 @@ Input arguments:
     `residue_list` : the comma-separated list of residue IDs.
 
     `threshold` : the number to be used as threshold for hierarchical
-        clustering.
+        clustering. If `criterion` is `maxclust`, this is the maximum number
+        of clusters.
 
     `chain` : the chain ID to be used.
 
@@ -64,7 +65,7 @@ argument_parser.add_argument(
     help="Threshold (in angstroms) for clustering",
     type=float,
     required=False,
-    default=10.0,
+    default=15.0,
 )
 
 argument_parser.add_argument(
