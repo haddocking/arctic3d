@@ -49,6 +49,7 @@ from arctic3d.modules.output import (
 )
 
 LOGNAME = f"arctic3d_localise_{os.getpid()}.log"
+LOGNAME_FINAL = "arctic3d_localise.log"
 logging.basicConfig(filename=LOGNAME)
 log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
@@ -426,7 +427,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
 
     # copying log file to the run folder (if possible)
     try:
-        shutil.move(f"../{LOGNAME}", LOGNAME)
+        shutil.move(f"../{LOGNAME}", LOGNAME_FINAL)
     except FileNotFoundError as e:
         log.warning(f"Could not find log file: {e}")
 

@@ -44,6 +44,7 @@ import tarfile
 from arctic3d.modules.output import read_residues_probs, setup_output_folder
 
 LOGNAME = f"arctic3d_restraints_{os.getpid()}.log"
+LOGNAME_FINAL = "arctic3d_restraints.log"
 logging.basicConfig(filename=LOGNAME)
 log = logging.getLogger(LOGNAME)
 ch = logging.StreamHandler()
@@ -293,6 +294,6 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
 
     # copying log file to the run folder (if possible)
     try:
-        shutil.move(f"../{LOGNAME}", LOGNAME)
+        shutil.move(f"../{LOGNAME}", LOGNAME_FINAL)
     except FileNotFoundError as e:
         log.warning(f"Could not find log file: {e}")
