@@ -9,6 +9,8 @@ from pdbecif.mmcif_io import MMCIF2Dict
 from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
+from pdbtools.pdb_selmodel import select_model
+
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
@@ -177,6 +179,36 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
     return pdb_renum_fname, cif_fname
 
 
+def fetch_pdb_files(pdb_to_fetch):
+    """
+    Fetches the pdb files from PDBe database.
+
+    Parameters
+    ----------
+    pdb_to_fetch : list
+        list of pdb hits to fetch
+
+    Returns
+    -------
+    validated_pdbs : list
+        list of tuples (pdb_file, hit)
+    """
+    validated_pdbs = []
+    valid_pdb_set = set()  # set of valid pdb IDs
+    for hit in pdb_to_fetch:
+        pdb_id = hit["pdb_id"]
+        pdb_fname = f"{pdb_id}.pdb"
+        if pdb_fname not in os.listdir():
+            pdb_f = fetch_pdb(pdb_id)
+        else:
+            pdb_f = Path(pdb_fname)
+        if pdb_f is not None:
+            validated_pdbs.append((pdb_f, hit))
+            if pdb_id not in valid_pdb_set:
+                valid_pdb_set.add(pdb_id)
+    return validated_pdbs
+
+
 def fetch_pdb(pdb_id):
     """
     Fetches the pdb from PDBe database.
@@ -227,7 +259,32 @@ def selchain_pdb(inp_pdb_f, chain):
         with open(out_pdb_fname, "w") as f:
             for line in select_chain(pdb_fh, chain):
                 f.write(line)
-            f.write(line)
+    return out_pdb_fname
+
+
+def selmodel_pdb(inp_pdb_f, model_id=1):
+    """
+    Select model from PDB file.
+
+    Parameters
+    ----------
+    inp_pdb_f : Path
+        Path to PDB file.
+    model_id : int, optional
+        Model ID, by default 1
+
+    Returns
+    -------
+    out_pdb_fname : Path
+        Path to PDB file.
+    """
+    # log.debug(f"Selecting model {model_id} from PDB file")
+    out_pdb_fname = Path(f"{inp_pdb_f.stem}-model{model_id}.pdb")
+    with open(inp_pdb_f, "r") as pdb_fh:
+        with open(out_pdb_fname, "w") as f:
+            line = ""
+            for line in select_model(pdb_fh, [model_id]):
+                f.write(line)
     return out_pdb_fname
 
 
@@ -328,48 +385,38 @@ def validate_api_hit(
     validated_pdbs : list
         List of (pdb_f, hit) tuples
     """
-    validated_pdbs = []  # list of good pdbs
-    valid_pdb_set = set()  # set of valid pdb IDs
-
-    for hit in fetch_list[:max_pdb_num]:
-        check_list = {}
+    pdbs_to_fetch = []
+    for hit in fetch_list:
+        check_list = []
         pdb_id = hit["pdb_id"]
         coverage = hit["coverage"]
         resolution = hit["resolution"]
+        exp_method = hit["experimental_method"]
 
-        pdb_fname = f"{pdb_id}.pdb"
-        if pdb_fname not in os.listdir():
-            pdb_f = fetch_pdb(pdb_id)
-        else:
-            pdb_f = Path(pdb_fname)
-
-        if pdb_f is not None:
-            check_list["pdb_f"] = True
-        else:
-            check_list["pdb_f"] = False
-
+        # check coverage value
         if coverage > coverage_cutoff:
-            check_list["cov"] = True
+            check_list.append(True)
         else:
-            check_list["cov"] = False
-
+            check_list.append(False)
+        # check resolution value
         if resolution is None:
-            check_list["res"] = False
+            if "NMR" in exp_method:
+                check_list.append(True)
+            else:
+                check_list.append(False)
         elif resolution < resolution_cutoff:
-            check_list["res"] = True
+            check_list.append(True)
         else:
-            check_list["res"] = False
+            check_list.append(False)
 
-        if all(check_list.values()):
-            validated_pdbs.append((pdb_f, hit))
-            if pdb_id not in valid_pdb_set:
-                valid_pdb_set.add(pdb_id)
+        if all(check_list):
+            pdbs_to_fetch.append(hit)
         else:
-            log.debug(f"{pdb_id} failed validation ({check_list})")
-            # pdb_f could be None or the pdb (another chain)
-            #   could be valid and the file should not be removed
-            if pdb_f is not None and pdb_id not in valid_pdb_set:
-                os.unlink(pdb_f)
+            log.debug(f"{pdb_id} failed validation")
+    log.info(f"Found {len(pdbs_to_fetch)} valid PDBs to fetch")
+    # downloading a list of good pdbs
+    validated_pdbs = fetch_pdb_files(pdbs_to_fetch[:max_pdb_num])
+    log.info(f"Found {len(pdbs_to_fetch)} valid PDBs")
     return validated_pdbs
 
 
@@ -389,7 +436,8 @@ def preprocess_pdb(pdb_fname, chain_id):
     tidy_pdb_f : Path
         preprocessed pdb file
     """
-    atoms_pdb_f = keep_atoms(pdb_fname)
+    model_pdb_f = selmodel_pdb(pdb_fname)
+    atoms_pdb_f = keep_atoms(model_pdb_f)
     chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
     occ_pdb_f = occ_pdb(chained_pdb_f)
     tidy_pdb_f = tidy_pdb(occ_pdb_f)
@@ -565,7 +613,6 @@ def get_best_pdb(
             return
 
     # if pdb_to_use is not None, already filter the list
-
     if pdb_to_use:
         pdb_to_use = pdb_to_use.lower()
     if chain_to_use:
@@ -591,8 +638,8 @@ def get_best_pdb(
 
     log.info(
         f"BestPDB hit for {uniprot_id}:"
-        f" {pdb_id}_{chain_id} {coverage:.2f} coverage"
-        f" {resolution:.2f} Angstrom / start {start} end {end}"
+        f" {pdb_id}_{chain_id} {coverage} coverage"
+        f" {resolution} Angstrom / start {start} end {end}"
     )
 
     processed_pdb = pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
