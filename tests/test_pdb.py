@@ -9,6 +9,7 @@ from arctic3d.modules.pdb import (
     keep_atoms,
     occ_pdb,
     selchain_pdb,
+    selmodel_pdb,
     tidy_pdb,
     validate_api_hit,
 )
@@ -98,6 +99,15 @@ def good_hits():
     return hits_list
 
 
+@pytest.fixture
+def example_interfaces():
+    interfaces = {
+        "P01024": [103, 104, 105],
+        "P-dummy": [103, 104, 105, 1049, 1050],
+    }
+    return interfaces
+
+
 def test_selchain_pdb(inp_pdb):
     pdb = selchain_pdb(inp_pdb, "B")
     assert pdb.exists()
@@ -122,10 +132,19 @@ def test_keep_atoms(inp_pdb):
     pdb.unlink()
 
 
-def test_validate_api_hit(pdb_hit_no_resolution):
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
-    assert validated_pdbs == []
+def test_selmodel_pdb(inp_pdb):
+    pdb = selmodel_pdb(inp_pdb, "1")
+    assert pdb.exists()
+    pdb.unlink()
 
+
+def test_validate_api_hit(pdb_hit_no_resolution):
+    """Test validate_api_hit."""
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
+    assert (
+        validated_pdbs == []
+    )  # this is empty because resolution is None and exp != NMR
+    # change resolution to 1.0
     pdb_hit_no_resolution["resolution"] = 1.0
     validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
     pdb, dict = validated_pdbs[0]
@@ -133,12 +152,19 @@ def test_validate_api_hit(pdb_hit_no_resolution):
     assert dict == pdb_hit_no_resolution
 
 
-def test_get_best_pdb():
-    orig_interfaces = {
-        "P01024": [103, 104, 105],
-        "P-dummy": [103, 104, 105, 1049, 1050],
-    }
-    pdb, filtered_interfaces = get_best_pdb("P20023", orig_interfaces)
+def test_validate_api_hit_nmr(pdb_hit_no_resolution):
+    """Test validate_api_hit with NMR data."""
+    pdb_hit_no_resolution["experimental_method"] = "Solution NMR"
+    # NMR structures have no resolution but should be accepted
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
+    pdb, dict = validated_pdbs[0]
+    assert pdb.name == "2gsx.pdb"
+    assert dict == pdb_hit_no_resolution
+
+
+def test_get_best_pdb(example_interfaces):
+    """Test get_best_pdb."""
+    pdb, filtered_interfaces = get_best_pdb("P20023", example_interfaces)
     exp_pdb = Path("P20023-1ghq-B.pdb")
     exp_interfaces = {"P01024": [103, 104, 105]}
     assert pdb == exp_pdb
@@ -146,8 +172,8 @@ def test_get_best_pdb():
     exp_pdb.unlink()
 
 
-def test_get_maxint_pdb():
-    """Test get_maxint_pdb."""
+def test_get_maxint_pdb_empty():
+    """Test get_maxint_pdb with empty output."""
     empty_validated_pdbs = []
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
         empty_validated_pdbs, {}, uniprot_id=None
@@ -156,7 +182,17 @@ def test_get_maxint_pdb():
     assert top_hit is None
     assert filtered_interfaces is None
 
-    # TODO: test the non-empty case as well
+
+def test_get_maxint_pdb(good_hits, example_interfaces):
+    """Test get_maxint_pdb."""
+    validated_pdbs = validate_api_hit(good_hits)
+    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+        validated_pdbs, example_interfaces, "P00760"
+    )
+    assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy_renum.pdb"
+    assert top_hit["pdb_id"] == "4xoj"
+    assert top_hit["chain_id"] == "A"
+    assert filtered_interfaces == {"P01024": [103, 104, 105]}
 
 
 def test_filter_pdb_list(good_hits):

@@ -264,7 +264,7 @@ def main(
         if pdb_f is None:
             log.error(
                 "Could not retrieve a valid PDB for the target, please provide"
-                " one using the --pdb option"
+                " one as the main input argument."
             )
             sys.exit()
 
