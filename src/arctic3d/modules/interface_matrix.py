@@ -91,7 +91,7 @@ def get_coupling_matrix(mdu, int_resids):
     if u.positions.shape[0] != len(int_resids):
         raise Exception(
             "shape mismatch: positions do not match input residues"
-            " {int_resids}"
+            f" {int_resids}"
         )
     distmap = cdist(u.positions, u.positions)
     exp_factor = 4 * SIGMA * SIGMA
