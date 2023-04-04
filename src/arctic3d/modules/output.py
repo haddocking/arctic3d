@@ -13,22 +13,20 @@ import plotly.graph_objects as go
 log = logging.getLogger("arctic3d.log")
 
 
-def setup_output_folder(uniprot_id, input_files, output_dir):
-    """Sets up output folder.
+def create_output_folder(output_dir, uniprot_id=None):
+    """Creates output folder.
 
     Parameters
     ----------
-    uniprot_id : string or None
-        uniprot_id of the run
-    input_files : dict of Paths
-        dict of input files
-    output_dir : str or None
+    output_dir : str
         user-defined name of the run
+    uniport_id : str or None
+        uniprot id of the target
 
     Returns
     -------
-    copied_input_files : dict of Paths
-        dict of copied input files
+    run_dir : Path
+        path to the run directory
     """
     run_dir = output_dir
     if run_dir is None:
@@ -41,10 +39,27 @@ def setup_output_folder(uniprot_id, input_files, output_dir):
 
     if os.path.exists(run_dir):
         raise Exception(f"{run_dir} already exists!")
-
-    # setting up the directory
-    log.info(f"Setting up output_directory {run_dir}")
+    log.info(f"Creating output_directory {run_dir}")
     os.mkdir(run_dir)
+    return run_dir
+
+
+def setup_output_folder(run_dir, input_files):
+    """Sets up output folder.
+
+    Parameters
+    ----------
+    run_dir : str or Path
+        name of the run directory
+    input_files : dict of Paths
+        dict of input files
+
+    Returns
+    -------
+    copied_input_files : dict of Paths
+        dict of copied input files
+    """
+    log.info(f"Setting up output folder {run_dir}")
     datadir = Path(run_dir, "input_data")
     os.mkdir(datadir)
 

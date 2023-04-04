@@ -31,33 +31,23 @@ and biological process (P)::
         --quickgo=F
 """
 import argparse
-import logging
 import os
-import shutil
 import sys
 import time
 from pathlib import Path
 
+from arctic3d import log
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface import parse_out_partner
+from arctic3d.modules.log import add_log_for_CLI
 from arctic3d.modules.output import (
     create_barplot,
+    create_output_folder,
     parse_clusters,
     setup_output_folder,
     write_dict,
 )
-
-LOGNAME = f"arctic3d_localise_{os.getpid()}.log"
-LOGNAME_FINAL = "arctic3d_localise.log"
-logging.basicConfig(filename=LOGNAME)
-log = logging.getLogger(LOGNAME)
-ch = logging.StreamHandler()
-formatter = logging.Formatter(
-    " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
-)
-ch.setFormatter(formatter)
-log.addHandler(ch)
 
 UNIPROT_API_URL = "https://www.ebi.ac.uk/proteins/api/proteins"
 
@@ -302,10 +292,18 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, run_dir, out_partner, quickgo, weight):
+def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="INFO"):
     """Main function."""
-    log.setLevel("INFO")
+    log.setLevel(log_level)
     start_time = time.time()
+
+    # create output folder
+    run_dir_path = create_output_folder(run_dir)
+    # logging
+    log_file = Path(run_dir_path, "arctic3d_localise.log")
+    add_log_for_CLI(log, log_level, log_file)
+
+    # property name
     prop_name = "location"
     if quickgo:
         if quickgo == "F":
@@ -326,7 +324,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
     if not input_files["cl_filename"].exists():
         raise Exception("non existing input file")
 
-    input_files = setup_output_folder(None, input_files, run_dir)
+    input_files = setup_output_folder(run_dir_path, input_files)
 
     # parsing arctic3d clustering output
     clustering_dict = parse_clusters(input_files["cl_filename"])
@@ -424,12 +422,6 @@ def main(input_arg, run_dir, out_partner, quickgo, weight):
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d_localise run took {elap_time} seconds")
-
-    # copying log file to the run folder (if possible)
-    try:
-        shutil.move(f"../{LOGNAME}", LOGNAME_FINAL)
-    except FileNotFoundError as e:
-        log.warning(f"Could not find log file: {e}")
 
 
 if __name__ == "__main__":

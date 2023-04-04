@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from arctic3d.modules.output import (
+    create_output_folder,
     output_pdb,
     read_residues_probs,
     setup_output_folder,
@@ -154,16 +155,29 @@ def test_output_pdb(inp_pdb):
     os.unlink(output_files[0])
 
 
-def test_run_dir():
+def test_create_output_folder():
     """Test if the expected run_dir is effectively created."""
-    run_dir = "run_dir"
     uniprot_id = "fake_uniprot"
+    create_output_folder(output_dir=None, uniprot_id=uniprot_id)
+    exp_run_dir = Path(f"arctic3d-{uniprot_id}")
+    assert Path.exists(exp_run_dir)
+    os.rmdir(exp_run_dir)
+
+
+def test_setup_output_folder(inp_pdb):
+    """Test the correct setup of the output folder."""
+    run_dir = "dummy_output"
     start_cwd = os.getcwd()
-    setup_output_folder(uniprot_id, [], run_dir)
+    create_output_folder(run_dir)
+    input_files = {"pdb": inp_pdb}
+    setup_output_folder(run_dir, input_files)
     obs_cwd = Path(os.getcwd())
     exp_cwd = Path(start_cwd, run_dir)
     assert exp_cwd == obs_cwd
     os.chdir(start_cwd)
+    assert Path.exists(Path(run_dir, "input_data"))
+    assert Path.exists(Path(run_dir, "input_data", inp_pdb.name))
+    os.unlink(Path(run_dir, "input_data", inp_pdb.name))
     os.rmdir(Path(run_dir, "input_data"))
     os.rmdir(run_dir)
 
