@@ -362,7 +362,7 @@ def validate_api_hit(
     fetch_list,
     resolution_cutoff=4.0,
     coverage_cutoff=0.0,
-    max_pdb_num=20,
+    max_pdb_num=10,
 ):
     """
     Validate PDB fetch request file.
