@@ -76,7 +76,7 @@ argument_parser.add_argument(
 argument_parser.add_argument(
     "--full",
     help="consider full uniprot-pdb-chain information in the retrieval",
-    default=False,
+    action="store_true",
 )
 
 argument_parser.add_argument(
