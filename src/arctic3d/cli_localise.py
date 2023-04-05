@@ -292,7 +292,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="INFO"):
+def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
     """Main function."""
     log.setLevel(log_level)
     start_time = time.time()

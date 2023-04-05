@@ -166,7 +166,7 @@ def main(
     ligand,
     linkage_strategy,
     threshold,
-    log_level="INFO",
+    log_level="DEBUG",
 ):
     """Main function."""
     st_time = time.time()

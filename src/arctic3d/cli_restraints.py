@@ -229,7 +229,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5, log_level="INFO"):
+def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5, log_level="DEBUG"):
     """Main function."""
     log.setLevel(log_level)
     start_time = time.time()
