@@ -104,7 +104,7 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
             if residue_key != prev_residue_key:  # not a duplicate entry
                 numbering_dict[residue_key] = unp_num
                 prev_residue_key = residue_key
-    log.debug(f"numbering dict {numbering_dict}")
+    # log.debug(f"numbering dict {numbering_dict}")
     return numbering_dict
 
 
