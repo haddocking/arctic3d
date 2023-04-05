@@ -27,5 +27,8 @@ def test_cli_empty():
     os.chdir(start_cwd)
     exp_dir = Path(f"arctic3d-{target_uniprot}")
     assert exp_dir.exists() is True
+    # Check that the log file has been created
+    assert Path(exp_dir, "arctic3d.log").exists()
+    # remove folder
     if exp_dir.exists():
         shutil.rmtree(exp_dir)

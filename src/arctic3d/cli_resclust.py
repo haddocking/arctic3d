@@ -25,27 +25,17 @@ Input arguments:
     `criterion` : the criterion to extract the clusters.
 """
 import argparse
-import logging
 import sys
 
 import MDAnalysis as mda
 from scipy.spatial.distance import pdist
 
+from arctic3d import log
 from arctic3d.modules.clustering import (
     cluster_similarity_matrix,
     get_clustering_dict,
 )
 from arctic3d.modules.input import Input
-
-LOGNAME = "arctic3d_resclust.log"
-logging.basicConfig(filename=LOGNAME, filemode="w")
-log = logging.getLogger(LOGNAME)
-ch = logging.StreamHandler()
-formatter = logging.Formatter(
-    " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
-)
-ch.setFormatter(formatter)
-log.addHandler(ch)
 
 
 argument_parser = argparse.ArgumentParser()
@@ -177,9 +167,7 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
 
     n_chains = u.n_segments
     if n_chains != 1:
-        log.error(
-            f"Number of consistent segments ({n_chains}) != 1. Aborting."
-        )
+        log.error(f"Number of consistent segments ({n_chains}) != 1.Aborting.")
         sys.exit(1)
 
     # do the clustering

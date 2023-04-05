@@ -79,6 +79,8 @@ def test_main():
     main(r1, r2, None, None, run_dir=run_dir, prob_threshold=0.7)
     # check if the zipped tbl files exist
     assert Path("ambig.tbl.tgz").exists()
+    # check if log file exists
+    assert Path("arctic3d_restraints.log").exists()
     # check the correct number of tbl files exist
     ls_tbl = len(glob.glob("ambig*tbl"))
     assert ls_tbl == 4

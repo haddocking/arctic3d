@@ -33,26 +33,21 @@ This will consider only residues with a probability of being in the interface
 higher than 0.5 (for each cluster).
 """
 import argparse
-import logging
 import os
-import shutil
 import sys
 import time
 from pathlib import Path
 import tarfile
 
-from arctic3d.modules.output import read_residues_probs, setup_output_folder
+from arctic3d import log
 
-LOGNAME = f"arctic3d_restraints_{os.getpid()}.log"
-LOGNAME_FINAL = "arctic3d_restraints.log"
-logging.basicConfig(filename=LOGNAME)
-log = logging.getLogger(LOGNAME)
-ch = logging.StreamHandler()
-formatter = logging.Formatter(
-    " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
+from arctic3d.modules.output import (
+    read_residues_probs,
+    create_output_folder,
+    setup_output_folder,
 )
-ch.setFormatter(formatter)
-log.addHandler(ch)
+from arctic3d.modules.log import add_log_for_CLI
+
 
 argument_parser = argparse.ArgumentParser()
 argument_parser.add_argument(
@@ -234,12 +229,14 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
+def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5, log_level="DEBUG"):
     """Main function."""
-    log.setLevel("INFO")
+    log.setLevel(log_level)
     start_time = time.time()
     log.info("Starting arctic3d_restraints")
-
+    run_dir_path = create_output_folder(run_dir)
+    log_file = Path(run_dir_path, "arctic3d_restraints.log")
+    add_log_for_CLI(log, log_level, log_file)
     # checking if r1 and r2 exists
     if not os.path.exists(r1):
         log.error(f"Could not find {r1}")
@@ -261,7 +258,7 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
     # Setting up output folder
     input_files = {"r1_res_fname": r1_res_fname, "r2_res_fname": r2_res_fname}
     log.info(f"Input files are {input_files}")
-    input_files = setup_output_folder(None, input_files, run_dir)
+    input_files = setup_output_folder(run_dir_path, input_files)
 
     # read and filter probabilities
     r1_residues_probs = read_residues_probs(input_files["r1_res_fname"])
@@ -282,7 +279,7 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
             ambig_fnames.append(ambig_fname)
             log.info(
                 f"Creating {ambig_fname} restraint file by"
-                "coupling {cl1} (r1) and {cl2} (r2)"
+                f" coupling {cl1} (r1) and {cl2} (r2)"
             )
             generate_restraints(residues1, residues2, ch1, ch2, ambig_fname)
             n_ambig += 1
@@ -291,9 +288,3 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5):
 
     elap_time = round((time.time() - start_time), 3)
     log.info(f"arctic3d_restraints run took {elap_time} seconds")
-
-    # copying log file to the run folder (if possible)
-    try:
-        shutil.move(f"../{LOGNAME}", LOGNAME_FINAL)
-    except FileNotFoundError as e:
-        log.warning(f"Could not find log file: {e}")

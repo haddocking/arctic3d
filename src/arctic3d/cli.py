@@ -1,12 +1,10 @@
 """Main CLI."""
 import argparse
-import logging
-import shutil
 import sys
 import time
-import os
 from pathlib import Path
 
+from arctic3d import log
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
 from arctic3d.modules.input import Input
@@ -14,21 +12,14 @@ from arctic3d.modules.interface import (
     get_interface_residues,
     read_interface_residues,
 )
-from arctic3d.modules.output import make_output, setup_output_folder
+from arctic3d.modules.output import (
+    make_output,
+    create_output_folder,
+    setup_output_folder,
+)
 from arctic3d.modules.pdb import get_best_pdb
 from arctic3d.modules.sequence import to_fasta
-
-# logging
-LOGNAME = f"arctic3d_{os.getpid()}.log"
-LOGNAME_FINAL = "arctic3d.log"
-logging.basicConfig(filename=LOGNAME)
-log = logging.getLogger(LOGNAME)
-ch = logging.StreamHandler()
-formatter = logging.Formatter(
-    " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
-)
-ch.setFormatter(formatter)
-log.addHandler(ch)
+from arctic3d.modules.log import add_log_for_CLI
 
 
 argument_parser = argparse.ArgumentParser()
@@ -175,11 +166,10 @@ def main(
     ligand,
     linkage_strategy,
     threshold,
+    log_level="DEBUG",
 ):
     """Main function."""
     st_time = time.time()
-    log.setLevel("DEBUG")
-
     inp = Input(input_arg)
     input_files = {}
     # retrieve uniprot information
@@ -197,15 +187,23 @@ def main(
             input_files["interface_file"] = Path(interface_file)
             uniprot_id = None
 
+    # create output folder
+    run_dir_path = create_output_folder(run_dir, uniprot_id)
+    # configure logging
+    log_file = Path(run_dir_path, "arctic3d.log")
+    add_log_for_CLI(log, log_level, log_file)
+
+    log.info(f"Target UNIPROTID: {uniprot_id}")
+
     # save json files
     if interface_data:
         input_files["interface_data"] = Path(interface_data)
     if pdb_data:
         input_files["pdb_data"] = Path(pdb_data)
 
-    log.info(f"Target UNIPROTID: {uniprot_id}")
-
-    input_files = setup_output_folder(uniprot_id, input_files, run_dir)
+    input_files = setup_output_folder(
+        run_dir=run_dir_path, input_files=input_files
+    )
 
     # retrieve interfaces.
     if "interface_file" in input_files:
@@ -298,11 +296,6 @@ def main(
     log.info(
         f"arctic3d run completed in {(time.time() - st_time):.2f} seconds."
     )
-
-    # move log file to output folder
-    exp_log_path = Path(f"../{LOGNAME}")
-    if exp_log_path.exists():
-        shutil.move(exp_log_path, LOGNAME_FINAL)
 
 
 if __name__ == "__main__":
