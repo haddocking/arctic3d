@@ -41,6 +41,7 @@ def example_uniprot_data():
 
 
 def test_localise_cli_empty(empty_cluster_filepath):
+    """Test localise cli with empty cluster file."""
     start_cwd = os.getcwd()
     run_dir = "arctic3d-localise"
     main(
@@ -51,6 +52,10 @@ def test_localise_cli_empty(empty_cluster_filepath):
         None,
     )
     os.chdir(start_cwd)
+    # Check that the output directory has been created
+    assert Path(run_dir).exists()
+    # check existence of log file
+    assert Path("arctic3d-localise", "arctic3d_localise.log").exists()
     shutil.rmtree(run_dir)
 
 
