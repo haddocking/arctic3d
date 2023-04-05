@@ -322,7 +322,14 @@ def plot_interactive_probs(pdb_f, cl_residues_probs):
     mdu = mda.Universe(pdb_f)
     calphas = mdu.select_atoms("name CA")
     resids = calphas.resids
-    resnames = [mda.lib.util.convert_aa_code(x) for x in calphas.resnames]
+    # residues names to show in the plot
+    resnames = []
+    for x in calphas.resnames:
+        try:
+            resname = mda.lib.util.convert_aa_code(x)  # 3 letter to 1 letter
+        except ValueError:
+            resname = "?"  # unknown residue
+        resnames.append(resname)
     conv_resids = [f"{resids[n]}-{resnames[n]}" for n in range(len(resids))]
     # create probs
     probs = {}
