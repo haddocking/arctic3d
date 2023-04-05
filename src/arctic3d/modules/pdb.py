@@ -92,10 +92,13 @@ def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id):
             atomsite_dict["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
             and atomsite_dict["auth_asym_id"][resid] == chain_id
         ):
+            # check for an insertion code
+            ins_code = atomsite_dict["pdbx_PDB_ins_code"][resid]
             residue_key = (
                 f"{atomsite_dict['auth_comp_id'][resid]}"
                 f"-{atomsite_dict['auth_asym_id'][resid]}"
                 f"-{atomsite_dict['auth_seq_id'][resid]}"
+                f"{('' if ins_code == '?' else f'-{ins_code}')}"
             )
             unp_num = atomsite_dict["pdbx_sifts_xref_db_num"][resid]
             if residue_key != prev_residue_key:  # not a duplicate entry
@@ -150,9 +153,12 @@ def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
                 for ln in rfile:
                     if ln.startswith(records):
                         resid = ln[22:26].strip()
-                        residue_key = (  # resname-chain_id-resid
-                            f"{ln[17:20].strip()}-{ln[20:22].strip()}-{resid}"
-                        )
+                        ins_code = "-" + ln[26] if ln[26] != " " else ""
+                        residue_key = (
+                            f"{ln[17:20].strip()}"
+                            f"-{ln[20:22].strip()}"
+                            f"-{resid}{ins_code}"
+                        )  # resname-chain_id-resid-ins_code
 
                         # the residues in the pdb_fname that do not have an
                         #   entry in the numbering_dict
@@ -505,8 +511,12 @@ def get_maxint_pdb(validated_pdbs, interface_residues, uniprot_id):
             tidy_pdb_f.unlink()
             if curr_renum_pdb_f is None:
                 continue
-
-            mdu = mda.Universe(curr_renum_pdb_f)
+            # load pdb file. If there is an error, skip to the next one
+            try:
+                mdu = mda.Universe(curr_renum_pdb_f)
+            except Exception as e:
+                log.error(f"Error loading {curr_renum_pdb_f}: {e}")
+                continue
             selection_string = f"name CA and chainID {chain_id}"
             pdb_resids = mdu.select_atoms(selection_string).resids
             tmp_filtered_interfaces = filter_interfaces(
