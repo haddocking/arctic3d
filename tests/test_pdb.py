@@ -5,9 +5,12 @@ import pytest
 from arctic3d.modules.pdb import (
     filter_pdb_list,
     get_best_pdb,
+    get_cif_dict,
     get_maxint_pdb,
+    get_numbering_dict,
     keep_atoms,
     occ_pdb,
+    renumber_pdb_from_cif,
     selchain_pdb,
     selmodel_pdb,
     tidy_pdb,
@@ -20,6 +23,16 @@ from . import golden_data
 @pytest.fixture
 def inp_pdb():
     return Path(golden_data, "1rypB_r_b.pdb")
+
+
+@pytest.fixture
+def inp_pdb_3psg():
+    return Path(golden_data, "pdb3psg.pdb")
+
+
+@pytest.fixture
+def inp_cif_3psg():
+    return Path(golden_data, "3psg_updated.cif")
 
 
 @pytest.fixture
@@ -220,3 +233,33 @@ def test_pdb_data(inp_pdb_data):
 
     assert filtered_interfaces == orig_interfaces
     pdb.unlink()
+
+
+def test_get_numbering_dict(inp_cif_3psg):
+    """Test get_numbering_dict."""
+    cif_dict = get_cif_dict(inp_cif_3psg)
+    numbering_dict = get_numbering_dict(
+        pdb_id="3psg", cif_dict=cif_dict, uniprot_id="P00791", chain_id="A"
+    )
+    assert "SER-A-35-P" in numbering_dict
+    assert numbering_dict["SER-A-35-P"] == "50"
+    assert "SER-A-35" in numbering_dict
+    assert numbering_dict["SER-A-35"] == "94"
+
+
+def test_renumber_pdb_from_cif(inp_pdb_3psg):
+    """Test renumber_pdb_from_cif."""
+    pdb_renum_fname, cif_fname = renumber_pdb_from_cif(
+        pdb_id="3psg",
+        uniprot_id="P00791",
+        chain_id="A",
+        pdb_fname=inp_pdb_3psg,
+    )
+    assert cif_fname.exists()
+    assert pdb_renum_fname.exists()
+    with open(pdb_renum_fname, "r") as f:
+        lines = f.readlines()
+        assert lines[724][13:26] == "CB  ALA A  49"
+        assert lines[726][13:26] == "CA  SER A  50"
+    pdb_renum_fname.unlink()
+    cif_fname.unlink()
