@@ -11,6 +11,7 @@ from arctic3d.modules.pdb import (
     keep_atoms,
     occ_pdb,
     renumber_pdb_from_cif,
+    renumber_interfaces_from_cif,
     selchain_pdb,
     selmodel_pdb,
     tidy_pdb,
@@ -197,7 +198,7 @@ def test_get_maxint_pdb_empty():
 
 
 def test_get_maxint_pdb(good_hits, example_interfaces):
-    """Test get_maxint_pdb."""
+    """Test get_maxint_pdb with implicit pdb numbering."""
     validated_pdbs = validate_api_hit(good_hits)
     pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, example_interfaces, "P00760"
@@ -206,6 +207,20 @@ def test_get_maxint_pdb(good_hits, example_interfaces):
     assert top_hit["pdb_id"] == "4xoj"
     assert top_hit["chain_id"] == "A"
     assert filtered_interfaces == {"P01024": [103, 104, 105]}
+
+
+def test_get_maxint_pdb_resi(good_hits, example_interfaces):
+    """Test get_maxint_pdb with resi numbering."""
+    validated_pdbs = validate_api_hit(good_hits)
+    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+        validated_pdbs, example_interfaces, "P00760", numbering="resi"
+    )
+    # here the pdb is not renumbered
+    assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy.pdb"
+    assert top_hit["pdb_id"] == "4xoj"
+    assert top_hit["chain_id"] == "A"
+    # here the interfaces are renumbered, so the residues change
+    assert filtered_interfaces == {"P01024": [95, 96, 97]}
 
 
 def test_filter_pdb_list(good_hits):
@@ -262,4 +277,21 @@ def test_renumber_pdb_from_cif(inp_pdb_3psg):
         assert lines[724][13:26] == "CB  ALA A  49"
         assert lines[726][13:26] == "CA  SER A  50"
     pdb_renum_fname.unlink()
+    cif_fname.unlink()
+
+
+def test_renumber_interfaces_from_cif(inp_pdb_3psg):
+    """Test renumber_interfaces_from_cif."""
+    interfaces = {"P00441": [85, 137, 138]}
+    renum_interfaces, cif_fname = renumber_interfaces_from_cif(
+        pdb_id="3psg",
+        uniprot_id="P00791",
+        chain_id="A",
+        interface_residues=interfaces,
+    )
+    assert renum_interfaces == {"P00441": [26, 78, 79]}
+    # NB : this result is wrong in this case, as the pdb contains two different
+    # records with equal chain-resid, with two different insertion codes.
+    # It's not possible to extract the correct residues in this case, but
+    # this should be a highly unlikely case.
     cif_fname.unlink()

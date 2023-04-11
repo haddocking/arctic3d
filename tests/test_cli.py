@@ -9,20 +9,21 @@ def test_cli_empty():
     target_uniprot = "P23804"
     start_cwd = os.getcwd()
     main(
-        target_uniprot,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
+        input_arg=target_uniprot,
+        db=None,
+        interface_file=None,
+        out_partner=None,
+        out_pdb=None,
+        pdb_to_use=None,
+        chain_to_use=None,
+        run_dir=None,
+        interface_data=None,
+        pdb_data=None,
+        full=None,
+        ligand=None,
+        linkage_strategy=None,
+        threshold=None,
+        numbering=None,
     )
     os.chdir(start_cwd)
     exp_dir = Path(f"arctic3d-{target_uniprot}")
