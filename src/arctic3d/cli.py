@@ -186,7 +186,7 @@ def main(
         input_files["fasta"] = Path(inp.arg)
         uniprot_id = run_blast(input_files["fasta"], db)
     if inp.is_uniprot():
-        uniprot_id = inp.arg
+        uniprot_id = inp.arg.upper()
     if inp.is_pdb():
         input_files["pdb"] = Path(inp.arg)
         if not interface_file:
