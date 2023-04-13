@@ -2,15 +2,19 @@ import argparse
 import logging
 import os
 import shlex
-import shutil
 import subprocess
 import time
 from pathlib import Path
 
 import pandas as pd
 
+logging.basicConfig(
+    format=" %(funcName)s:L%(lineno)d %(levelname)s - %(message)s",
+    level=logging.INFO,
+    datefmt="%m/%d/%Y %I:%M:%S %p",
+)
+
 INT_FILENAME = "clustered_interfaces.out"
-RES_FILENAME = "clustered_residues.out"
 
 
 def get_arctic_io(filename):
@@ -24,15 +28,17 @@ def get_arctic_io(filename):
         ligand_pdb = bm5_uniprot["ligand"].iloc[n]
         ligand_uniprot = bm5_uniprot["uniprot_ligand"].iloc[n]
 
-        arctic_io[receptor_pdb] = {
+        arctic_io[f"{complex_pdb}-1"] = {
             "complex_pdb": complex_pdb,
+            "receptor_pdb": receptor_pdb,
             "self_uniprot_id": receptor_uniprot,
             "paired_uniprot_id": ligand_uniprot,
             "arctic_output": {},
         }
 
-        arctic_io[ligand_pdb] = {
+        arctic_io[f"{complex_pdb}-2"] = {
             "complex_pdb": complex_pdb,
+            "receptor_pdb": ligand_pdb,
             "self_uniprot_id": ligand_uniprot,
             "paired_uniprot_id": receptor_uniprot,
             "arctic_output": {},
@@ -46,10 +52,9 @@ def run_arctic(cmd):
     p = subprocess.run(
         shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE
     )
-    # out = p.stdout.decode("utf-8").split(os.linesep)
     # check if failed
     if p.returncode != 0:
-        print("warning: ARCTIC failed")
+        logging.info(f"warning: ARCTIC failed with cmd {cmd}")
         response = "FAILED"
     else:
         response = "SUCCESS"
@@ -64,28 +69,55 @@ def read_interface_file(interface_filename):
             splt_ln = ln.split()
             int_name = splt_ln[1]
             interface_ids = splt_ln[3:]
-            print(f"interface ids {interface_ids}")
             interfaces[int_name] = interface_ids
+    logging.info(f"Succesfully extracted {len(interfaces)} interface clusters")
     return interfaces
 
 
 def search_interfaces(interfaces, uniprot_id):
+    """
+    Searches interfaces for uniprot id.
+
+    Parameters
+    ----------
+    interfaces : dict
+        dictionary of interfaces
+    uniprot_id : str
+        uniprot id to search for
+
+    Returns
+    -------
+    found : bool
+        True if uniprot id is found
+
+    sth_else : bool
+        True if uniprot id is found clustered with something else
+    """
     found = False
     sth_else = False
+
     for int_id in interfaces:
-        if uniprot_id in interfaces[int_id]:
+        uniprot_ids = [
+            interface.split("-")[0] for interface in interfaces[int_id]
+        ]
+        unq_uniprot_ids = list(set(uniprot_ids))
+        if uniprot_id in unq_uniprot_ids:
             found = True
-            print(f"found uniprot id {uniprot_id}")
-            if len(interfaces[int_id]) > 1:
+            logging.info(f"found uniprot id {uniprot_id}")
+            if len(unq_uniprot_ids) > 1:
                 sth_else = True
-                print(f"uniprot id {uniprot_id} is clustered with sth else")
+                logging.info(
+                    f"uniprot id {uniprot_id} is clustered with sth else"
+                )
     return found, sth_else
 
 
 def cycle_run(arctic_io):
     """run arctic for the set of pdb files."""
     stats = {
-        # number of times arctic runs (no antibodies)
+        # number of times arctic does something
+        "n_ids": 0,
+        # number of effective runs (no antibodies)
         "n_runs": 0,
         # number of times opponent uniprot id is found
         "n_founds": 0,
@@ -96,73 +128,57 @@ def cycle_run(arctic_io):
         "n_failures": 0,
     }
 
-    for pdb in list(arctic_io.keys()):
-        print(f"processing pdb {pdb}")
-        complex_code = arctic_io[pdb]["complex_pdb"][:4]
+    for key in list(arctic_io.keys()):
+        rec_pdb = arctic_io[key]["receptor_pdb"]
+        self_uni = arctic_io[key]["self_uniprot_id"]
+        paired_uni = arctic_io[key]["paired_uniprot_id"]
+        logging.info(
+            f"processing key {key} (receptor_pdb {rec_pdb}):"
+            f" self uni {self_uni} paired uni {paired_uni}"
+        )
         # run arctic3d in full mode
-        stats["n_runs"] += 1
-        cmd = f"arctic3d {arctic_io[pdb]['self_uniprot_id']}"
-        output = run_arctic(cmd)
-        if output == "FAILED":
-            stats["n_failures"] += 1
+        stats["n_ids"] += 1
+        pdb_string = ""
+        if arctic_io[key]["receptor_pdb"] == "2BBA_A":
+            pdb_string += f"--pdb_to_use={rec_pdb[:4]}"
+        arctic_folder = f"arctic3d-{self_uni}"
+        cmd = (
+            "arctic3d"
+            f" {self_uni} --full"
+            f" --run_dir={arctic_folder} {pdb_string}"
+        )
+        if Path(arctic_folder).exists():
+            logging.info(f"folder {arctic_folder} already exists")
         else:
-            if os.path.exists(INT_FILENAME):
-                interfaces = read_interface_file(INT_FILENAME)
-                arctic_io[pdb]["arctic_output"] = interfaces
-                found, sth_else = search_interfaces(
-                    interfaces, arctic_io[pdb]["paired_uniprot_id"]
+            output = run_arctic(cmd)
+            stats["n_runs"] += 1
+            if output == "FAILED":
+                stats["n_failures"] += 1
+                continue
+        int_file = Path(arctic_folder, INT_FILENAME)
+        if os.path.exists(int_file):
+            interfaces = read_interface_file(int_file)
+            arctic_io[key]["arctic_output"] = interfaces
+            found, sth_else = search_interfaces(interfaces, paired_uni)
+            if found:
+                stats["n_founds"] += 1
+            if sth_else:
+                stats["n_clustered_else"] += 1
+            if found:
+                # re-running arctic excluding the paired uniprot id
+                cmd = (
+                    "arctic3d"
+                    f" {self_uni} --full"
+                    f" --out_partner={paired_uni}"
+                    f" --run_dir=excl{paired_uni}-arctic3d-{self_uni}"
                 )
-                if found:
-                    stats["n_founds"] += 1
-                if sth_else:
-                    stats["n_clustered_else"] += 1
-                # mkdir if not already present
-                if not os.path.exists(complex_code):
-                    os.mkdir(complex_code)
-                # copy stuff to complex_code directory
-                int_file = Path(
-                    complex_code,
-                    f"clustered_interfaces_{pdb[:4]}"
-                    f"_{arctic_io[pdb]['self_uniprot_id']}_full.out",
-                )
-                res_file = Path(
-                    complex_code,
-                    f"clustered_residues_{pdb[:4]}"
-                    f"_{arctic_io[pdb]['self_uniprot_id']}_full.out",
-                )
-                shutil.copy(INT_FILENAME, int_file)
-                shutil.copy(RES_FILENAME, res_file)
-                os.unlink(RES_FILENAME)
-                os.unlink(INT_FILENAME)
-                if found:
-                    # re-running arctic excluding the paired uniprot id
-                    cmd = (
-                        "arctic3d"
-                        f" {arctic_io[pdb]['self_uniprot_id']} --out_uniprot"
-                        f" {arctic_io[pdb]['paired_uniprot_id']}"
-                    )
-                    output = run_arctic(cmd)
-                    if output == "SUCCESS" and os.path.exists(INT_FILENAME):
-                        int_file = Path(
-                            complex_code,
-                            f"clustered_interfaces_{pdb[:4]}"
-                            f"_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
-                        )
-                        res_file = Path(
-                            complex_code,
-                            f"clustered_residues_{pdb[:4]}"
-                            f"_{arctic_io[pdb]['self_uniprot_id']}_excl.out",
-                        )
-                        shutil.copy(INT_FILENAME, int_file)
-                        shutil.copy(RES_FILENAME, res_file)
-                        os.unlink(RES_FILENAME)
-                        os.unlink(INT_FILENAME)
-            else:
-                print(
-                    f"Warning: no interface file found for pdb {pdb} uniprot"
-                    f" {arctic_io[pdb]['self_uniprot_id']}"
-                )
-        print(f"Final stats : {stats}")
+                output = run_arctic(cmd)
+        else:
+            logging.info(
+                f"Warning: no interface file found for key {key}:"
+                f" receptor pdb {rec_pdb} uniprot {self_uni}"
+            )
+        logging.info(f"Final stats : {stats}")
 
 
 # saving ouput
@@ -198,7 +214,7 @@ def main():
     write_output_file(arctic_io, output_file)
 
     elap_time = time.time() - start_time
-    print(f"Overall elapsed time: {elap_time:.3f} seconds")
+    logging.info(f"Overall elapsed time: {elap_time:.3f} seconds")
 
 
 if __name__ == "__main__":
