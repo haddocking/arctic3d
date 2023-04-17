@@ -217,4 +217,5 @@ def interface_clustering(
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
+    log.info(f"Clustering produced {len(cl_dict)} clusters")
     return cl_dict, cl_residues, cl_residues_probs
