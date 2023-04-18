@@ -178,21 +178,25 @@ def test_validate_api_hit_nmr(pdb_hit_no_resolution):
 
 def test_get_best_pdb(example_interfaces):
     """Test get_best_pdb."""
-    pdb, filtered_interfaces = get_best_pdb("P20023", example_interfaces)
+    pdb, cif, filtered_interfaces = get_best_pdb("P20023", example_interfaces)
     exp_pdb = Path("P20023-1ghq-B.pdb")
+    exp_cif = Path("1ghq_updated.cif")
     exp_interfaces = {"P01024": [103, 104, 105]}
     assert pdb == exp_pdb
+    assert cif == exp_cif
     assert filtered_interfaces == exp_interfaces
     exp_pdb.unlink()
+    exp_cif.unlink()
 
 
 def test_get_maxint_pdb_empty():
     """Test get_maxint_pdb with empty output."""
     empty_validated_pdbs = []
-    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+    pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         empty_validated_pdbs, {}, uniprot_id=None
     )
     assert pdb_f is None
+    assert cif_f is None
     assert top_hit is None
     assert filtered_interfaces is None
 
@@ -200,10 +204,11 @@ def test_get_maxint_pdb_empty():
 def test_get_maxint_pdb(good_hits, example_interfaces):
     """Test get_maxint_pdb with implicit pdb numbering."""
     validated_pdbs = validate_api_hit(good_hits)
-    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+    pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, example_interfaces, "P00760"
     )
     assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy_renum.pdb"
+    assert cif_f.name == "4xoj_updated.cif"
     assert top_hit["pdb_id"] == "4xoj"
     assert top_hit["chain_id"] == "A"
     assert filtered_interfaces == {"P01024": [103, 104, 105]}
@@ -212,11 +217,12 @@ def test_get_maxint_pdb(good_hits, example_interfaces):
 def test_get_maxint_pdb_resi(good_hits, example_interfaces):
     """Test get_maxint_pdb with resi numbering."""
     validated_pdbs = validate_api_hit(good_hits)
-    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+    pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, example_interfaces, "P00760", numbering="resi"
     )
     # here the pdb is not renumbered
     assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy.pdb"
+    assert cif_f.name == "4xoj_updated.cif"
     assert top_hit["pdb_id"] == "4xoj"
     assert top_hit["chain_id"] == "A"
     # here the interfaces are renumbered, so the residues change
@@ -242,12 +248,13 @@ def test_filter_pdb_list(good_hits):
 def test_pdb_data(inp_pdb_data):
     """Test pdb_data input json file."""
     orig_interfaces = {"P00441": [85, 137, 138]}
-    pdb, filtered_interfaces = get_best_pdb(
+    pdb, cif, filtered_interfaces = get_best_pdb(
         "P40202", orig_interfaces, pdb_data=inp_pdb_data
     )
 
     assert filtered_interfaces == orig_interfaces
     pdb.unlink()
+    cif.unlink()
 
 
 def test_get_numbering_dict(inp_cif_3psg):
@@ -280,7 +287,7 @@ def test_renumber_pdb_from_cif(inp_pdb_3psg):
     cif_fname.unlink()
 
 
-def test_renumber_interfaces_from_cif(inp_pdb_3psg):
+def test_renumber_interfaces_from_cif():
     """Test renumber_interfaces_from_cif."""
     interfaces = {"P00441": [85, 137, 138]}
     renum_interfaces, cif_fname = renumber_interfaces_from_cif(

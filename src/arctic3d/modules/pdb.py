@@ -610,7 +610,7 @@ def get_maxint_pdb(
         if max_nint != 0:
             log.info(f"filtered_interfaces {filtered_interfaces}")
             log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
-    return pdb_f, hit, filtered_interfaces
+    return pdb_f, cif_f, hit, filtered_interfaces
 
 
 def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
@@ -707,12 +707,12 @@ def get_best_pdb(
 
     validated_pdbs = validate_api_hit(pdb_list)
 
-    pdb_f, top_hit, filtered_interfaces = get_maxint_pdb(
+    pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, interface_residues, uniprot_id, numbering=numbering
     )
 
-    if pdb_f is None:
-        log.warning(f"Could not fetch PDB file for {uniprot_id}")
+    if pdb_f is None or cif_f is None:
+        log.warning(f"Could not fetch PDB/mmcif file for {uniprot_id}")
         return None, None
 
     pdb_id = top_hit["pdb_id"]
@@ -730,4 +730,4 @@ def get_best_pdb(
 
     processed_pdb = pdb_f.rename(f"{uniprot_id}-{pdb_id}-{chain_id}.pdb")
 
-    return processed_pdb, filtered_interfaces
+    return processed_pdb, cif_f, filtered_interfaces
