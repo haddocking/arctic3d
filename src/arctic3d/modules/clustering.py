@@ -31,7 +31,7 @@ def plot_dendrogram(
     max_entries : int
         maximum number of entries to plot
     """
-    plt.figure(dpi=200)
+    plt.figure(figsize=(12, 12), dpi=400)
     truncate_mode = None
     p = len(entries)
     if len(entries) > max_entries:
@@ -46,9 +46,11 @@ def plot_dendrogram(
         p=p,
         orientation="right",
     )
-    plt.ylabel("Interface Names")
-    plt.xlabel("Dissimilarity")
-    plt.title("ARCTIC3D dendrogram")
+    plt.ylabel("Interface Names", fontsize=20)
+    plt.xlabel("Dissimilarity", fontsize=20)
+    plt.title("ARCTIC3D dendrogram", fontsize=24)
+    plt.yticks(fontsize=16)
+    plt.xticks(fontsize=16)
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
