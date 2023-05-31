@@ -6,7 +6,8 @@ import jsonpickle
 import MDAnalysis as mda
 import requests
 from pdbecif.mmcif_io import MMCIF2Dict
-from pdbtools.pdb_selaltloc import select_by_occupancy
+
+# from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
 from pdbtools.pdb_selmodel import select_model
@@ -19,6 +20,209 @@ log = logging.getLogger("arctic3d.log")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"
+
+
+def _remove_altloc(lines):
+    # the altloc ID is removed in processed altloc lines
+    for line_num, line in lines:
+        yield (line_num, line[:16] + " " + line[17:])
+
+
+def _flush(register, option, others):
+    """
+    Processes the collected atoms according to the selaltloc option.
+    """
+    lines_to_yield = []
+    select_by_occupancy = option is None
+
+    atom_lines = ("ATOM", "HETATM")
+
+    # anisou lines are treated specially
+    anisou_lines = ("ANISOU",)
+
+    for resnum, atomnames in register.items():
+        for atomname, altlocs in atomnames.items():
+            if select_by_occupancy:
+                # gathers all alternative locations for the atom
+                all_lines = []
+                for altloc, lines in altlocs.items():
+                    all_lines.extend(lines)
+
+                # identifies the highest occupancy combining dictionary
+                # and sorting
+                new = {}
+                for line_number, line in all_lines:
+                    if line.startswith(atom_lines):
+                        occupancy_number = line[54:60]
+                        list_ = new.setdefault(occupancy_number, [])
+                        list_.append((line_number, line))
+
+                    # assumes ANISOU succeed the respective ATOM line
+                    elif line.startswith(anisou_lines):
+                        list_.append((line_number, line))
+
+                # sort keys by occupancy
+                keys_ = sorted(
+                    new.keys(), key=lambda x: float(x.strip()), reverse=True
+                )
+
+                these_atom_lines = new[keys_[0]]
+                if len(keys_) == 1 and len(these_atom_lines) > 1:
+                    # address "take first if occ is the same"
+                    lines_to_yield.extend(
+                        _remove_altloc(these_atom_lines[0:1])
+                    )
+
+                    # if there's ANISOU, add it
+                    if these_atom_lines[1][1].startswith(anisou_lines):
+                        lines_to_yield.extend(
+                            _remove_altloc(these_atom_lines[1:2])
+                        )
+
+                # this should run when there are more than one key or
+                # the key has only one atom line. Keys are the occ
+                # value.
+                else:
+                    # when occs are different, select the highest one
+                    lines_to_yield.extend(_remove_altloc(these_atom_lines))
+
+                del all_lines, new
+
+            # selected by option:
+            else:
+                if option in altlocs:
+                    # selects the option, that's it
+                    lines_to_yield.extend(_remove_altloc(altlocs[option]))
+
+                else:
+                    # if the option does not exist, add all altlocs
+                    for altloc, lines in altlocs.items():
+                        lines_to_yield.extend(lines)
+
+    # add comments
+    lines_to_yield.extend(others)
+
+    # lines are sorted to the line number so that the output is sorted
+    # the same way as in the input PDB
+    lines_to_yield.sort(key=lambda x: x[0])
+
+    # the line number is ignored, only the line is yield
+    for line_number, line in lines_to_yield:
+        yield line
+
+
+def select_by_occupancy(fhandle, option=None):
+    """
+    Selects altloc labels for the entire PDB file.
+
+    Parameters
+    ----------
+    fhandle : an iterable giving the PDB file line-by-line.
+
+    option : str or `None`.
+        The alternative location identifier to select. By default
+        (`None`) selects the alternative location with highest
+        occupancy. In this case, if the different alternative locations
+        have the same occupancy, selects the one that comes first.
+        Selecting by highest occupancy removes all altloc labels for all
+        atoms. Provide an option (e.g. 'A') to select only atoms with
+        altloc label `A`. If you select `A` and an atom has conformers
+        with altlocs `B` and `C`, both B and C will be kept in the
+        output. Despite not an official format, many times alternative
+        locations are identified by a blank character ' ' (space), and a
+        [A-Z] character.  In these cases, to select the alternative
+        location identified by a blank character give `option=' '`.
+
+    Returns
+    -------
+    generator
+        A generator object. To exhaust the generator, that is, to
+        process the PDB file (or PDB lines), convert it to a list.
+
+        >>> from pdbtools.pdb_selaltloc import run
+        >>> with('input.pdb', 'r') as fin:
+        >>>     processed_lines = list(run(fin))
+
+        For more example see:
+
+        >>> import pdbtools
+        >>> help(pdbtools)
+    """
+    records = ("ATOM", "HETATM", "ANISOU")
+    terminators = ("TER", "END", "CONECT", "END", "ENDMDL", "MODEL")
+
+    # register atom information
+    register = dict()
+
+    # register comment lines
+    others = []
+
+    # register current chain
+    chain = None
+    prev_chain = None
+
+    # keep record of the line number. This will be used to sort lines
+    # after selecting the desired alternative location
+    nline = 0
+
+    # the loop will collect information on the different atoms
+    # throughout the PDB file until a new chain or any terminal line is
+    # found. At that point, the collected information is flushed because
+    # all altlocs for that block have been defined.
+    for line in fhandle:
+        nline += 1
+
+        if line.startswith(records):
+            # here resnum + insertion code are taken to identify
+            # different residues
+            resnum = line[22:27]
+            atomname = line[12:16]
+            altloc = line[16]
+            chain = line[21:22]
+
+            # flush lines because we enter a new chain
+            if chain != prev_chain:
+                # the "yield from" statement is avoided to keep
+                # compatibility with Python 2.7
+                for _line in _flush(register, option, others):
+                    yield _line
+
+                # Python 2.7 compatibility. Do not use .clear() method
+                # restart help variables
+                del register, others
+                register, others = dict(), []
+
+            # organizes information hierarchically
+            resnum_d = register.setdefault(resnum, {})
+            atomname_d = resnum_d.setdefault(atomname, {})
+            altloc_d = atomname_d.setdefault(altloc, [])
+
+            # adds info to dictionary
+            altloc_d.append((nline, line))
+
+        # flush information because we reached the end of a block
+        elif line.startswith(terminators):
+            for _line in _flush(register, option, others):
+                yield _line
+
+            del register, others
+            register, others = dict(), []
+
+            yield line  # yield the current line after flush
+
+        else:
+            # append comments to flush list
+            # The reason to add comments to a list instead of yielding
+            # them directly is to cover the possibility of having
+            # comments in the middle of the PDB file. Obviously is this
+            # extremely unlikely. But just in case...
+            others.append((nline, line))
+
+        prev_chain = chain
+
+    # at the end of the PDB, flush the remaining lines
+    for _line in _flush(register, option, others):
+        yield _line
 
 
 def fetch_updated_cif(pdb_id, cif_fname):
