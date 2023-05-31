@@ -121,7 +121,7 @@ def parse_clusters(cl_filename):
     return cl_dict
 
 
-def write_residues_probs(cl_residues_probs, res_probs_filename):
+def write_residues_probs(cl_residues_probs, res_probs_filename, resnames_dict):
     """
     Writes clustered residues to file with their probability.
 
@@ -131,6 +131,8 @@ def write_residues_probs(cl_residues_probs, res_probs_filename):
         dictionary of clustered residues
     res_probs_filename : str or Path
         output filename
+    resnames_dict : dict
+        dictionary of residue names
     """
     # write to file
     with open(res_probs_filename, "w") as wfile:
@@ -139,7 +141,7 @@ def write_residues_probs(cl_residues_probs, res_probs_filename):
                 f"Cluster {key} :"
                 f" {len(cl_residues_probs[key].keys())} residues{os.linesep}"
             )
-            cl_string += f"rank\tresid\tprobability{os.linesep}"
+            cl_string += f"rank\tresid\tresname\tprobability{os.linesep}"
             sorted_probs = sorted(
                 cl_residues_probs[key].items(),
                 key=lambda x: x[1],
@@ -147,7 +149,7 @@ def write_residues_probs(cl_residues_probs, res_probs_filename):
             )
             for pair_idx, pair in enumerate(sorted_probs, start=1):
                 cl_string += (
-                    f"{pair_idx}\t{pair[0]}\t{pair[1]:.3f}{os.linesep}"
+                    f"{pair_idx}\t{pair[0]}\t{resnames_dict[pair[0]]}\t{pair[1]:.3f}{os.linesep}"
                 )
             cl_string += os.linesep
             wfile.write(cl_string)
@@ -300,7 +302,42 @@ def make_plotly_plot(conv_resids, probs):
     log.info(f"Interactive plot {html_output_filename} successfully created.")
 
 
-def plot_interactive_probs(pdb_f, cl_residues_probs):
+def get_resnames_dict(pdb_f):
+    """
+    
+    Parameters
+    ----------
+    pdb_f : str or Path
+        Path to PDB file.
+    
+    Returns
+    -------
+    resnames_dict : dict
+        dictionary of residues names (1 letter) for each residue id
+    full_resnames_dict : dict
+        dictionary of residues names (3 letter) for each residue id
+    """
+    mdu = mda.Universe(pdb_f)
+    calphas = mdu.select_atoms("name CA")
+    resids = calphas.resids
+    # residues names to show in the plot
+    resnames, full_resnames = [], []
+    for x in calphas.resnames:
+        full_resnames.append(x)
+        try:
+            resname = mda.lib.util.convert_aa_code(x)  # 3 letter to 1 letter
+        except ValueError:
+            resname = "?"  # unknown residue
+        resnames.append(resname)
+    # filling the dictionary
+    resnames_dict, full_resnames_dict = {}, {}
+    for n in range(len(resids)):
+        resnames_dict[resids[n]] = resnames[n]
+        full_resnames_dict[resids[n]] = full_resnames[n]
+    return resnames_dict, full_resnames_dict
+
+
+def plot_interactive_probs(cl_residues_probs, resnames_dict):
     """
     Interactive plot.
 
@@ -319,18 +356,7 @@ def plot_interactive_probs(pdb_f, cl_residues_probs):
     html_filename : Path
         Path to output html file
     """
-    mdu = mda.Universe(pdb_f)
-    calphas = mdu.select_atoms("name CA")
-    resids = calphas.resids
-    # residues names to show in the plot
-    resnames = []
-    for x in calphas.resnames:
-        try:
-            resname = mda.lib.util.convert_aa_code(x)  # 3 letter to 1 letter
-        except ValueError:
-            resname = "?"  # unknown residue
-        resnames.append(resname)
-    conv_resids = [f"{resids[n]}-{resnames[n]}" for n in range(len(resids))]
+    resids = sorted(list(resnames_dict.keys()))
     # create probs
     probs = {}
     for cl_id in cl_residues_probs.keys():
@@ -339,6 +365,9 @@ def plot_interactive_probs(pdb_f, cl_residues_probs):
             if resids[n] in cl_residues_probs[cl_id].keys():
                 new_probs[n] = round(cl_residues_probs[cl_id][resids[n]], 2)
         probs[f"Cluster {cl_id}"] = new_probs
+    # conv_resids
+    conv_resids = [f"{resids[n]}-{resnames_dict[resids[n]]}" for n in range(len(resids))]
+    print(f"conv_resids {conv_resids}")
     # plotly
     try:
         make_plotly_plot(conv_resids, probs)
@@ -371,6 +400,10 @@ def make_output(
                 ...
         }
     """
+    # retrieving conv_resids dictionary
+    resnames_dict, full_resnames_dict = get_resnames_dict(pdb_f)
+    print(f"full_resnames_dict {resnames_dict}")
+
     # writing full set of retrieved interfaces to file
     int_filename = "retrieved_interfaces.out"
 
@@ -384,13 +417,13 @@ def make_output(
     write_dict(cl_residues, res_filename, keyword="Cluster")
 
     res_probs_filename = "clustered_residues_probs.out"
-    write_residues_probs(cl_residues_probs, res_probs_filename)
+    write_residues_probs(cl_residues_probs, res_probs_filename, full_resnames_dict)
 
     # write output pdb with probabilities
     output_pdb(pdb_f, cl_residues_probs)
 
     # make interactive plot with probabilities
-    plot_interactive_probs(pdb_f, cl_residues_probs)
+    plot_interactive_probs(cl_residues_probs, resnames_dict)
 
 
 def shorten_labels(list_of_labels, max_lab_length=50):
