@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import os
 import pytest
 
 from arctic3d.modules.pdb import (
@@ -24,6 +24,11 @@ from . import golden_data
 @pytest.fixture
 def inp_pdb():
     return Path(golden_data, "1rypB_r_b.pdb")
+
+
+@pytest.fixture
+def tricky_pdb():
+    return Path(golden_data, "pdb4xoj.pdb")
 
 
 @pytest.fixture
@@ -134,9 +139,29 @@ def test_tidy_pdb(inp_pdb):
     pdb.unlink()
 
 
-def test_occ_pdb(inp_pdb):
-    pdb = occ_pdb(inp_pdb)
+def test_occ_pdb(tricky_pdb):
+    pdb = occ_pdb(tricky_pdb)
     assert pdb.exists()
+    # check that LYS84 is correctly processed
+    obs_lys84_lines = []
+    with open(pdb, "r") as fh:
+        for line in fh:
+            if line.startswith("ATOM"):
+                if line.split()[5] == "84":
+                    obs_lys84_lines.append(line)
+    exp_lys84_lines = [
+        "ATOM    536  N   LYS A  84      -4.827  -2.055  19.735  1.00  9.68           N  ",  # noqa: E501
+        "ATOM    537  CA  LYS A  84      -4.644  -3.431  19.279  0.70 10.05           C  ",  # noqa: E501
+        "ATOM    539  C   LYS A  84      -3.278  -3.508  18.640  1.00  9.20           C  ",  # noqa: E501
+        "ATOM    540  O   LYS A  84      -2.951  -2.592  17.884  1.00  9.59           O  ",  # noqa: E501
+        "ATOM    541  CB  LYS A  84      -5.744  -3.907  18.283  0.70 10.32           C  ",  # noqa: E501
+        "ATOM    543  CG  LYS A  84      -7.150  -3.728  18.755  0.70 12.75           C  ",  # noqa: E501
+        "ATOM    545  CD  LYS A  84      -8.204  -4.287  17.849  0.70 14.48           C  ",  # noqa: E501
+        "ATOM    547  CE  LYS A  84      -9.569  -4.039  18.445  0.70 21.19           C  ",  # noqa: E501
+        "ATOM    549  NZ  LYS A  84     -10.614  -4.841  17.764  0.70 22.64           N  ",  # noqa: E501
+    ]
+    exp_lys84_lines = [ln + os.linesep for ln in exp_lys84_lines]
+    assert obs_lys84_lines == exp_lys84_lines
     pdb.unlink()
 
 
