@@ -149,7 +149,10 @@ def write_residues_probs(cl_residues_probs, res_probs_filename, resnames_dict):
             )
             for pair_idx, pair in enumerate(sorted_probs, start=1):
                 cl_string += (
-                    f"{pair_idx}\t{pair[0]}\t{resnames_dict[pair[0]]}\t{pair[1]:.3f}{os.linesep}"
+                    f"{pair_idx}\t"  # rank
+                    f"{pair[0]}\t"  # resid
+                    f"{resnames_dict[pair[0]]}\t"  # resname
+                    f"{pair[1]:.3f}{os.linesep}"  # probability
                 )
             cl_string += os.linesep
             wfile.write(cl_string)
@@ -184,7 +187,7 @@ def read_residues_probs(res_probs_filename):
                 continue
             else:
                 splt_ln = ln.split()
-                cl_residues_probs[cl_id][int(splt_ln[1])] = float(splt_ln[2])
+                cl_residues_probs[cl_id][int(splt_ln[1])] = float(splt_ln[3])
     return cl_residues_probs
 
 
@@ -304,12 +307,13 @@ def make_plotly_plot(conv_resids, probs):
 
 def get_resnames_dict(pdb_f):
     """
-    
+    Gets residues names for each residue id.
+
     Parameters
     ----------
     pdb_f : str or Path
         Path to PDB file.
-    
+
     Returns
     -------
     resnames_dict : dict
@@ -366,8 +370,9 @@ def plot_interactive_probs(cl_residues_probs, resnames_dict):
                 new_probs[n] = round(cl_residues_probs[cl_id][resids[n]], 2)
         probs[f"Cluster {cl_id}"] = new_probs
     # conv_resids
-    conv_resids = [f"{resids[n]}-{resnames_dict[resids[n]]}" for n in range(len(resids))]
-    print(f"conv_resids {conv_resids}")
+    conv_resids = [
+        f"{resids[n]}-{resnames_dict[resids[n]]}" for n in range(len(resids))
+    ]
     # plotly
     try:
         make_plotly_plot(conv_resids, probs)
@@ -402,7 +407,6 @@ def make_output(
     """
     # retrieving conv_resids dictionary
     resnames_dict, full_resnames_dict = get_resnames_dict(pdb_f)
-    print(f"full_resnames_dict {resnames_dict}")
 
     # writing full set of retrieved interfaces to file
     int_filename = "retrieved_interfaces.out"
@@ -417,7 +421,9 @@ def make_output(
     write_dict(cl_residues, res_filename, keyword="Cluster")
 
     res_probs_filename = "clustered_residues_probs.out"
-    write_residues_probs(cl_residues_probs, res_probs_filename, full_resnames_dict)
+    write_residues_probs(
+        cl_residues_probs, res_probs_filename, full_resnames_dict
+    )
 
     # write output pdb with probabilities
     output_pdb(pdb_f, cl_residues_probs)
