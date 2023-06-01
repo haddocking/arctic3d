@@ -90,21 +90,22 @@ def test_write_interfaes(reference_res_dict):
 
 def test_write_res_probs():
     """Test write_residue_probs."""
-    example_res_probs = {1: {3: 0.2, 4: 0.75}, 2: {27: 1.0, 28: 1.0}}
+    res_probs = {1: {3: 0.2, 4: 0.75}, 2: {27: 1.0, 28: 1.0}}
+    full_resnames_dict = {3: "ALA", 4: "GLY", 27: "ARG", 28: "LYS"}
     expected_content = (
         f"Cluster 1 : 2 residues{os.linesep}"
-        f"rank\tresid\tprobability{os.linesep}"
-        f"1\t4\t0.750{os.linesep}"
-        f"2\t3\t0.200{os.linesep}"
+        f"rank\tresid\tresname\tprobability{os.linesep}"
+        f"1\t4\tGLY\t0.750{os.linesep}"
+        f"2\t3\tALA\t0.200{os.linesep}"
         f"{os.linesep}"
         f"Cluster 2 : 2 residues{os.linesep}"
-        f"rank\tresid\tprobability{os.linesep}"
-        f"1\t27\t1.000{os.linesep}"
-        f"2\t28\t1.000{os.linesep}"
+        f"rank\tresid\tresname\tprobability{os.linesep}"
+        f"1\t27\tARG\t1.000{os.linesep}"
+        f"2\t28\tLYS\t1.000{os.linesep}"
         f"{os.linesep}"
     )
     res_probs_filename = "residues_probs_test.out"
-    write_residues_probs(example_res_probs, res_probs_filename)
+    write_residues_probs(res_probs, res_probs_filename, full_resnames_dict)
     observed_content = open(res_probs_filename, "r").read()
     assert expected_content == observed_content
     os.unlink(res_probs_filename)
