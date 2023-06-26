@@ -39,7 +39,7 @@ arctic3d_localise = "arctic3d.cli_localise:maincli"
 arctic3d_restraints = "arctic3d.cli_restraints:maincli"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3.2"
+pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
 coverage = "^7.2.7"
 hypothesis = "^6.79.1"
