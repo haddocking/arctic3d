@@ -1,5 +1,6 @@
 import logging
 import os
+import tempfile
 from pathlib import Path
 
 import jsonpickle
@@ -11,6 +12,7 @@ from pdbecif.mmcif_io import MMCIF2Dict
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
 from pdbtools.pdb_selmodel import select_model
+from pdbtools.pdb_fromcif import convert_to_pdb
 
 
 from arctic3d.functions import make_request
@@ -502,15 +504,26 @@ def fetch_pdb(pdb_id):
     out_pdb_fname : Path
         pdb filename
     """
-    log.debug(f"Fetching PDB file {pdb_id} from PDBE")
-    response = requests.get(f"{PDBE_URL}/pdb{pdb_id}.ent")
+    log.debug(f"Fetching PDB file {pdb_id} from PDBe")
+
+    # Note: the PDBe API does not return the `.pdb`` file if the
+    #   structure is too big, so we use the `.cif` file instead
+    response = requests.get(f"{PDBE_URL}/{pdb_id}.cif")
     if response.status_code != 200:
         log.warning(f"Could not fetch PDB file for {pdb_id}")
         return None
 
-    out_pdb_fname = Path(f"{pdb_id}.pdb")
-    with open(out_pdb_fname, "wb") as wfile:
+    temp_cif = tempfile.NamedTemporaryFile(suffix=".cif", delete=False)
+    with open(temp_cif.name, "wb") as wfile:
         wfile.write(response.content)
+
+    out_pdb_fname = Path(f"{pdb_id}.pdb")
+    with open(temp_cif.name, "r") as pdb_fh:
+        with open(out_pdb_fname, "w") as f:
+            for line in convert_to_pdb(pdb_fh):
+                f.write(line)
+
+    os.remove(temp_cif.name)
 
     return out_pdb_fname
 
