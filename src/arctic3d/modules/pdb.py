@@ -11,10 +11,14 @@ from pdbecif.mmcif_io import MMCIF2Dict
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
 from pdbtools.pdb_selmodel import select_model
+from pdbtools.pdb_fromcif import convert_to_pdb
 
 
 from arctic3d.functions import make_request
-from arctic3d.modules.interface_matrix import filter_interfaces
+from arctic3d.modules.interface_matrix import (
+    filter_interfaces,
+    format_interface_name,
+)
 
 log = logging.getLogger("arctic3d.log")
 
@@ -67,29 +71,15 @@ def _flush(register, option, others):
                 )
 
                 these_atom_lines = new[keys_[0]]
-                if len(keys_) == 1 and len(these_atom_lines) > 1:
-                    # address "take first if occ is the same"
-                    lines_to_yield.extend(
-                        _remove_altloc(these_atom_lines[0:1])
-                    )
 
-                    # if there's ANISOU, add it
-                    if these_atom_lines[1][1].startswith(anisou_lines):
-                        lines_to_yield.extend(
-                            _remove_altloc(these_atom_lines[1:2])
-                        )
-
-                # this should run when there are more than one key or
-                # the key has only one atom line. Keys are the occ
-                # value.
-                else:
-                    # when occs are different, select the highest one
-                    lines_to_yield.extend(_remove_altloc(these_atom_lines))
+                # always yield the first line
+                lines_to_yield.extend(_remove_altloc(these_atom_lines[0:1]))
 
                 del all_lines, new
 
             # selected by option:
             else:
+                print(f"selected by option: {option}")
                 if option in altlocs:
                     # selects the option, that's it
                     lines_to_yield.extend(_remove_altloc(altlocs[option]))
@@ -235,6 +225,11 @@ def fetch_updated_cif(pdb_id, cif_fname):
         PDB ID
     cif_fname : str or Path
         name of the output cif file
+
+    Returns
+    -------
+    cif_fname : str or Path
+        name of the output cif file
     """
     log.debug(f"Fetching updated CIF file {pdb_id} from PDBE")
     cif_response = requests.get(f"{PDBE_URL}/{pdb_id}_updated.cif")
@@ -244,6 +239,7 @@ def fetch_updated_cif(pdb_id, cif_fname):
 
     with open(cif_fname, "wb") as wfile:
         wfile.write(cif_response.content)
+    return Path(cif_fname)
 
 
 def get_cif_dict(cif_name):
@@ -265,199 +261,137 @@ def get_cif_dict(cif_name):
     return cif_dict
 
 
-def get_numbering_dict(pdb_id, cif_dict, uniprot_id, chain_id, key="pdb"):
+def check_big_uni(ats_dict, uniprot_id):
     """
-    gets the numbering correspondence between the pdb file and the uniprot
-    sequence from the cif dict.
+    Checks if uniprot id has residue IDs > 9999 in the mmcif atom_site dict
 
     Parameters
     ----------
-    pdb_id : str
-        PDB ID
-    cif_dict : dict
-        cif dictionary
+    ats_dict : dict
+        mmcif atom_site dictionary
     uniprot_id : str
-        uniprot ID to be used (many IDs may exist in the .cif file)
-    chain_id : str
-        chain ID to be used
-    key : str
-        key to use for the numbering dict, either "uniprot" or "pdb"
+        uniprot ID
 
     Returns
     -------
-    numbering_dict : dict
-        pdb-resid : key-value dictionary
-            Example (key=pdb) : {"GLY-A-16" : 20, "TYR-A-17" : 21, ... }
-            Example (key=uniprot) : {20 : "GLY-A-16", 21 : "TYR-A-17", ... }
+    big_uni : bool
+        True if uniprot ID has residue IDs > 9999
     """
-    atomsite_dict = cif_dict[pdb_id.upper()]["_atom_site"]
-    numbering_dict = {}
-    prev_residue_key = None
-    len_sifts_mapping = len(atomsite_dict["auth_seq_id"])
-    for resid in range(len_sifts_mapping):
-        if (
-            atomsite_dict["pdbx_sifts_xref_db_acc"][resid] == uniprot_id
-            and atomsite_dict["auth_asym_id"][resid] == chain_id
-        ):
-            # check for an insertion code
-            ins_code = atomsite_dict["pdbx_PDB_ins_code"][resid]
-            residue_key = (
-                f"{atomsite_dict['auth_comp_id'][resid]}"
-                f"-{atomsite_dict['auth_asym_id'][resid]}"
-                f"-{atomsite_dict['auth_seq_id'][resid]}"
-                f"{('' if ins_code == '?' else f'-{ins_code}')}"
+    len_sifts_mapping = len(ats_dict["auth_seq_id"])
+    print(f"len_sifts_mapping {len_sifts_mapping}")
+    big_uni = False
+    for residx in range(len_sifts_mapping):
+        curr_uniprot_id = ats_dict["pdbx_sifts_xref_db_acc"][residx]
+        if curr_uniprot_id == uniprot_id:
+            if int(ats_dict["pdbx_sifts_xref_db_num"][residx]) > 9999:
+                big_uni = True
+                break
+    return big_uni
+
+
+def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
+    """
+    Converts a cif file into a pdb file for each chain matchin the uniprot_id
+
+    Parameters
+    ----------
+    cif_fname : str or Path
+        input cif file
+    pdb_id : str
+        PDB ID
+    uniprot_id : str
+        uniprot ID to be used
+
+    Returns
+    -------
+    out_pdb_fnames : list
+        list of pdb filenames
+    """
+    cif_dict = get_cif_dict(cif_fname)
+    ats_dict = cif_dict[pdb_id.upper()]["_atom_site"]
+    len_sifts_mapping = len(ats_dict["auth_seq_id"])
+    # initialising lists
+    out_pdb_fnames, out_pdb_lines, atom_ids = [], [], []
+    big_uni = check_big_uni(ats_dict, uniprot_id)
+    if big_uni:
+        log.info(f"uniprot id {uniprot_id} in {pdb_id} has residue IDs > 9999")
+    else:
+        # iterating over the atomsite_dict
+        for residx in range(len_sifts_mapping):
+            atom_keyword = ats_dict["group_PDB"][residx]
+            resid = ats_dict["pdbx_sifts_xref_db_num"][residx]
+            curr_uniprot_id = ats_dict["pdbx_sifts_xref_db_acc"][residx]
+            atom_symbol = ats_dict["type_symbol"][residx]
+            chain = (
+                ats_dict["auth_asym_id"][residx]
+                if len(ats_dict["auth_asym_id"][residx]) == 1
+                else ats_dict["label_asym_id"][residx]
             )
-            unp_num = atomsite_dict["pdbx_sifts_xref_db_num"][resid]
-            if residue_key != prev_residue_key:  # not a duplicate entry
-                if key == "pdb":
-                    numbering_dict[residue_key] = unp_num
-                elif key == "uniprot":
-                    numbering_dict[unp_num] = residue_key
+            # check if we have to consider this line
+            if (
+                atom_keyword == "ATOM"
+                and resid != "?"
+                and curr_uniprot_id == uniprot_id
+                and atom_symbol != "H"
+            ):
+                pdb_fname = Path(f"{pdb_id}-{chain}.pdb")
+                if pdb_fname not in out_pdb_fnames:
+                    out_pdb_fnames.append(pdb_fname)
+                    atom_ids.append(0)
+                # updating atom_id
+                atom_idx = out_pdb_fnames.index(pdb_fname)
+                atom_ids[atom_idx] += 1
+                atom_id = atom_ids[atom_idx]
+                # literal data
+                atom_name = ats_dict["label_atom_id"][residx]
+                alt_id = (
+                    ats_dict["label_alt_id"][residx]
+                    if ats_dict["label_alt_id"][residx] != "."
+                    else " "
+                )
+                resname = ats_dict["label_comp_id"][residx]
+                ins_code = (
+                    ats_dict["pdbx_PDB_ins_code"][residx]
+                    if ats_dict["pdbx_PDB_ins_code"][residx] != "?"
+                    else " "
+                )
+                # numbers
+                x = "{:.3f}".format(float(ats_dict["Cartn_x"][residx]))
+                y = "{:.3f}".format(float(ats_dict["Cartn_y"][residx]))
+                z = "{:.3f}".format(float(ats_dict["Cartn_z"][residx]))
+                occ = "{:.2f}".format(float(ats_dict["occupancy"][residx]))
+                bfactor = "{:.2f}".format(
+                    float(ats_dict["B_iso_or_equiv"][residx])
+                )
+                # creating new line
+                new_line = (
+                    f"{atom_keyword}  {atom_id:>5}  {atom_name:<3}{alt_id:<1}"
+                    f"{resname:<3} {chain}{resid:>4}{ins_code:<1}"
+                    f"{x:>11}{y:>8}{z:>8}{occ:>6}{bfactor:>6}"
+                    f"{os.linesep}"
+                )
+                if len(out_pdb_lines) <= atom_idx:
+                    out_pdb_lines.append([new_line])
                 else:
-                    raise ValueError(f"key {key} not recognized")
-                prev_residue_key = residue_key
-    # log.debug(f"numbering dict {numbering_dict}")
-    return numbering_dict
+                    out_pdb_lines[atom_idx].append(new_line)
+        # write files
+        for pdb_fname, pdb_lines in zip(out_pdb_fnames, out_pdb_lines):
+            with open(pdb_fname, "w") as wfile:
+                for new_line in pdb_lines:
+                    wfile.write(new_line)
+    return [out_pdb_fnames]
 
 
-def renumber_interfaces_from_cif(
-    pdb_id, uniprot_id, chain_id, interface_residues
-):
-    """
-    Renumbers a list of interfaces based on the information coming from the
-    corresponding updated cif file.
-
-    Parameters
-    ----------
-    pdb_id : str
-        PDB ID
-    uniprot_id : str
-        uniprot ID to be used
-    chain_id : str
-        chain ID to be used
-    interfaces_residues : list
-        list of interfaces residues
-    """
-
-    cif_fname = Path(f"{pdb_id}_updated.cif")
-    if not cif_fname.is_file():
-        fetch_updated_cif(pdb_id, cif_fname)
-    cif_dict = get_cif_dict(cif_fname)
-
-    # retrieve mapping
-    numbering_dict = get_numbering_dict(
-        pdb_id, cif_dict, uniprot_id, chain_id, key="uniprot"
-    )
-    # log.debug(f"numbering_dict {numbering_dict}")
-    if any(numbering_dict):
-        unique_resids = set(
-            value for values in interface_residues.values() for value in values
-        )
-        renum_residues = {}  # dictionary of renumbered residues
-        for residue in unique_resids:
-            str_res = str(residue)
-            if str_res in numbering_dict.keys():
-                # log.debug(f"Residue {residue} not found in cif file")
-                int_residue = int(numbering_dict[str_res].split("-")[2])
-                renum_residues[residue] = int_residue
-            else:
-                # log.debug(f"Residue {residue} not found in cif file")
-                renum_residues[residue] = None
-        # renumbering interfaces
-        renum_interfaces = {}
-        for interface, residues in interface_residues.items():
-            renum_residues_list = []
-            for residue in residues:
-                if residue is not None:
-                    renum_residues_list.append(renum_residues[residue])
-            renum_interfaces[interface] = renum_residues_list
-    else:
-        log.info(f"Renumbering failed for pdb {pdb_id}-{chain_id}")
-        renum_interfaces = None
-    # log.debug(f"renum_interfaces {renum_interfaces}")
-    return renum_interfaces, cif_fname
+def cif_to_pdb(cif_fname, out_pdb_name):
+    out_pdb_fname = Path(out_pdb_name)
+    with open(cif_fname, "r") as pdb_fh:
+        with open(out_pdb_fname, "w") as f:
+            for line in convert_to_pdb(pdb_fh):
+                f.write(line)
+    return out_pdb_fname
 
 
-def renumber_pdb_from_cif(pdb_id, uniprot_id, chain_id, pdb_fname):
-    """
-    Renumbers a pdb file based on the information coming from the corresponding
-    updated cif file.
-
-    Parameters
-    ----------
-    pdb_id : str
-        PDB ID
-    chain_id : str
-        chain ID to be used
-    uniprot_id : str
-        uniprot ID to be used
-    pdb_fname : str or Path
-        input pdb file
-
-    Returns
-    -------
-    pdb_renum_fname : Path
-        renumbered pdb filename
-    """
-    cif_fname = Path(f"{pdb_id}_updated.cif")
-    if not cif_fname.is_file():
-        fetch_updated_cif(pdb_id, cif_fname)
-    cif_dict = get_cif_dict(cif_fname)
-
-    # retrieve mapping
-    numbering_dict = get_numbering_dict(
-        pdb_id, cif_dict, uniprot_id, chain_id, key="pdb"
-    )
-
-    # we do not check if all residues in pdb_fname have
-    #   been correctly renumbered
-    # we only check it's not empty (it could be empty
-    #   if the cif does not contain
-    # the uniprot information)
-    if any(numbering_dict):
-        log.info(f"Renumbering pdb {pdb_fname}")
-        pdb_renum_fname = Path(f"{pdb_fname.stem}_renum.pdb")
-
-        records = ("ATOM", "TER")
-        file_content = ""
-        with open(pdb_renum_fname, "w") as wfile:
-            with open(pdb_fname, "r") as rfile:
-                for ln in rfile:
-                    if ln.startswith(records):
-                        resid = ln[22:26].strip()
-                        ins_code = "-" + ln[26] if ln[26] != " " else ""
-                        residue_key = (
-                            f"{ln[17:20].strip()}"
-                            f"-{ln[20:22].strip()}"
-                            f"-{resid}{ins_code}"
-                        )  # resname-chain_id-resid-ins_code
-
-                        # the residues in the pdb_fname that do not have an
-                        #   entry in the numbering_dict
-                        # are discarded. It may happen that the same chain
-                        #   in the input pdb is associated to several
-                        # uniprot ids (especially in old files)
-                        if residue_key in numbering_dict.keys():
-                            n_spaces = 4 - len(
-                                str(numbering_dict[residue_key])
-                            )
-                            # there's always one space after to remove
-                            #   alternate occupancies
-                            resid_str = (
-                                f"{' ' * n_spaces}"
-                                f"{numbering_dict[residue_key]} "
-                            )
-                            file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
-                    else:
-                        file_content += f"{ln}"
-                wfile.write(file_content)
-    else:
-        log.info(f"Renumbering failed for pdb {pdb_fname}")
-        pdb_renum_fname = None
-    return pdb_renum_fname, cif_fname
-
-
-def fetch_pdb_files(pdb_to_fetch):
+def fetch_pdb_files(pdb_to_fetch, uniprot_id):
     """
     Fetches the pdb files from PDBe database.
 
@@ -471,20 +405,25 @@ def fetch_pdb_files(pdb_to_fetch):
     validated_pdbs : list
         list of tuples (pdb_file, hit)
     """
-    validated_pdbs = []
+    validated_pdb_and_cifs = []
     valid_pdb_set = set()  # set of valid pdb IDs
     for hit in pdb_to_fetch:
         pdb_id = hit["pdb_id"]
-        pdb_fname = f"{pdb_id}.pdb"
-        if pdb_fname not in os.listdir():
-            pdb_f = fetch_pdb(pdb_id)
+        chain_id = hit["chain_id"]
+        pdb_fname = f"{pdb_id}-{chain_id}.pdb"
+        cif_fname = f"{pdb_id}_updated.cif"
+        if cif_fname not in os.listdir():
+            cif_f = fetch_updated_cif(pdb_id, cif_fname)
+            pdb_files = convert_cif_to_pdbs(cif_f, pdb_id, uniprot_id)
+            log.info(f"converted cif to pdb files: {pdb_files}")
         else:
-            pdb_f = Path(pdb_fname)
-        if pdb_f is not None:
-            validated_pdbs.append((pdb_f, hit))
+            cif_f = Path(cif_fname)
+        pdb_f = Path(pdb_fname)
+        if pdb_f.exists():
+            validated_pdb_and_cifs.append((pdb_f, cif_f, hit))
             if pdb_id not in valid_pdb_set:
                 valid_pdb_set.add(pdb_id)
-    return validated_pdbs
+    return validated_pdb_and_cifs
 
 
 def fetch_pdb(pdb_id):
@@ -638,6 +577,7 @@ def keep_atoms(inp_pdb_f):
 
 def validate_api_hit(
     fetch_list,
+    uniprot_id,
     resolution_cutoff=4.0,
     coverage_cutoff=0.0,
     max_pdb_num=20,
@@ -649,8 +589,8 @@ def validate_api_hit(
     ----------
     fetch_list : list
         List containing dictionaries of hits.
-    pdb_renum_db : str or Path or None
-        path to the pdb renum local db
+    uniprot_id : str
+        Uniprot ID.
     resolution_cutoff : float
         Resolution cutoff.
     coverage_cutoff : float
@@ -667,6 +607,7 @@ def validate_api_hit(
     for hit in fetch_list:
         check_list = []
         pdb_id = hit["pdb_id"]
+        chain_id = hit["chain_id"]
         coverage = hit["coverage"]
         resolution = hit["resolution"]
         exp_method = hit["experimental_method"]
@@ -676,26 +617,38 @@ def validate_api_hit(
             check_list.append(True)
         else:
             check_list.append(False)
+            reason = "coverage"
         # check resolution value
         if resolution is None:
             if "NMR" in exp_method:
                 check_list.append(True)
             else:
                 check_list.append(False)
+                reason = "None resolution"
         elif resolution < resolution_cutoff:
             check_list.append(True)
         else:
             check_list.append(False)
+            reason = "resolution"
+
+        # check chain ID not longer than 1 character
+        if len(chain_id) == 1:
+            check_list.append(True)
+        else:
+            check_list.append(False)
+            reason = "chain ID too big"
 
         if all(check_list):
             pdbs_to_fetch.append(hit)
         else:
-            log.debug(f"{pdb_id} failed validation")
+            log.debug(f"{pdb_id}-{chain_id} failed validation ({reason})")
     log.info(f"Found {len(pdbs_to_fetch)} valid PDBs to fetch")
     # downloading a list of good pdbs
-    validated_pdbs = fetch_pdb_files(pdbs_to_fetch[:max_pdb_num])
-    log.info(f"Fetched {len(validated_pdbs)} valid PDBs")
-    return validated_pdbs
+    validated_pdbs_and_cifs = fetch_pdb_files(
+        pdbs_to_fetch[:max_pdb_num], uniprot_id
+    )
+    log.info(f"Fetched {len(validated_pdbs_and_cifs)} valid PDBs")
+    return validated_pdbs_and_cifs
 
 
 def preprocess_pdb(pdb_fname, chain_id):
@@ -766,45 +719,27 @@ def get_maxint_pdb(
     cif_f, pdb_f, hit, filtered_interfaces = None, None, None, None
     if validated_pdbs != []:
         max_nint = 0
-        for curr_pdb, curr_hit in validated_pdbs:
+        for curr_pdb, curr_cif_f, curr_hit in validated_pdbs:
             chain_id = curr_hit["chain_id"]
-            pdb_id = curr_hit["pdb_id"]
 
             # refactor renumbering
             tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
 
-            if numbering == "pdb":  # renumber the pdb files
-                curr_pdb_f, curr_cif_f = renumber_pdb_from_cif(
-                    pdb_id, uniprot_id, chain_id, tidy_pdb_f
-                )
-                curr_interface_residues = interface_residues
-            elif numbering == "resi":  # renumber the interface residues
-                curr_pdb_f = tidy_pdb_f
-                (
-                    curr_interface_residues,
-                    curr_cif_f,
-                ) = renumber_interfaces_from_cif(
-                    pdb_id, uniprot_id, chain_id, interface_residues
-                )
-            else:
-                raise ValueError(f"Unknown numbering option: {numbering}")
-            # load pdb file. If there is an error, skip to the next one
             try:
-                mdu = mda.Universe(curr_pdb_f)
+                mdu = mda.Universe(tidy_pdb_f)
             except Exception as e:
-                log.error(f"Error loading {curr_pdb_f}: {e}")
+                log.error(f"Error loading {tidy_pdb_f}: {e}")
                 continue
-
-            selection_string = f"name CA and chainID {chain_id}"
+            selection_string = f"name CA and chainID {chain_id.upper()}"
             pdb_resids = mdu.select_atoms(selection_string).resids
             tmp_filtered_interfaces = filter_interfaces(
-                curr_interface_residues, pdb_resids
+                interface_residues, pdb_resids
             )
             curr_nint = len(tmp_filtered_interfaces)
             if curr_nint > max_nint:  # update "best" hit
                 max_nint = curr_nint
                 filtered_interfaces = tmp_filtered_interfaces.copy()
-                pdb_f = curr_pdb_f
+                pdb_f = tidy_pdb_f
                 cif_f = curr_cif_f
                 hit = curr_hit
         # unlink pdb files
@@ -815,6 +750,31 @@ def get_maxint_pdb(
             log.info(f"filtered_interfaces {filtered_interfaces}")
             log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
     return pdb_f, cif_f, hit, filtered_interfaces
+
+
+def filter_interfaces_cif(interface_residues, cif_resids):
+    """
+    Filter the interfaces according to the residues present in the cif file.
+
+    Parameters
+    ----------
+    interface_residues : dict
+        Dictionary of all the interfaces (each one with its uniprot ID as key)
+    cif_resids : list
+        List of residues present in the cif file
+    """
+    retained_interfaces = {}
+    for key in interface_residues.keys():
+        filtered_interface = [
+            el for el in interface_residues[key] if el in cif_resids
+        ]
+        coverage = len(filtered_interface) / len(interface_residues[key])
+        if coverage > 0.7:
+            # formatting the interface name to avoid spaces
+            formatted_key = format_interface_name(key)
+            retained_interfaces[formatted_key] = filtered_interface
+    log.debug(f"{len(retained_interfaces.keys())} retained_interfaces")
+    return retained_interfaces
 
 
 def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
@@ -909,15 +869,18 @@ def get_best_pdb(
         chain_to_use = chain_to_use.upper()
     pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_to_use, chain_to_use)
 
-    validated_pdbs = validate_api_hit(pdb_list)
+    validated_pdbs_and_cifs = validate_api_hit(pdb_list, uniprot_id)
 
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        validated_pdbs, interface_residues, uniprot_id, numbering=numbering
+        validated_pdbs_and_cifs,
+        interface_residues,
+        uniprot_id,
+        numbering=numbering,
     )
 
     if pdb_f is None or cif_f is None:
         log.warning(f"Could not fetch PDB/mmcif file for {uniprot_id}")
-        return None, None
+        return None, None, None
 
     pdb_id = top_hit["pdb_id"]
     chain_id = top_hit["chain_id"]
