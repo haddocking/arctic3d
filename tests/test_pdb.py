@@ -5,13 +5,9 @@ import pytest
 from arctic3d.modules.pdb import (
     filter_pdb_list,
     get_best_pdb,
-    get_cif_dict,
     get_maxint_pdb,
-    get_numbering_dict,
     keep_atoms,
     occ_pdb,
-    renumber_pdb_from_cif,
-    renumber_interfaces_from_cif,
     selchain_pdb,
     selmodel_pdb,
     tidy_pdb,
@@ -179,15 +175,16 @@ def test_selmodel_pdb(inp_pdb):
 
 def test_validate_api_hit(pdb_hit_no_resolution):
     """Test validate_api_hit."""
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
     assert (
         validated_pdbs == []
     )  # this is empty because resolution is None and exp != NMR
     # change resolution to 1.0
     pdb_hit_no_resolution["resolution"] = 1.0
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
-    pdb, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx.pdb"
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
+    pdb, cif, dict = validated_pdbs[0]
+    assert pdb.name == "2gsx-A.pdb"
+    assert cif.name == "2gsx_updated.cif"
     assert dict == pdb_hit_no_resolution
 
 
@@ -195,9 +192,10 @@ def test_validate_api_hit_nmr(pdb_hit_no_resolution):
     """Test validate_api_hit with NMR data."""
     pdb_hit_no_resolution["experimental_method"] = "Solution NMR"
     # NMR structures have no resolution but should be accepted
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
-    pdb, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx.pdb"
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
+    pdb, cif, dict = validated_pdbs[0]
+    assert pdb.name == "2gsx-A.pdb"
+    assert cif.name == "2gsx_updated.cif"
     assert dict == pdb_hit_no_resolution
 
 
@@ -228,30 +226,16 @@ def test_get_maxint_pdb_empty():
 
 def test_get_maxint_pdb(good_hits, example_interfaces):
     """Test get_maxint_pdb with implicit pdb numbering."""
-    validated_pdbs = validate_api_hit(good_hits)
+    validated_pdbs = validate_api_hit(good_hits, "P00760")
+    print(f"validated_pdbs {validated_pdbs}")
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, example_interfaces, "P00760"
     )
-    assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy_renum.pdb"
+    assert pdb_f.name == "4xoj-A-occ-tidy.pdb"
     assert cif_f.name == "4xoj_updated.cif"
     assert top_hit["pdb_id"] == "4xoj"
     assert top_hit["chain_id"] == "A"
     assert filtered_interfaces == {"P01024": [103, 104, 105]}
-
-
-def test_get_maxint_pdb_resi(good_hits, example_interfaces):
-    """Test get_maxint_pdb with resi numbering."""
-    validated_pdbs = validate_api_hit(good_hits)
-    pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        validated_pdbs, example_interfaces, "P00760", numbering="resi"
-    )
-    # here the pdb is not renumbered
-    assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy.pdb"
-    assert cif_f.name == "4xoj_updated.cif"
-    assert top_hit["pdb_id"] == "4xoj"
-    assert top_hit["chain_id"] == "A"
-    # here the interfaces are renumbered, so the residues change
-    assert filtered_interfaces == {"P01024": [95, 96, 97]}
 
 
 def test_filter_pdb_list(good_hits):
@@ -280,50 +264,3 @@ def test_pdb_data(inp_pdb_data):
     assert filtered_interfaces == orig_interfaces
     pdb.unlink()
     cif.unlink()
-
-
-def test_get_numbering_dict(inp_cif_3psg):
-    """Test get_numbering_dict."""
-    cif_dict = get_cif_dict(inp_cif_3psg)
-    numbering_dict = get_numbering_dict(
-        pdb_id="3psg", cif_dict=cif_dict, uniprot_id="P00791", chain_id="A"
-    )
-    assert "SER-A-35-P" in numbering_dict
-    assert numbering_dict["SER-A-35-P"] == "50"
-    assert "SER-A-35" in numbering_dict
-    assert numbering_dict["SER-A-35"] == "94"
-
-
-def test_renumber_pdb_from_cif(inp_pdb_3psg):
-    """Test renumber_pdb_from_cif."""
-    pdb_renum_fname, cif_fname = renumber_pdb_from_cif(
-        pdb_id="3psg",
-        uniprot_id="P00791",
-        chain_id="A",
-        pdb_fname=inp_pdb_3psg,
-    )
-    assert cif_fname.exists()
-    assert pdb_renum_fname.exists()
-    with open(pdb_renum_fname, "r") as f:
-        lines = f.readlines()
-        assert lines[724][13:26] == "CB  ALA A  49"
-        assert lines[726][13:26] == "CA  SER A  50"
-    pdb_renum_fname.unlink()
-    cif_fname.unlink()
-
-
-def test_renumber_interfaces_from_cif():
-    """Test renumber_interfaces_from_cif."""
-    interfaces = {"P00441": [85, 137, 138]}
-    renum_interfaces, cif_fname = renumber_interfaces_from_cif(
-        pdb_id="3psg",
-        uniprot_id="P00791",
-        chain_id="A",
-        interface_residues=interfaces,
-    )
-    assert renum_interfaces == {"P00441": [26, 78, 79]}
-    # NB : this result is wrong in this case, as the pdb contains two different
-    # records with equal chain-resid, with two different insertion codes.
-    # It's not possible to extract the correct residues in this case, but
-    # this should be a highly unlikely case.
-    cif_fname.unlink()
