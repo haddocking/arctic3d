@@ -349,11 +349,11 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                     else " "
                 )
                 resname = ats_dict["label_comp_id"][residx]
-                ins_code = (
-                    ats_dict["pdbx_PDB_ins_code"][residx]
-                    if ats_dict["pdbx_PDB_ins_code"][residx] != "?"
-                    else " "
-                )
+                # ins_code = (
+                #     ats_dict["pdbx_PDB_ins_code"][residx]
+                #     if ats_dict["pdbx_PDB_ins_code"][residx] != "?"
+                #     else " "
+                # )
                 # numbers
                 x = "{:.3f}".format(float(ats_dict["Cartn_x"][residx]))
                 y = "{:.3f}".format(float(ats_dict["Cartn_y"][residx]))
@@ -365,7 +365,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 # creating new line
                 new_line = (
                     f"{atom_keyword}  {atom_id:>5}  {atom_name:<3}{alt_id:<1}"
-                    f"{resname:<3} {chain}{resid:>4}{ins_code:<1}"
+                    f"{resname:<3} {chain}{resid:>4} "  # removed ins_code
                     f"{x:>11}{y:>8}{z:>8}{occ:>6}{bfactor:>6}"
                     f"{os.linesep}"
                 )
