@@ -658,14 +658,9 @@ def preprocess_pdb(pdb_fname, chain_id):
     tidy_pdb_f : Path
         preprocessed pdb file
     """
-    # model_pdb_f = selmodel_pdb(pdb_fname)
-    # atoms_pdb_f = keep_atoms(model_pdb_f)
-    # chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
     occ_pdb_f = occ_pdb(pdb_fname)
     tidy_pdb_f = tidy_pdb(occ_pdb_f)
 
-    # atoms_pdb_f.unlink()
-    # chained_pdb_f.unlink()
     occ_pdb_f.unlink()
 
     return tidy_pdb_f
