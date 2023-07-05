@@ -11,7 +11,6 @@ from pdbecif.mmcif_io import MMCIF2Dict
 from pdbtools.pdb_selchain import select_chain
 from pdbtools.pdb_tidy import tidy_pdbfile
 from pdbtools.pdb_selmodel import select_model
-from pdbtools.pdb_fromcif import convert_to_pdb
 
 
 from arctic3d.functions import make_request
@@ -382,15 +381,6 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 for new_line in pdb_lines:
                     wfile.write(new_line)
     return [out_pdb_fnames]
-
-
-def cif_to_pdb(cif_fname, out_pdb_name):
-    out_pdb_fname = Path(out_pdb_name)
-    with open(cif_fname, "r") as pdb_fh:
-        with open(out_pdb_fname, "w") as f:
-            for line in convert_to_pdb(pdb_fh):
-                f.write(line)
-    return out_pdb_fname
 
 
 def fetch_pdb_files(pdb_to_fetch, uniprot_id):
