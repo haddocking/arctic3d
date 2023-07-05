@@ -746,31 +746,6 @@ def get_maxint_pdb(
     return pdb_f, cif_f, hit, filtered_interfaces
 
 
-def filter_interfaces_cif(interface_residues, cif_resids):
-    """
-    Filter the interfaces according to the residues present in the cif file.
-
-    Parameters
-    ----------
-    interface_residues : dict
-        Dictionary of all the interfaces (each one with its uniprot ID as key)
-    cif_resids : list
-        List of residues present in the cif file
-    """
-    retained_interfaces = {}
-    for key in interface_residues.keys():
-        filtered_interface = [
-            el for el in interface_residues[key] if el in cif_resids
-        ]
-        coverage = len(filtered_interface) / len(interface_residues[key])
-        if coverage > 0.7:
-            # formatting the interface name to avoid spaces
-            formatted_key = format_interface_name(key)
-            retained_interfaces[formatted_key] = filtered_interface
-    log.debug(f"{len(retained_interfaces.keys())} retained_interfaces")
-    return retained_interfaces
-
-
 def filter_pdb_list(fetch_list, pdb_to_use=None, chain_to_use=None):
     """
     Filter the PDB fetch list.
