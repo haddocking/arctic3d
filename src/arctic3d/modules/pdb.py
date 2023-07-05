@@ -288,7 +288,7 @@ def check_big_uni(ats_dict, uniprot_id):
 
 def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
     """
-    Converts a cif file into a pdb file for each chain matchin the uniprot_id
+    Converts a cif file into a pdb file for each chain matching the uniprot_id
 
     Parameters
     ----------
@@ -315,6 +315,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
     else:
         # iterating over the atomsite_dict
         for residx in range(len_sifts_mapping):
+            # extracting key variables from the atom_site dict
             atom_keyword = ats_dict["group_PDB"][residx]
             resid = ats_dict["pdbx_sifts_xref_db_num"][residx]
             curr_uniprot_id = ats_dict["pdbx_sifts_xref_db_acc"][residx]
@@ -325,7 +326,8 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 else ats_dict["label_asym_id"][residx]
             )
             model_id = int(ats_dict["pdbx_PDB_model_num"][residx])
-            # check if we have to consider this line
+            # given the valuse of these variables, check if we have to
+            # consider this line
             if (
                 atom_keyword == "ATOM"
                 and resid != "?"
@@ -333,6 +335,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 and atom_symbol != "H"
                 and model_id == 1
             ):
+                # getting the correct pdb filename to write on
                 pdb_fname = Path(f"{pdb_id}-{chain}.pdb")
                 if pdb_fname not in out_pdb_fnames:
                     out_pdb_fnames.append(pdb_fname)
@@ -369,6 +372,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                     f"{x:>11}{y:>8}{z:>8}{occ:>6}{bfactor:>6}"
                     f"{os.linesep}"
                 )
+                # appending new line to the correct pdb file
                 if len(out_pdb_lines) <= atom_idx:
                     out_pdb_lines.append([new_line])
                 else:
