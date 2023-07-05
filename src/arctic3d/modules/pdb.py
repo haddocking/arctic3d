@@ -842,7 +842,6 @@ def get_best_pdb(
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs_and_cifs,
         interface_residues,
-        uniprot_id,
     )
 
     if pdb_f is None or cif_f is None:

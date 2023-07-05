@@ -216,7 +216,7 @@ def test_get_maxint_pdb_empty():
     """Test get_maxint_pdb with empty output."""
     empty_validated_pdbs = []
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        empty_validated_pdbs, {}, uniprot_id=None
+        empty_validated_pdbs, {}
     )
     assert pdb_f is None
     assert cif_f is None
@@ -227,9 +227,8 @@ def test_get_maxint_pdb_empty():
 def test_get_maxint_pdb(good_hits, example_interfaces):
     """Test get_maxint_pdb with implicit pdb numbering."""
     validated_pdbs = validate_api_hit(good_hits, "P00760")
-    print(f"validated_pdbs {validated_pdbs}")
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        validated_pdbs, example_interfaces, "P00760"
+        validated_pdbs, example_interfaces
     )
     assert pdb_f.name == "4xoj-A-occ-tidy.pdb"
     assert cif_f.name == "4xoj_updated.cif"
