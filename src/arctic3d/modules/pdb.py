@@ -327,12 +327,14 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 if len(ats_dict["auth_asym_id"][residx]) == 1
                 else ats_dict["label_asym_id"][residx]
             )
+            model_id = int(ats_dict["pdbx_PDB_model_num"][residx])
             # check if we have to consider this line
             if (
                 atom_keyword == "ATOM"
                 and resid != "?"
                 and curr_uniprot_id == uniprot_id
                 and atom_symbol != "H"
+                and model_id == 1
             ):
                 pdb_fname = Path(f"{pdb_id}-{chain}.pdb")
                 if pdb_fname not in out_pdb_fnames:
@@ -403,7 +405,7 @@ def fetch_pdb_files(pdb_to_fetch, uniprot_id):
     Returns
     -------
     validated_pdbs : list
-        list of tuples (pdb_file, hit)
+        list of tuples (pdb_file, cif_file, hit)
     """
     validated_pdb_and_cifs = []
     valid_pdb_set = set()  # set of valid pdb IDs
@@ -667,14 +669,14 @@ def preprocess_pdb(pdb_fname, chain_id):
     tidy_pdb_f : Path
         preprocessed pdb file
     """
-    model_pdb_f = selmodel_pdb(pdb_fname)
-    atoms_pdb_f = keep_atoms(model_pdb_f)
-    chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
-    occ_pdb_f = occ_pdb(chained_pdb_f)
+    # model_pdb_f = selmodel_pdb(pdb_fname)
+    # atoms_pdb_f = keep_atoms(model_pdb_f)
+    # chained_pdb_f = selchain_pdb(atoms_pdb_f, chain_id)
+    occ_pdb_f = occ_pdb(pdb_fname)
     tidy_pdb_f = tidy_pdb(occ_pdb_f)
 
-    atoms_pdb_f.unlink()
-    chained_pdb_f.unlink()
+    # atoms_pdb_f.unlink()
+    # chained_pdb_f.unlink()
     occ_pdb_f.unlink()
 
     return tidy_pdb_f
@@ -742,7 +744,7 @@ def get_maxint_pdb(
                 pdb_f = tidy_pdb_f
                 cif_f = curr_cif_f
                 hit = curr_hit
-        # unlink pdb files
+        # unlink pdb and cif files
         unlink_files("pdb", to_exclude=[pdb_f])
         unlink_files("cif", to_exclude=[cif_f])
 
