@@ -332,7 +332,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 and atom_symbol != "H"
                 and model_id == 1
             ):
-                # getting the correct pdb filename to write on
+                # getting the correct pdb filename to write on
                 pdb_fname = Path(f"{pdb_id}-{chain}.pdb")
                 if pdb_fname not in out_pdb_fnames:
                     out_pdb_fnames.append(pdb_fname)
@@ -689,9 +689,7 @@ def unlink_files(suffix="pdb", to_exclude=None):
             fpath.unlink()
 
 
-def get_maxint_pdb(
-    validated_pdbs, interface_residues
-):
+def get_maxint_pdb(validated_pdbs, interface_residues):
     """
     Get PDB ID that retains the most interfaces.
 
