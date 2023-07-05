@@ -14,10 +14,7 @@ from pdbtools.pdb_selmodel import select_model
 
 
 from arctic3d.functions import make_request
-from arctic3d.modules.interface_matrix import (
-    filter_interfaces,
-    format_interface_name,
-)
+from arctic3d.modules.interface_matrix import filter_interfaces
 
 log = logging.getLogger("arctic3d.log")
 
@@ -722,7 +719,7 @@ def get_maxint_pdb(
         max_nint = 0
         for curr_pdb, curr_cif_f, curr_hit in validated_pdbs:
             chain_id = curr_hit["chain_id"]
-            
+
             # preprocessing pdb file
             tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
 
