@@ -693,7 +693,7 @@ def unlink_files(suffix="pdb", to_exclude=None):
 
 
 def get_maxint_pdb(
-    validated_pdbs, interface_residues, uniprot_id, numbering="pdb"
+    validated_pdbs, interface_residues
 ):
     """
     Get PDB ID that retains the most interfaces.
@@ -704,10 +704,17 @@ def get_maxint_pdb(
         List of (pdb_f, hit) tuples
     interface_residues : dict
         Dictionary of all the interfaces (each one with its uniprot ID as key)
-    uniprot_id : str
-        Uniprot ID
-    numbering : str
-        what to renumber? 'pdb' for pdb files, 'resi' for interface residues
+
+    Returns
+    -------
+    pdb_f : Path
+        Path to best PDB file.
+    cif_f : Path
+        Path to best CIF file.
+    hit : dict
+        Best hit.
+    filtered_interfaces : dict
+        Dictionary of filtered interfaces.
     """
     log.info("Selecting pdb retaining the most interfaces")
     cif_f, pdb_f, hit, filtered_interfaces = None, None, None, None
@@ -715,8 +722,8 @@ def get_maxint_pdb(
         max_nint = 0
         for curr_pdb, curr_cif_f, curr_hit in validated_pdbs:
             chain_id = curr_hit["chain_id"]
-
-            # refactor renumbering
+            
+            # preprocessing pdb file
             tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
 
             try:
@@ -787,7 +794,6 @@ def get_best_pdb(
     pdb_to_use=None,
     chain_to_use=None,
     pdb_data=None,
-    numbering="pdb",
 ):
     """
     Get best PDB ID.
@@ -804,8 +810,6 @@ def get_best_pdb(
         Chain id to be used.
     pdb_data : Path or None
         pdb json file for offline mode.
-    numbering : str (default pdb)
-        what to renumber, either the pdb files or the interface residues
 
     Returns
     -------
@@ -844,7 +848,6 @@ def get_best_pdb(
         validated_pdbs_and_cifs,
         interface_residues,
         uniprot_id,
-        numbering=numbering,
     )
 
     if pdb_f is None or cif_f is None:
