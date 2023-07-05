@@ -78,7 +78,6 @@ def _flush(register, option, others):
 
             # selected by option:
             else:
-                print(f"selected by option: {option}")
                 if option in altlocs:
                     # selects the option, that's it
                     lines_to_yield.extend(_remove_altloc(altlocs[option]))
@@ -277,7 +276,6 @@ def check_big_uni(ats_dict, uniprot_id):
         True if uniprot ID has residue IDs > 9999
     """
     len_sifts_mapping = len(ats_dict["auth_seq_id"])
-    print(f"len_sifts_mapping {len_sifts_mapping}")
     big_uni = False
     for residx in range(len_sifts_mapping):
         curr_uniprot_id = ats_dict["pdbx_sifts_xref_db_acc"][residx]
