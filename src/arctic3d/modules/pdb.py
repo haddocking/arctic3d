@@ -329,7 +329,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
                 atom_keyword == "ATOM"
                 and resid != "?"
                 and curr_uniprot_id == uniprot_id
-                and atom_symbol != "H"
+                and atom_symbol not in  ["H", "D"]
                 and model_id == 1
             ):
                 # getting the correct pdb filename to write on
