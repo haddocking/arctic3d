@@ -8,17 +8,17 @@ subcellular location (as provided by
 
 USAGE::
 
-    arctic3d_localise ./example/clustered_interfaces.out
+    arctic3d-localise ./example/clustered_interfaces.out
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
-    arctic3d_localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/clustered_interfaces.out \
         --run_dir=arctic3d-localise-example
 
 Use the out_partner parameter to exclude one or more uniprot IDs
 from the search::
 
-    arctic3d_localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/clustered_interfaces.out \
         --out_partner=P00760,P00761
 
 It is possible to retrieve information from quickGO instead of using
@@ -27,7 +27,7 @@ the standard uniprot subcellular location.
 QuickGO possesses information location (labelled as C), function (F),
 and biological process (P)::
 
-    arctic3d_localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/clustered_interfaces.out \
         --quickgo=F
 """
 import argparse
@@ -300,7 +300,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
     # create output folder
     run_dir_path = create_output_folder(run_dir)
     # logging
-    log_file = Path(run_dir_path, "arctic3d_localise.log")
+    log_file = Path(run_dir_path, "arctic3d-localise.log")
     add_log_for_CLI(log, log_level, log_file)
 
     # property name
@@ -311,11 +311,11 @@ def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
         elif quickgo == "P":
             prop_name = "biological process"
         log.info(
-            f"Running arctic3d_localise with QUICKGO {prop_name} information"
+            f"Running arctic3d-localise with QUICKGO {prop_name} information"
         )
     else:
         log.info(
-            f"Running arctic3d_localise with UNIPROT {prop_name} information"
+            f"Running arctic3d-localise with UNIPROT {prop_name} information"
         )
 
     # check input existence
@@ -421,7 +421,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
             log.warning(f"cluster {cl_id} empty: will be discarded")
 
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"arctic3d_localise run took {elap_time} seconds")
+    log.info(f"arctic3d-localise run took {elap_time} seconds")
 
 
 if __name__ == "__main__":

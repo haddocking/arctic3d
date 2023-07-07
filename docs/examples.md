@@ -101,7 +101,7 @@ arctic3d P00760 --ligand=both
 It is also possible to use ARCTIC3D to cluster separate residues on a protein structure:
 
 ```bash
-arctic3d_resclust example/1ppe_E.pdb --residue_list 49,50,51,100,101,102 --threshold=12.0 --chain=E --linkage=average
+arctic3d-resclust example/1ppe_E.pdb --residue_list 49,50,51,100,101,102 --threshold=12.0 --chain=E --linkage=average
 ```
 
 Here each residue is treated as an independent entity and the standard CA-CA distance matrix between the selected amino acids is clustered according to the `threshold` value and the `linkage` criterion. This can be useful if one wants to automatically separate groups of residues on a pdb structure.
@@ -110,10 +110,10 @@ The user can change the `linkage` strategy employed to create the dendrogram by 
 
 ## arctic3d-localise
 
-Did you run ARCTIC3D on your favourite protein and wonder how the different interface clusters depend on the subcellular localisation of the partners? Try running `arctic3d_localise` on ARCTIC3D output files:
+Did you run ARCTIC3D on your favourite protein and wonder how the different interface clusters depend on the subcellular localisation of the partners? Try running `arctic3d-localise` on ARCTIC3D output files:
 
 ```bash
-arctic3d_localise ${arctic3d_rundir}/clustered_interfaces.out
+arctic3d-localise ${arctic3d_rundir}/clustered_interfaces.out
 ```
 
 Here `arctic3d_rundir` is the name of the output folder that you want to analyse.
@@ -123,7 +123,7 @@ Here `arctic3d_rundir` is the name of the output folder that you want to analyse
 It is possible to use the results of two ARCTIC3D runs to generate HADDOCK-specific restraints to inform a data-driven docking process:
 
 ```bash
-arctic3d_restraints --r1 ${first_arctic3d_rundir} --r2 ${second_arctic3d_rundir} --prob_threshold=0.5 --ch1=A --ch2=B
+arctic3d-restraints --r1 ${first_arctic3d_rundir} --r2 ${second_arctic3d_rundir} --prob_threshold=0.5 --ch1=A --ch2=B
 ```
 
 This works by extracting the residues that are more likely to occur in the clusters identified by ARCTIC3D, according to the selected probability threshold (0.3 by default). In fact, it does not always make sense to include all the residues found in a cluster. Parameters `ch1` and `ch2` define the chain ID that will be used in the restraint files for each interacting partner.

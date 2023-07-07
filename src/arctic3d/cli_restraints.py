@@ -7,12 +7,12 @@ clustered_residues_probs.out file.
 
 USAGE::
 
-    arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2
+    arctic3d-restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2
 
 Use the ch1 and ch2 parameters if you want to specify different chains to be
 used for the restraints (default is A for r1 and B for r2)::
 
-    arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
+    arctic3d-restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
         --ch1=X --ch2=Y
 
 Remember that the chain IDs must be consistent with the chain present in your
@@ -20,13 +20,13 @@ PDB file.
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
-    arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
+    arctic3d-restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
         --run_dir=arctic3d-restraints-example
 
 Use the prob_threshold parameter to specify the probability threshold for
 the interface residues::
 
-    arctic3d_restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
+    arctic3d-restraints --r1 ./arctic3d_run1 --r2 ./arctic3d_run2 \
         --prob_threshold=0.5
 
 This will consider only residues with a probability of being in the interface
@@ -233,9 +233,9 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5, log_level="DEBUG"):
     """Main function."""
     log.setLevel(log_level)
     start_time = time.time()
-    log.info("Starting arctic3d_restraints")
+    log.info("Starting arctic3d-restraints")
     run_dir_path = create_output_folder(run_dir)
-    log_file = Path(run_dir_path, "arctic3d_restraints.log")
+    log_file = Path(run_dir_path, "arctic3d-restraints.log")
     add_log_for_CLI(log, log_level, log_file)
     # checking if r1 and r2 exists
     if not os.path.exists(r1):
@@ -287,4 +287,4 @@ def main(r1, r2, ch1, ch2, run_dir, prob_threshold=0.5, log_level="DEBUG"):
     compress_tbl_files(ambig_fnames, out_tgz="ambig.tbl.tgz")
 
     elap_time = round((time.time() - start_time), 3)
-    log.info(f"arctic3d_restraints run took {elap_time} seconds")
+    log.info(f"arctic3d-restraints run took {elap_time} seconds")

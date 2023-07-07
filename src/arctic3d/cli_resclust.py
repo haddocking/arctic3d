@@ -6,7 +6,7 @@ residues.
 
 USAGE::
 
-    arctic3d_resclust ./example/1ppe_E.pdb \
+    arctic3d-resclust ./example/1ppe_E.pdb \
         --residue_list 29,30,31,49,50,51 \
         --threshold=20.0 \
         --chain=E

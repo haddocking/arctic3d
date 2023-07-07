@@ -34,9 +34,9 @@ jsonpickle = "3.0.1"
 
 [tool.poetry.scripts]
 arctic3d = "arctic3d.cli:maincli"
-arctic3d_resclust = "arctic3d.cli_resclust:maincli"
-arctic3d_localise = "arctic3d.cli_localise:maincli"
-arctic3d_restraints = "arctic3d.cli_restraints:maincli"
+arctic3d-resclust = "arctic3d.cli_resclust:maincli"
+arctic3d-localise = "arctic3d.cli_localise:maincli"
+arctic3d-restraints = "arctic3d.cli_restraints:maincli"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
