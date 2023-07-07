@@ -169,29 +169,32 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     if n_chains != 1:
         log.error(f"Number of consistent segments ({n_chains}) != 1.Aborting.")
         sys.exit(1)
-
-    # do the clustering
-    if criterion == "maxclust":
-        threshold = int(threshold)
-    log.info(
-        f"Clustering distance matrix with linkage {linkage}, threshold"
-        f" {threshold}, and criterion {criterion}"
-    )
-    distmap = pdist(u.positions)
-    clusters = cluster_similarity_matrix(
-        distmap,
-        unique_sorted_resids,
-        threshold=threshold,
-        linkage_strategy=linkage,
-        crit=criterion,
-    )
-
-    cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
-    for el in cl_dict.keys():
+    if len(unique_sorted_resids) != 1:
+        # do the clustering
+        if criterion == "maxclust":
+            threshold = int(threshold)
         log.info(
-            f"cluster {el}, residues"
-            f" {' '.join([str(res) for res in cl_dict[el]])}"
+            f"Clustering distance matrix with linkage {linkage}, threshold"
+            f" {threshold}, and criterion {criterion}"
         )
+        distmap = pdist(u.positions)
+        clusters = cluster_similarity_matrix(
+            distmap,
+            unique_sorted_resids,
+            threshold=threshold,
+            linkage_strategy=linkage,
+            crit=criterion,
+        )
+
+        cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
+        for el in cl_dict.keys():
+            log.info(
+                f"cluster {el}, residues"
+                f" {' '.join([str(res) for res in cl_dict[el]])}"
+            )
+    else:
+        log.info("Only one residue, no clustering performed.")
+        log.info(f"cluster 1, residues {unique_sorted_resids[0]}")
 
 
 if __name__ == "__main__":
