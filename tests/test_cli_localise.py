@@ -55,7 +55,7 @@ def test_localise_cli_empty(empty_cluster_filepath):
     # Check that the output directory has been created
     assert Path(run_dir).exists()
     # check existence of log file
-    assert Path("arctic3d-localise", "arctic3d_localise.log").exists()
+    assert Path("arctic3d-localise", "arctic3d-localise.log").exists()
     shutil.rmtree(run_dir)
 
 
