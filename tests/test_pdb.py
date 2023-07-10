@@ -12,6 +12,7 @@ from arctic3d.modules.pdb import (
     selmodel_pdb,
     tidy_pdb,
     validate_api_hit,
+    convert_cif_to_pdbs,
 )
 
 from . import golden_data
@@ -263,3 +264,20 @@ def test_pdb_data(inp_pdb_data):
     assert filtered_interfaces == orig_interfaces
     pdb.unlink()
     cif.unlink()
+
+
+def test_convert_cif_to_pdbs(inp_cif_3psg):
+    """Test convert_cif_to_pdbs."""
+    obs_out_pdb_fnames = convert_cif_to_pdbs(inp_cif_3psg, "3psg", "P00791")
+    print(f"obs_out_pdb_fnames {obs_out_pdb_fnames}")
+    exp_out_pdb_fnames = [Path("3psg-A.pdb")]
+    assert exp_out_pdb_fnames == obs_out_pdb_fnames
+    # inspect the pdb file
+    obs_pdb_lines = obs_out_pdb_fnames[0].read_text().splitlines()
+    # checking first and last lines
+    exp_pdb_lines = [
+        "ATOM      1  N   LEU A  16      57.364  -9.595   2.554  1.00 21.58",
+        "ATOM   2692  CB  ALA A 385      39.553 -10.495   1.923  1.00 22.44",
+    ]
+    assert obs_pdb_lines[0] == exp_pdb_lines[0]
+    assert obs_pdb_lines[-1] == exp_pdb_lines[-1]
