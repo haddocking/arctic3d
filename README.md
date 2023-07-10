@@ -18,7 +18,7 @@ ARCTIC-3D is a software for data-mining and clustering of protein interface info
 
 The software first checks your input (a uniprot ID, a FASTA file, or a PDB file), and then retrieves the existing interaction data from the [graph API](https://www.ebi.ac.uk/pdbe/graph-api/pdbe_doc/). Such interfaces are projected on a selected PDB structure and their dissimilarity is calculated, thus allowing for the application of a hierarchical clustering algorithm.
 
-In output you will see how your favourite protein can display different binding surfaces, each one characterised by few residues that are always present (*hotspots*) and other amino acids which are at the interface only from time to time.
+In output you will see how your favourite protein can display different binding surfaces, each one characterised by few residues that are always present (_hotspots_) and other amino acids which are at the interface only from time to time.
 
 ## Developing
 
