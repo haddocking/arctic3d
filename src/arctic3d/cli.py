@@ -111,14 +111,6 @@ argument_parser.add_argument(
     default="average",
 )
 
-argument_parser.add_argument(
-    "--numbering",
-    help="what to renumber while extracting the best pdb files",
-    type=str,
-    default="pdb",
-    choices=["pdb", "resi"],
-)
-
 
 def load_args(arguments):
     """
@@ -174,7 +166,6 @@ def main(
     ligand,
     linkage_strategy,
     threshold,
-    numbering,
     log_level="DEBUG",
 ):
     """Main function."""
@@ -266,7 +257,6 @@ def main(
                 pdb_to_use=pdb_to_use,
                 chain_to_use=chain_to_use,
                 pdb_data=pdb_data_path,
-                numbering=numbering,
             )
 
         if pdb_f is None:

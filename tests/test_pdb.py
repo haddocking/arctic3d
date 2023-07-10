@@ -5,17 +5,14 @@ import pytest
 from arctic3d.modules.pdb import (
     filter_pdb_list,
     get_best_pdb,
-    get_cif_dict,
     get_maxint_pdb,
-    get_numbering_dict,
     keep_atoms,
     occ_pdb,
-    renumber_pdb_from_cif,
-    renumber_interfaces_from_cif,
     selchain_pdb,
     selmodel_pdb,
     tidy_pdb,
     validate_api_hit,
+    convert_cif_to_pdbs,
 )
 
 from . import golden_data
@@ -179,15 +176,16 @@ def test_selmodel_pdb(inp_pdb):
 
 def test_validate_api_hit(pdb_hit_no_resolution):
     """Test validate_api_hit."""
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
     assert (
         validated_pdbs == []
     )  # this is empty because resolution is None and exp != NMR
     # change resolution to 1.0
     pdb_hit_no_resolution["resolution"] = 1.0
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
-    pdb, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx.pdb"
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
+    pdb, cif, dict = validated_pdbs[0]
+    assert pdb.name == "2gsx-A.pdb"
+    assert cif.name == "2gsx_updated.cif"
     assert dict == pdb_hit_no_resolution
 
 
@@ -195,9 +193,10 @@ def test_validate_api_hit_nmr(pdb_hit_no_resolution):
     """Test validate_api_hit with NMR data."""
     pdb_hit_no_resolution["experimental_method"] = "Solution NMR"
     # NMR structures have no resolution but should be accepted
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution])
-    pdb, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx.pdb"
+    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
+    pdb, cif, dict = validated_pdbs[0]
+    assert pdb.name == "2gsx-A.pdb"
+    assert cif.name == "2gsx_updated.cif"
     assert dict == pdb_hit_no_resolution
 
 
@@ -218,7 +217,7 @@ def test_get_maxint_pdb_empty():
     """Test get_maxint_pdb with empty output."""
     empty_validated_pdbs = []
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        empty_validated_pdbs, {}, uniprot_id=None
+        empty_validated_pdbs, {}
     )
     assert pdb_f is None
     assert cif_f is None
@@ -228,30 +227,15 @@ def test_get_maxint_pdb_empty():
 
 def test_get_maxint_pdb(good_hits, example_interfaces):
     """Test get_maxint_pdb with implicit pdb numbering."""
-    validated_pdbs = validate_api_hit(good_hits)
+    validated_pdbs = validate_api_hit(good_hits, "P00760")
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        validated_pdbs, example_interfaces, "P00760"
+        validated_pdbs, example_interfaces
     )
-    assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy_renum.pdb"
+    assert pdb_f.name == "4xoj-A-occ-tidy.pdb"
     assert cif_f.name == "4xoj_updated.cif"
     assert top_hit["pdb_id"] == "4xoj"
     assert top_hit["chain_id"] == "A"
     assert filtered_interfaces == {"P01024": [103, 104, 105]}
-
-
-def test_get_maxint_pdb_resi(good_hits, example_interfaces):
-    """Test get_maxint_pdb with resi numbering."""
-    validated_pdbs = validate_api_hit(good_hits)
-    pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
-        validated_pdbs, example_interfaces, "P00760", numbering="resi"
-    )
-    # here the pdb is not renumbered
-    assert pdb_f.name == "4xoj-model1-atoms-A-occ-tidy.pdb"
-    assert cif_f.name == "4xoj_updated.cif"
-    assert top_hit["pdb_id"] == "4xoj"
-    assert top_hit["chain_id"] == "A"
-    # here the interfaces are renumbered, so the residues change
-    assert filtered_interfaces == {"P01024": [95, 96, 97]}
 
 
 def test_filter_pdb_list(good_hits):
@@ -282,48 +266,18 @@ def test_pdb_data(inp_pdb_data):
     cif.unlink()
 
 
-def test_get_numbering_dict(inp_cif_3psg):
-    """Test get_numbering_dict."""
-    cif_dict = get_cif_dict(inp_cif_3psg)
-    numbering_dict = get_numbering_dict(
-        pdb_id="3psg", cif_dict=cif_dict, uniprot_id="P00791", chain_id="A"
-    )
-    assert "SER-A-35-P" in numbering_dict
-    assert numbering_dict["SER-A-35-P"] == "50"
-    assert "SER-A-35" in numbering_dict
-    assert numbering_dict["SER-A-35"] == "94"
-
-
-def test_renumber_pdb_from_cif(inp_pdb_3psg):
-    """Test renumber_pdb_from_cif."""
-    pdb_renum_fname, cif_fname = renumber_pdb_from_cif(
-        pdb_id="3psg",
-        uniprot_id="P00791",
-        chain_id="A",
-        pdb_fname=inp_pdb_3psg,
-    )
-    assert cif_fname.exists()
-    assert pdb_renum_fname.exists()
-    with open(pdb_renum_fname, "r") as f:
-        lines = f.readlines()
-        assert lines[724][13:26] == "CB  ALA A  49"
-        assert lines[726][13:26] == "CA  SER A  50"
-    pdb_renum_fname.unlink()
-    cif_fname.unlink()
-
-
-def test_renumber_interfaces_from_cif():
-    """Test renumber_interfaces_from_cif."""
-    interfaces = {"P00441": [85, 137, 138]}
-    renum_interfaces, cif_fname = renumber_interfaces_from_cif(
-        pdb_id="3psg",
-        uniprot_id="P00791",
-        chain_id="A",
-        interface_residues=interfaces,
-    )
-    assert renum_interfaces == {"P00441": [26, 78, 79]}
-    # NB : this result is wrong in this case, as the pdb contains two different
-    # records with equal chain-resid, with two different insertion codes.
-    # It's not possible to extract the correct residues in this case, but
-    # this should be a highly unlikely case.
-    cif_fname.unlink()
+def test_convert_cif_to_pdbs(inp_cif_3psg):
+    """Test convert_cif_to_pdbs."""
+    obs_out_pdb_fnames = convert_cif_to_pdbs(inp_cif_3psg, "3psg", "P00791")
+    print(f"obs_out_pdb_fnames {obs_out_pdb_fnames}")
+    exp_out_pdb_fnames = [Path("3psg-A.pdb")]
+    assert exp_out_pdb_fnames == obs_out_pdb_fnames
+    # inspect the pdb file
+    obs_pdb_lines = obs_out_pdb_fnames[0].read_text().splitlines()
+    # checking first and last lines
+    exp_pdb_lines = [
+        "ATOM      1  N   LEU A  16      57.364  -9.595   2.554  1.00 21.58",
+        "ATOM   2692  CB  ALA A 385      39.553 -10.495   1.923  1.00 22.44",
+    ]
+    assert obs_pdb_lines[0] == exp_pdb_lines[0]
+    assert obs_pdb_lines[-1] == exp_pdb_lines[-1]
