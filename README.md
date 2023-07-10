@@ -12,7 +12,13 @@
 
 **A**utomatic **R**etrieval and **C**lus**T**ering of **I**nterfaces in Complexes from **3D** structural information
 
----
+## ARCTIC-3D: all you want to know about protein-specific interfaces
+
+ARCTIC-3D is a software for data-mining and clustering of protein interface information. It allows you to retrieve all the existing interface information for your desired protein from the PDBE graph database (https://www.ebi.ac.uk/pdbe/pdbe-kb/), grouping similar interfaces in interacting surfaces.
+
+The software first checks your input (a uniprot ID, a FASTA file, or a PDB file), and then retrieves the existing interaction data from the [graph API](https://www.ebi.ac.uk/pdbe/graph-api/pdbe_doc/). Such interfaces are projected on a selected PDB structure and their dissimilarity is calculated, thus allowing for the application of a hierarchical clustering algorithm.
+
+In output you will see how your favourite protein can display different binding surfaces, each one characterised by few residues that are always present (*hotspots*) and other amino acids which are at the interface only from time to time.
 
 ## Developing
 
