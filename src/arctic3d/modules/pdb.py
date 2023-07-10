@@ -379,7 +379,7 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
             with open(pdb_fname, "w") as wfile:
                 for new_line in pdb_lines:
                     wfile.write(new_line)
-    return [out_pdb_fnames]
+    return out_pdb_fnames
 
 
 def fetch_pdb_files(pdb_to_fetch, uniprot_id):
