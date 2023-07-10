@@ -19,7 +19,7 @@ classifiers = [
 python = ">=3.9,<3.12"
 bio = "1.5.9"
 defusedxml = "0.7.1"
-lxml = "4.9.2"
+lxml = "4.9.3"
 mdanalysis = "2.5.0"
 requests = "2.31.0"
 biopython = "1.81"
