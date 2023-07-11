@@ -269,7 +269,6 @@ def test_pdb_data(inp_pdb_data):
 def test_convert_cif_to_pdbs(inp_cif_3psg):
     """Test convert_cif_to_pdbs."""
     obs_out_pdb_fnames = convert_cif_to_pdbs(inp_cif_3psg, "3psg", "P00791")
-    print(f"obs_out_pdb_fnames {obs_out_pdb_fnames}")
     exp_out_pdb_fnames = [Path("3psg-A.pdb")]
     assert exp_out_pdb_fnames == obs_out_pdb_fnames
     # inspect the pdb file

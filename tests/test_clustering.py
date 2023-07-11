@@ -3,6 +3,7 @@ import pytest
 
 from arctic3d.modules.clustering import (
     cluster_similarity_matrix,
+    filter_clusters,
     get_clustering_dict,
     get_residue_dict,
 )
@@ -66,3 +67,27 @@ def test_get_res_dict():
     )
     assert expected_res_dict == observed_res_dict
     assert expected_res_probs == observed_res_probs
+
+
+def test_filter_clusters():
+    """Test correct filtering of clusters."""
+    example_cl_dict = {
+        1: ["int_1", "int_2"],
+        2: ["int_3"],
+    }
+    example_res_dict = {1: [1, 2, 3, 4, 5], 2: [27, 28, 29]}
+    example_res_probs = {
+        1: {1: 0.5, 2: 0.5, 3: 1.0, 4: 0.5, 5: 0.5},
+        2: {27: 1.0, 28: 1.0, 29: 1.0},
+    }
+    obs_cl_dict, obs_res_dict, obs_res_probs = filter_clusters(
+        example_cl_dict, example_res_dict, example_res_probs, 4
+    )
+    exp_cl_dict = {1: ["int_1", "int_2"]}
+    exp_res_dict = {1: [1, 2, 3, 4, 5]}
+    exp_res_probs = {
+        1: {1: 0.5, 2: 0.5, 3: 1.0, 4: 0.5, 5: 0.5},
+    }
+    assert exp_cl_dict == obs_cl_dict
+    assert exp_res_dict == obs_res_dict
+    assert exp_res_probs == obs_res_probs
