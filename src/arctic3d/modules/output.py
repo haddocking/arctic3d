@@ -10,6 +10,8 @@ import math
 import numpy as np
 import plotly.graph_objects as go
 
+import importlib.metadata
+
 log = logging.getLogger("arctic3d.log")
 
 
@@ -499,3 +501,36 @@ def create_barplot(cluster, sorted_dict, max_labels=70):
     log.info(f"Figure {fig_fname} created")
     plt.close()
     return
+
+
+def get_init_message():
+    """
+    Get initial message.
+
+    Returns
+    -------
+    message : str
+        initial message
+    """
+    try:
+        __version__ = importlib.metadata.version("arctic3d")
+    except Exception as e:
+        log.warning(
+            "Could not retrieve arctic3d version. The following error"
+            f" occurred {e}"
+        )
+        __version__ = "unknown"
+    # message
+    message = (
+        f"""{os.linesep}"""
+        f"""##############################################{os.linesep}"""
+        f"""#                                            #{os.linesep}"""
+        f"""#                 ARCTIC-3D                  #{os.linesep}"""
+        f"""#                                            #{os.linesep}"""
+        f"""##############################################{os.linesep}"""
+        f"""{os.linesep}"""
+        f"""Starting ARCTIC-3D {__version__}{os.linesep}"""
+        f"""{os.linesep}"""
+    )
+
+    return message
