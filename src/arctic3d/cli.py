@@ -6,6 +6,7 @@ from pathlib import Path
 
 from arctic3d import log
 from arctic3d.modules.blast import run_blast
+from arctic3d.modules.clustering import filter_clusters
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
 from arctic3d.modules.input import Input
 from arctic3d.modules.interface import (
@@ -111,6 +112,14 @@ argument_parser.add_argument(
     default="average",
 )
 
+argument_parser.add_argument(
+    "--min_clust_size",
+    help="Minimum number of residues in clusters",
+    type=int,
+    required=False,
+    default=0,
+)
+
 
 def load_args(arguments):
     """
@@ -166,6 +175,7 @@ def main(
     ligand,
     linkage_strategy,
     threshold,
+    min_clust_size,
     log_level="DEBUG",
 ):
     """Main function."""
@@ -282,6 +292,13 @@ def main(
 
         log.info(f"Clustered interfaces {cl_dict}")
         log.info(f"Clustered interface residues: {cl_residues}")
+        if min_clust_size > 0:
+            log.info(
+                f"Excluding clusters with less than {min_clust_size} residues"
+            )
+            cl_dict, cl_residues, cl_residues_probs = filter_clusters(
+                cl_dict, cl_residues, cl_residues_probs, min_clust_size
+            )
 
         make_output(
             interface_residues=interface_residues,
