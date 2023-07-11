@@ -23,6 +23,7 @@ def test_cli_empty():
         ligand=None,
         linkage_strategy=None,
         threshold=None,
+        min_clust_size=None,
     )
     os.chdir(start_cwd)
     exp_dir = Path(f"arctic3d-{target_uniprot}")

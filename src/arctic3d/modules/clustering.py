@@ -221,3 +221,50 @@ def interface_clustering(
     log.info(f"Clustering performed in {elap_time} seconds")
     log.info(f"Clustering produced {len(cl_dict)} clusters")
     return cl_dict, cl_residues, cl_residues_probs
+
+
+def filter_clusters(cl_dict, cl_residues, cl_residues_probs, min_clust_size):
+    """
+    Filter clusters based on size.
+
+    Parameters
+    ----------
+    cl_dict : dict
+        dictionary of clustered interfaces
+    cl_residues : dict
+        dictionary of clustered residues
+    cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+    min_clust_size : int
+        minimum cluster size
+
+    Returns
+    -------
+    flt_cl_dict : dict
+        dictionary of clustered interfaces
+    flt_cl_residues : dict
+        dictionary of clustered residues
+    flt_cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+    """
+    # gather clusters not respecting the minimum size
+    excl_clusts = []
+    for cl in cl_residues:
+        if len(cl_residues[cl]) < min_clust_size:
+            log.info(f"Cluster {cl} has less than {min_clust_size} residues.")
+            excl_clusts.append(cl)
+    # remove clusters not respecting the minimum size
+    for cl in excl_clusts:
+        log.info(f"Removing cluster {cl}")
+        del cl_dict[cl]
+        del cl_residues[cl]
+        del cl_residues_probs[cl]
+    # renumber clusters
+    flt_cl_dict = {}
+    flt_cl_residues = {}
+    flt_cl_residues_probs = {}
+    for idx, cl in enumerate(cl_dict.keys()):
+        flt_cl_dict[idx + 1] = cl_dict[cl]
+        flt_cl_residues[idx + 1] = cl_residues[cl]
+        flt_cl_residues_probs[idx + 1] = cl_residues_probs[cl]
+    return flt_cl_dict, flt_cl_residues, flt_cl_residues_probs
