@@ -3,6 +3,7 @@ import argparse
 import sys
 import time
 from pathlib import Path
+import importlib.metadata
 
 from arctic3d import log
 from arctic3d.modules.blast import run_blast
@@ -179,6 +180,8 @@ def main(
     log_level="DEBUG",
 ):
     """Main function."""
+    __version__ = importlib.metadata.version("arctic3d")
+    log.info(f"Starting arctic3d version {__version__}")
     st_time = time.time()
     inp = Input(input_arg)
     input_files = {}
