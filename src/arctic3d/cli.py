@@ -14,6 +14,7 @@ from arctic3d.modules.interface import (
     read_interface_residues,
 )
 from arctic3d.modules.output import (
+    get_init_message,
     make_output,
     create_output_folder,
     setup_output_folder,
@@ -179,6 +180,8 @@ def main(
     log_level="DEBUG",
 ):
     """Main function."""
+    init_message = get_init_message()
+    log.info(init_message)
     st_time = time.time()
     inp = Input(input_arg)
     input_files = {}
