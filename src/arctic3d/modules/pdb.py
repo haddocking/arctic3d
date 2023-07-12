@@ -584,6 +584,8 @@ def validate_api_hit(
         List containing dictionaries of hits.
     uniprot_id : str
         Uniprot ID.
+    check_pdb : bool
+        Check PDB resolution and coverage.
     resolution_cutoff : float
         Resolution cutoff.
     coverage_cutoff : float
