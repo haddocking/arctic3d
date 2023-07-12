@@ -570,7 +570,7 @@ def keep_atoms(inp_pdb_f):
 def validate_api_hit(
     fetch_list,
     uniprot_id,
-    check_pdb,
+    check_pdb=True,
     resolution_cutoff=4.0,
     coverage_cutoff=0.0,
     max_pdb_num=20,
