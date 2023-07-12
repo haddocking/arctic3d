@@ -200,6 +200,17 @@ def test_validate_api_hit_nmr(pdb_hit_no_resolution):
     assert dict == pdb_hit_no_resolution
 
 
+def test_validate_api_hit_check_pdb(pdb_hit_no_resolution):
+    """Test validate_api_hit with check_pdb == False."""
+    validated_pdbs = validate_api_hit(
+        [pdb_hit_no_resolution], "P20023", check_pdb=False
+    )
+    pdb, cif, dict = validated_pdbs[0]
+    assert pdb.name == "2gsx-A.pdb"
+    assert cif.name == "2gsx_updated.cif"
+    assert dict == pdb_hit_no_resolution
+
+
 def test_get_best_pdb(example_interfaces):
     """Test get_best_pdb."""
     pdb, cif, filtered_interfaces = get_best_pdb("P20023", example_interfaces)

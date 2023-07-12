@@ -401,14 +401,15 @@ def fetch_pdb_files(pdb_to_fetch, uniprot_id):
     for hit in pdb_to_fetch:
         pdb_id = hit["pdb_id"]
         chain_id = hit["chain_id"]
-        pdb_fname = f"{pdb_id}-{chain_id}.pdb"
         cif_fname = f"{pdb_id}_updated.cif"
+        # if the cif file has not been downloaded yet, download it
         if cif_fname not in os.listdir():
             cif_f = fetch_updated_cif(pdb_id, cif_fname)
             pdb_files = convert_cif_to_pdbs(cif_f, pdb_id, uniprot_id)
             log.info(f"converted cif to pdb files: {pdb_files}")
         else:
             cif_f = Path(cif_fname)
+        pdb_fname = f"{pdb_id}-{chain_id}.pdb"
         pdb_f = Path(pdb_fname)
         if pdb_f.exists():
             validated_pdb_and_cifs.append((pdb_f, cif_f, hit))
@@ -569,6 +570,7 @@ def keep_atoms(inp_pdb_f):
 def validate_api_hit(
     fetch_list,
     uniprot_id,
+    check_pdb=True,
     resolution_cutoff=4.0,
     coverage_cutoff=0.0,
     max_pdb_num=20,
@@ -582,6 +584,8 @@ def validate_api_hit(
         List containing dictionaries of hits.
     uniprot_id : str
         Uniprot ID.
+    check_pdb : bool
+        Check PDB resolution and coverage.
     resolution_cutoff : float
         Resolution cutoff.
     coverage_cutoff : float
@@ -602,33 +606,35 @@ def validate_api_hit(
         coverage = hit["coverage"]
         resolution = hit["resolution"]
         exp_method = hit["experimental_method"]
-
-        # check coverage value
-        if coverage > coverage_cutoff:
-            check_list.append(True)
-        else:
-            check_list.append(False)
-            reason = "coverage"
-        # check resolution value
-        if resolution is None:
-            if "NMR" in exp_method:
+        if check_pdb:
+            # check coverage value
+            if coverage > coverage_cutoff:
                 check_list.append(True)
             else:
                 check_list.append(False)
-                reason = "None resolution"
-        elif resolution < resolution_cutoff:
-            check_list.append(True)
-        else:
-            check_list.append(False)
-            reason = "resolution"
+                reason = "coverage"
+            # check resolution value
+            if resolution is None:
+                if "NMR" in exp_method:
+                    check_list.append(True)
+                else:
+                    check_list.append(False)
+                    reason = "None resolution"
+            elif resolution < resolution_cutoff:
+                check_list.append(True)
+            else:
+                check_list.append(False)
+                reason = "resolution"
 
         # check chain ID not longer than 1 character
+        # this check holds also if check_pdb is False
         if len(chain_id) == 1:
             check_list.append(True)
         else:
             check_list.append(False)
             reason = "chain ID too big"
 
+        # append pdb to fetch list if all checks passed
         if all(check_list):
             pdbs_to_fetch.append(hit)
         else:
@@ -826,13 +832,15 @@ def get_best_pdb(
             return
 
     # if pdb_to_use is not None, already filter the list
+    check_pdb = True
     if pdb_to_use:
         pdb_to_use = pdb_to_use.lower()
+        check_pdb = False
     if chain_to_use:
         chain_to_use = chain_to_use.upper()
     pdb_list = filter_pdb_list(pdb_dict[uniprot_id], pdb_to_use, chain_to_use)
 
-    validated_pdbs_and_cifs = validate_api_hit(pdb_list, uniprot_id)
+    validated_pdbs_and_cifs = validate_api_hit(pdb_list, uniprot_id, check_pdb)
 
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs_and_cifs,
