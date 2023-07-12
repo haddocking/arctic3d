@@ -623,7 +623,7 @@ def validate_api_hit(
             else:
                 check_list.append(False)
                 reason = "resolution"
-        
+
         # check chain ID not longer than 1 character
         # this check holds also if check_pdb is False
         if len(chain_id) == 1:
@@ -631,8 +631,8 @@ def validate_api_hit(
         else:
             check_list.append(False)
             reason = "chain ID too big"
-        
-        # append pdb to fetch list if all checks passed
+
+        # append pdb to fetch list if all checks passed
         if all(check_list):
             pdbs_to_fetch.append(hit)
         else:
