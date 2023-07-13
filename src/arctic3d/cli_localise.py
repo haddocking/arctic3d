@@ -70,14 +70,14 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--quickgo",
-    help="Use quickgo () information instead of uniprot",
+    help="Use quickgo (https://www.ebi.ac.uk/QuickGO/annotations) information instead of uniprot",
     required=False,
     choices=["C", "F", "P"],
 )
 
 argument_parser.add_argument(
     "--weight",
-    help="Weight histograms according to uniprot",
+    help="Weight histograms according to uniprot. The more populated an UNIPROT record, the less weight it will have in the histogram.",
     required=False,
     choices=["yes", "no"],
     default="no",
@@ -168,6 +168,14 @@ def create_histograms(uniprot_clustering_dict, locs, weight):
     """
     Create histograms.
 
+    Parameters
+    ----------
+    uniprot_clustering_dict : dict
+        uniprot-based clustering dictionary
+    locs : dict
+        locations dictionary, with uniprot IDs as keys
+    weight : str
+        weight histograms according to uniprot.
     """
     cl_bins = {}
     for cl_id in uniprot_clustering_dict.keys():
@@ -403,7 +411,7 @@ def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
             # get sorted dictionary
             sort_dict = get_sorted_dict(cl_bins[cluster])
             # plot
-            create_barplot(cluster, sort_dict, max_labels=70)
+            create_barplot(cluster, sort_dict, max_labels=50)
 
     # saving histograms
     os.mkdir("histograms")
