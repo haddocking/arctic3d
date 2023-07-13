@@ -70,14 +70,16 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--quickgo",
-    help="Use quickgo (https://www.ebi.ac.uk/QuickGO/annotations) information instead of uniprot",
+    help="Use quickgo (https://www.ebi.ac.uk/QuickGO/annotations) information "
+    "instead of uniprot",
     required=False,
     choices=["C", "F", "P"],
 )
 
 argument_parser.add_argument(
     "--weight",
-    help="Weight histograms according to uniprot. The more populated an UNIPROT record, the less weight it will have in the histogram.",
+    help="Weight histograms according to uniprot. The more populated an"
+    " UNIPROT record, the less weight it will have in the histogram.",
     required=False,
     choices=["yes", "no"],
     default="no",
