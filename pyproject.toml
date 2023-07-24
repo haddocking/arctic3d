@@ -42,7 +42,7 @@ arctic3d-restraints = "arctic3d.cli_restraints:maincli"
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
 coverage = "^7.2.7"
-hypothesis = "^6.81.2"
+hypothesis = "^6.82.0"
 
 [tool.black]
 line-length = 79
