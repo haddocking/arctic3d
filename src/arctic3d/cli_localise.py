@@ -42,7 +42,8 @@ from arctic3d.functions import make_request
 from arctic3d.modules.interface import parse_out_partner
 from arctic3d.modules.log import add_log_for_CLI
 from arctic3d.modules.output import (
-    create_barplot,
+    #    create_barplot,
+    create_barplotly,
     create_output_folder,
     parse_clusters,
     setup_output_folder,
@@ -83,6 +84,19 @@ argument_parser.add_argument(
     required=False,
     choices=["yes", "no"],
     default="no",
+)
+
+argument_parser.add_argument(
+    "--format",
+    help="produce images in the desired format",
+    required=False,
+    type=str,
+    default="png",
+    choices=["png", "pdf", "svg", "jpeg", "webp"],
+)
+
+argument_parser.add_argument(
+    "--scale", help="scale for images", required=False, type=float, default=4.0
 )
 
 
@@ -302,7 +316,16 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
+def main(
+    input_arg,
+    run_dir,
+    out_partner,
+    quickgo,
+    weight,
+    format,
+    scale,
+    log_level="DEBUG",
+):
     """Main function."""
     log.setLevel(log_level)
     start_time = time.time()
@@ -413,7 +436,8 @@ def main(input_arg, run_dir, out_partner, quickgo, weight, log_level="DEBUG"):
             # get sorted dictionary
             sort_dict = get_sorted_dict(cl_bins[cluster])
             # plot
-            create_barplot(cluster, sort_dict, max_labels=50)
+            # create_barplot(cluster, sort_dict, max_labels=50)
+            create_barplotly(cluster, sort_dict, format, scale, max_labels=25)
 
     # saving histograms
     os.mkdir("histograms")
