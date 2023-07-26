@@ -29,6 +29,17 @@ and biological process (P)::
 
     arctic3d-localise ./example/clustered_interfaces.out \
         --quickgo=F
+
+By default the CLI will output html files and png images. It is possible
+to specify the output format with the format parameter::
+
+    arctic3d-localise ./example/clustered_interfaces.out \
+        --format=pdf
+
+The scale parameter can be used to scale the images::
+
+    arctic3d-localise ./example/clustered_interfaces.out \
+        --scale=2.0
 """
 import argparse
 import os
