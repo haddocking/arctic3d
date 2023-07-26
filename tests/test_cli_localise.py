@@ -50,6 +50,8 @@ def test_localise_cli_empty(empty_cluster_filepath):
         None,
         None,
         None,
+        None,
+        None,
     )
     os.chdir(start_cwd)
     # Check that the output directory has been created

@@ -31,6 +31,7 @@ openpyxl = "3.1.2"
 plotly = "5.15.0"
 pdbecif = "1.5"
 jsonpickle = "3.0.1"
+kaleido = "0.2.1"
 
 [tool.poetry.scripts]
 arctic3d = "arctic3d.cli:maincli"

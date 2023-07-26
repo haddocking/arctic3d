@@ -503,6 +503,25 @@ def create_barplot(cluster, sorted_dict, max_labels=70):
     return
 
 
+def create_barplotly(cluster, sorted_dict, format, scale, max_labels=25):
+    """
+    Create horizontal barplot using plotly.
+
+    """
+    labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
+    values = list(sorted_dict.values())[-max_labels:]
+    fig = go.Figure(go.Bar(x=values, y=labels, orientation="h"))
+    fig_fname = f"cluster_{cluster}.html"
+    fig.write_html(fig_fname)
+    log.info(f"Figure {fig_fname} created")
+    # also export it in png format
+    fig.update_yaxes(tickmode="linear")
+    fig_fname = f"cluster_{cluster}.{format}"
+    fig.write_image(fig_fname, scale=scale)
+    log.info(f"Figure {fig_fname} created")
+    return
+
+
 def get_init_message():
     """
     Get initial message.
