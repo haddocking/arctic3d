@@ -153,12 +153,12 @@ def cli(arguments, main_func):
 
     """
     cmd = load_args(arguments)
-    main_func(**vars(cmd))
+    return main_func(**vars(cmd))
 
 
 def maincli():
     """Execute main client."""
-    cli(argument_parser, main)
+    return cli(argument_parser, main)
 
 
 def main(
@@ -316,6 +316,10 @@ def main(
     log.info(
         f"arctic3d run completed in {(time.time() - st_time):.2f} seconds."
     )
+
+    # check if there's at least one interface
+    if Path(run_dir_path, "clustered_interfaces.out").is_file() is False:
+        return 255
 
 
 if __name__ == "__main__":
