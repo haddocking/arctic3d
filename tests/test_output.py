@@ -7,6 +7,7 @@ from arctic3d.modules.output import (
     create_output_folder,
     output_pdb,
     read_residues_probs,
+    remove_duplicate_labels,
     setup_output_folder,
     shorten_labels,
     write_dict,
@@ -192,3 +193,14 @@ def test_shorten_labels(example_B_labels):
         "positive regulation of transcription by RNA polymerase...",
     ]
     assert exp_shortened_labels == obs_shortened_labels
+
+
+def test_remove_duplicate_labels():
+    """Test remove_duplicate_labels."""
+    tmp_labels = ["Polymerase...", "Polymerase...", "Polymerase..."]
+    tmp_values = [2, 3, 1]
+    exp_labels = ["Polymerase..."]
+    exp_values = [2]
+    obs_labels, obs_values = remove_duplicate_labels(tmp_labels, tmp_values)
+    assert exp_labels == obs_labels
+    assert exp_values == obs_values
