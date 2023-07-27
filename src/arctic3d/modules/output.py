@@ -503,13 +503,54 @@ def create_barplot(cluster, sorted_dict, max_labels=70):
     return
 
 
+def remove_duplicate_labels(labels, values):
+    """
+    Remove duplicate labels.
+
+    Parameters
+    ----------
+    labels : list
+        list of labels
+    values : list
+        list of values
+
+    Returns
+    -------
+    new_labels : list
+        list of labels without duplicates
+    new_values : list
+        list of values without duplicates
+    """
+    new_labels, new_values = [], []
+    for n in range(len(labels)):
+        if labels[n] not in new_labels:
+            new_labels.append(labels[n])
+            new_values.append(values[n])
+        else:
+            log.info(f"Detected duplicate label {labels[n]}.")
+    return new_labels, new_values
+
+
 def create_barplotly(cluster, sorted_dict, format, scale, max_labels=25):
     """
     Create horizontal barplot using plotly.
 
+    Parameters
+    ----------
+    cluster : int or str
+        cluster ID
+    sorted_dict : dict
+        dictionary of sorted entries
+    format : str
+        format of the output figure
+    scale : float
+        scale of the output figure
+    max_labels : int
+        maximum number of labels to include
     """
-    labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
-    values = list(sorted_dict.values())[-max_labels:]
+    tmp_labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
+    tmp_values = list(sorted_dict.values())[-max_labels:]
+    labels, values = remove_duplicate_labels(tmp_labels, tmp_values)
     fig = go.Figure(go.Bar(x=values, y=labels, orientation="h"))
     fig_fname = f"cluster_{cluster}.html"
     fig.write_html(fig_fname)
