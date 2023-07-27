@@ -434,7 +434,7 @@ def make_output(
     plot_interactive_probs(cl_residues_probs, resnames_dict)
 
 
-def shorten_labels(list_of_labels, max_lab_length=50):
+def shorten_labels(list_of_labels, max_lab_length=60):
     """
     Shorten labels for plotting.
 
