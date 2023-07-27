@@ -8,7 +8,7 @@ def test_cli_empty():
     """Test main cli with uniprot ID with no interfaces."""
     target_uniprot = "P23804"
     start_cwd = os.getcwd()
-    main(
+    exit_code = main(
         input_arg=target_uniprot,
         db=None,
         interface_file=None,
@@ -25,6 +25,8 @@ def test_cli_empty():
         threshold=None,
         min_clust_size=None,
     )
+    # assert exit code
+    assert exit_code == 255
     os.chdir(start_cwd)
     exp_dir = Path(f"arctic3d-{target_uniprot}")
     assert exp_dir.exists() is True
