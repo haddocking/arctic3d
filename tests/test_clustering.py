@@ -40,10 +40,10 @@ def test_get_cl_dict():
     clusters_list = [1, 1, 2, 3, 3, 4, 2]
     ligands_list = ["int1", "int2", "p53", "00", "int47", "antibody", "dimer"]
     expected_cl_dict = {
-        1: ["int1", "int2"],
-        2: ["p53", "dimer"],
-        3: ["00", "int47"],
-        4: ["antibody"],
+        "1": ["int1", "int2"],
+        "2": ["p53", "dimer"],
+        "3": ["00", "int47"],
+        "4": ["antibody"],
     }
     observed_cl_dict = get_clustering_dict(clusters_list, ligands_list)
     assert expected_cl_dict, observed_cl_dict

@@ -2,6 +2,7 @@
 
 import logging
 import time
+import json
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -127,11 +128,12 @@ def get_clustering_dict(clusters, ligands):
     cl_dict = {}
     # loop over clusters
     for cl in range(len(clusters)):
-        if clusters[cl] not in cl_dict.keys():
-            cl_dict[clusters[cl]] = [ligands[cl]]
+        if (strcl := str(clusters[cl])) not in cl_dict.keys():
+            cl_dict[strcl] = [ligands[cl]]
         else:
-            cl_dict[clusters[cl]].append(ligands[cl])
-    log.info(f"Cluster dictionary {cl_dict}")
+            cl_dict[strcl].append(ligands[cl])
+    strdict = str(cl_dict).replace("'", '"')
+    log.info(f"Cluster dictionary {strdict}")
     return cl_dict
 
 
