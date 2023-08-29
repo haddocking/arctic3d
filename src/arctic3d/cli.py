@@ -318,8 +318,10 @@ def main(
     )
 
     # check if there's at least one interface
-    if Path(run_dir_path, "clustered_interfaces.out").is_file() is False:
+    if Path("clustered_interfaces.out").is_file() is False:
         return 255
+
+    return 0
 
 
 if __name__ == "__main__":
