@@ -168,7 +168,11 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     n_chains = len(set(u.chainIDs))
 
     if n_chains != 1:
-        log.error(f"Number of consistent chains ({n_chains}) != 1. Aborting.")
+        log.error(
+            f"Number of consistent chains ({n_chains}) != 1."
+            "Please use the --chain option to specify the chain ID."
+        )
+
         sys.exit(1)
     if len(unique_sorted_resids) != 1:
         # do the clustering
