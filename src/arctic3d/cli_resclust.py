@@ -165,10 +165,10 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     unique_sorted_resids = u.resids
     log.info(f"retrieved residues: {unique_sorted_resids}")
 
-    n_chains = len(list(set(u.chainIDs)))
+    n_chains = len(set(u.chainIDs))
 
     if n_chains != 1:
-        log.error(f"Number of consistent segments ({n_chains}) != 1.Aborting.")
+        log.error(f"Number of consistent chains ({n_chains}) != 1. Aborting.")
         sys.exit(1)
     if len(unique_sorted_resids) != 1:
         # do the clustering
