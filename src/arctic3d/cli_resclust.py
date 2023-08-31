@@ -27,7 +27,6 @@ Input arguments:
     `output` : the path where to output clusters data.
 """
 import argparse
-import os
 import sys
 
 import MDAnalysis as mda
@@ -213,10 +212,20 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion, output):
 
     # check if data must be flushed to output file
     if output:
+        # initiate output directory
         output_basepath = create_output_folder(output, uniprot_id='resclust')
+        # write json file
         log.info(f'writing clusters data in "{output_basepath}/Clusters.json"')
         with open(f'{output_basepath}/Clusters.json', 'w') as filout:
             filout.write(str(cl_dict).replace("'", '"'))
+        # write txt file
+        log.info(f'writing clusters data in "{output_basepath}/Clusters.txt"')
+        with open(f'{output_basepath}/Clusters.txt', 'w') as filout:
+            for el in cl_dict.keys():
+                filout.write(
+                    f"cluster {el} -> "
+                    f"{' '.join([str(res) for res in cl_dict[el]])}"
+                )
 
 
 if __name__ == "__main__":
