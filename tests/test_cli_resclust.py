@@ -66,7 +66,7 @@ def test_resclust_genoutput(example_pdbpath):
         "resclustout",
     )
     assert os.path.exists("resclustout") == True
-    assert os.path.exists("resclustout/Clusters.json") == True
-    assert os.path.exists("resclustout/Clusters.txt") == True
+    assert os.path.exists("resclustout/clustered_residues.json") == True
+    assert os.path.exists("resclustout/clustered_residues.out") == True
     shutil.rmtree("resclustout")
 
