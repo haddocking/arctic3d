@@ -225,6 +225,7 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion, output):
                 filout.write(
                     f"cluster {el} -> "
                     f"{' '.join([str(res) for res in cl_dict[el]])}"
+                    "\n"
                 )
 
 
