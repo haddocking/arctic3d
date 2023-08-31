@@ -165,7 +165,8 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     unique_sorted_resids = u.resids
     log.info(f"retrieved residues: {unique_sorted_resids}")
 
-    n_chains = u.n_segments
+    n_chains = len(list(set(u.chainIDs)))
+
     if n_chains != 1:
         log.error(f"Number of consistent segments ({n_chains}) != 1.Aborting.")
         sys.exit(1)
