@@ -6,6 +6,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
+from sklearn.cluster import DBSCAN
 
 from arctic3d.modules.interface_matrix import read_int_matrix
 
@@ -56,9 +57,53 @@ def plot_dendrogram(
     plt.close()
 
 
+def hierarchial_clustering(
+    int_matrix,
+    entries,
+    linkage_strategy="average",
+    threshold=0.866,
+    crit="distance",
+    plot=False,
+):
+    """
+    Does the hierarchical clustering.
+
+    Parameters
+    ----------
+    int_matrix : np.array
+        1D condensed interface similarity matrix
+    entries : list
+        names of the ligands
+    linkage_strategy : str
+        linkage strategy for clustering
+    threshold : float
+        threshold for clustering
+    plot : bool
+        if True, plot the dendrogram
+
+    Returns
+    -------
+    clusters : list
+        list of clusters ID, each one associated to an entry
+    """
+    log.info(
+        f"Hierarchical Clustering with linkage {linkage_strategy} and threshold {threshold}"
+    )
+    Z = linkage(int_matrix, linkage_strategy)
+    if plot:
+        dendrogram_figure_filename = "dendrogram_" + linkage_strategy + ".png"
+        plot_dendrogram(Z, entries, dendrogram_figure_filename, threshold)
+    # clustering
+    clusters = fcluster(Z, t=threshold, criterion=crit)
+    log.info("Dendrogram created and clustered.")
+    log.debug(f"Clusters = {clusters}")
+    return clusters
+
+
 def cluster_similarity_matrix(
     int_matrix,
     entries,
+    cluster_method="hierarchical",
     linkage_strategy="average",
     threshold=0.866,
     crit="distance",
@@ -85,18 +130,69 @@ def cluster_similarity_matrix(
     clusters : list
         list of clusters ID, each one associated to an entry
     """
-    log.info(
-        f"Clustering with linkage {linkage_strategy} and threshold {threshold}"
-    )
-    Z = linkage(int_matrix, linkage_strategy)
-    if plot:
-        dendrogram_figure_filename = "dendrogram_" + linkage_strategy + ".png"
-        plot_dendrogram(Z, entries, dendrogram_figure_filename, threshold)
-    # clustering
-    clusters = fcluster(Z, t=threshold, criterion=crit)
-    log.info("Dendrogram created and clustered.")
-    log.debug(f"Clusters = {clusters}")
+    log.info(f"{cluster_method} Clustering with threshold {threshold}")
+    if cluster_method == "hierarchical":
+        clusters = hierarchial_clustering(
+            int_matrix,
+            entries,
+            linkage_strategy=linkage_strategy,
+            threshold=threshold,
+            crit=crit,
+            plot=plot,
+        )
+    elif cluster_method == "dbscan":
+        clusters = dbscan_clustering(
+            int_matrix,
+            entries,
+            plot=plot,
+        )
+    print(clusters)
+    # TODO: implement DBSCAN
+    # clusters = spectral_clustering(
+    #     int_matrix,
+    #     entries,
+    #     n_clusters=threshold,
+    #     plot=plot,
+    # )
     return clusters
+
+
+def dbscan_clustering(
+    int_matrix,
+    entries,
+    plot=False,
+):
+    """
+    Does the DBSCAN clustering.
+
+    Parameters
+    ----------
+    int_matrix : np.array
+        1D condensed interface similarity matrix
+    entries : list
+        names of the ligands
+    n_clusters : int
+        number of clusters
+    plot : bool
+        if True, plot the dendrogram
+
+    Returns
+    -------
+    clusters : list
+        list of clusters ID, each one associated to an entry
+    """
+    log.info(f"DBSCAN Clustering")
+    import scipy
+
+    sq_int_matrix = scipy.spatial.distance.squareform(int_matrix)
+    clustering = DBSCAN(metric="precomputed", min_samples=1)
+    clustering.fit(sq_int_matrix)
+    # clustering
+    # clusters = KMedoids(n_clusters=n_clusters, random_state=0, metric="precomputed").fit(int_matrix)
+    print(clustering.labels_)
+    log.info("DBSCAN algorithm executed.")
+    # log.debug(f"Clusters = {clusters}")
+    return clustering.labels_
 
 
 def get_clustering_dict(clusters, ligands):
@@ -173,7 +269,11 @@ def get_residue_dict(cl_dict, interface_dict):
 
 
 def interface_clustering(
-    interface_dict, matrix_filename, linkage_strategy, threshold
+    interface_dict,
+    matrix_filename,
+    linkage_strategy,
+    threshold,
+    cluster_method,
 ):
     """
     Clusters the interface matrix.
@@ -209,7 +309,12 @@ def interface_clustering(
         int_matrix, entries = read_int_matrix(matrix_filename)  # read matrix
         # cluster matrix.
         clusters = cluster_similarity_matrix(
-            int_matrix, entries, linkage_strategy, threshold, plot=True
+            int_matrix,
+            entries,
+            cluster_method,
+            linkage_strategy,
+            threshold,
+            plot=True,
         )
 
     # get clustering dictionary and clustered_residues

@@ -121,6 +121,13 @@ argument_parser.add_argument(
     default=0,
 )
 
+argument_parser.add_argument(
+    "--clustering",
+    help="clustering algorithm to be used",
+    default="hierarchical",
+    choices=["hierarchical", "dbscan", "kmeans"],
+)
+
 
 def load_args(arguments):
     """
@@ -177,6 +184,7 @@ def main(
     linkage_strategy,
     threshold,
     min_clust_size,
+    clustering,
     log_level="DEBUG",
 ):
     """Main function."""
@@ -291,6 +299,7 @@ def main(
             pdb_path=pdb_f,
             linkage_strategy=linkage_strategy,
             threshold=threshold,
+            clustering=clustering,
         )
 
         log.info(f"Clustered interfaces {cl_dict}")
