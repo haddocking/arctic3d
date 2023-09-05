@@ -9,7 +9,6 @@ import pandas as pd
 from scipy.spatial.distance import cdist
 
 SIGMA = 1.9
-INTERFACE_COV_CUTOFF = 0.7
 
 log = logging.getLogger("arctic3d.log")
 
@@ -154,7 +153,7 @@ def get_unique_sorted_resids(interface_dict):
     return int_resids
 
 
-def filter_interfaces(interface_dict, pdb_resids):
+def filter_interfaces(interface_dict, pdb_resids, int_cov_cutoff=0.7):
     """
     Filters the interfaces accoriding to the residues present in the pdb
 
@@ -166,24 +165,30 @@ def filter_interfaces(interface_dict, pdb_resids):
     pdb_resids : np.array
         residues present in the pdb
 
+    int_cov_cutoff : float
+        interface coverage cutoff
+
     Returns
     -------
     retained_interfaces : dict
         dictionary of the retained and filtered interfaces
         example : interface_dict = {"a" : [1,2], "b" : [2,3,4], "c": [5,6,7]}
                   pdb_resids = np.array([3,4,5,6,7])
-        then, if INTERFACE_COV_CUTOFF < 0.66:
+        then, if int_cov_cutoff < 0.66:
             retained_interfaces = {"b": [3,4], "c" : [5,6,7]}
         else:
             retained_interfaces = {"c" : [5,6,7]}
     """
-    log.debug("Filtering interface dictionary")
+    log.debug(
+        "Filtering interface dictionary "
+        f"with interface coverage cutoff = {int_cov_cutoff}"
+    )
     retained_interfaces = {}
     for key in interface_dict.keys():
         coverage, filtered_interface = check_residues_coverage(
             interface_dict[key], pdb_resids
         )
-        if coverage > INTERFACE_COV_CUTOFF:
+        if coverage > int_cov_cutoff:
             # formatting the interface name to avoid spaces
             formatted_key = format_interface_name(key)
             retained_interfaces[formatted_key] = filtered_interface
@@ -210,7 +215,7 @@ def format_interface_name(int_name):
     return formatted_name
 
 
-def interface_matrix(interface_dict, pdb_path):
+def interface_matrix(interface_dict, pdb_path, int_cov_cutoff=0.7):
     """
     Computes the interface matrix.
 
@@ -235,7 +240,10 @@ def interface_matrix(interface_dict, pdb_path):
         raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
     pdb_resids = mdu.select_atoms("name CA").resids
-    retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
+    retained_interfaces = filter_interfaces(
+        interface_dict, pdb_resids, int_cov_cutoff
+    )
+    print(f"retained_interfaces: {retained_interfaces}")
     ret_keys = list(retained_interfaces.keys())
     log.debug(f"Retained interfaces: {ret_keys}")
     n_ret = len(ret_keys)

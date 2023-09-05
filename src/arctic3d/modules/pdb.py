@@ -690,7 +690,7 @@ def unlink_files(suffix="pdb", to_exclude=None):
             fpath.unlink()
 
 
-def get_maxint_pdb(validated_pdbs, interface_residues):
+def get_maxint_pdb(validated_pdbs, interface_residues, int_cov_cutoff=0.7):
     """
     Get PDB ID that retains the most interfaces.
 
@@ -700,6 +700,8 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
         List of (pdb_f, hit) tuples
     interface_residues : dict
         Dictionary of all the interfaces (each one with its uniprot ID as key)
+    int_cov_cutoff : float
+        Interface coverage cutoff.
 
     Returns
     -------
@@ -730,7 +732,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues):
             selection_string = f"name CA and chainID {chain_id.upper()}"
             pdb_resids = mdu.select_atoms(selection_string).resids
             tmp_filtered_interfaces = filter_interfaces(
-                interface_residues, pdb_resids
+                interface_residues, pdb_resids, int_cov_cutoff
             )
             curr_nint = len(tmp_filtered_interfaces)
             if curr_nint > max_nint:  # update "best" hit
@@ -790,6 +792,7 @@ def get_best_pdb(
     pdb_to_use=None,
     chain_to_use=None,
     pdb_data=None,
+    int_cov_cutoff=0.7,
 ):
     """
     Get best PDB ID.
@@ -806,6 +809,8 @@ def get_best_pdb(
         Chain id to be used.
     pdb_data : Path or None
         pdb json file for offline mode.
+    int_cov_cutoff : float
+        Interface coverage cutoff.
 
     Returns
     -------
@@ -845,6 +850,7 @@ def get_best_pdb(
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs_and_cifs,
         interface_residues,
+        int_cov_cutoff=int_cov_cutoff,
     )
 
     if pdb_f is None or cif_f is None:

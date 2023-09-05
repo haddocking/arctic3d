@@ -121,6 +121,14 @@ argument_parser.add_argument(
     default=0,
 )
 
+argument_parser.add_argument(
+    "--int_cov_cutoff",
+    help="Interface coverage cutoff (%)",
+    type=float,
+    required=False,
+    default=0.7,
+)
+
 
 def load_args(arguments):
     """
@@ -177,6 +185,7 @@ def main(
     linkage_strategy,
     threshold,
     min_clust_size,
+    int_cov_cutoff,
     log_level="DEBUG",
 ):
     """Main function."""
@@ -270,6 +279,7 @@ def main(
                 pdb_to_use=pdb_to_use,
                 chain_to_use=chain_to_use,
                 pdb_data=pdb_data_path,
+                int_cov_cutoff=int_cov_cutoff,
             )
 
         if pdb_f is None:
@@ -291,6 +301,7 @@ def main(
             pdb_path=pdb_f,
             linkage_strategy=linkage_strategy,
             threshold=threshold,
+            int_cov_cutoff=int_cov_cutoff,
         )
 
         log.info(f"Clustered interfaces {cl_dict}")
