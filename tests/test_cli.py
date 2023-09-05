@@ -23,6 +23,7 @@ def test_cli_empty():
         ligand=None,
         linkage_strategy=None,
         threshold=None,
+        int_cov_cutoff=None,
         min_clust_size=None,
     )
     # assert exit code
@@ -38,7 +39,12 @@ def test_cli_empty():
 
 
 def test_cli_full():
+    """Test main cli with uniprot ID with one interface."""
     target_uniprot = "W5JXD7"
+    exp_dir = Path(f"arctic3d-{target_uniprot}")
+    # delete folder if exists
+    if exp_dir.exists():
+        shutil.rmtree(exp_dir)
     start_cwd = os.getcwd()
     exit_code = main(
         input_arg=target_uniprot,
@@ -56,10 +62,10 @@ def test_cli_full():
         linkage_strategy=None,
         threshold=None,
         min_clust_size=1,
+        int_cov_cutoff=0.7,
     )
     assert exit_code == 0
     os.chdir(start_cwd)
-    exp_dir = Path(f"arctic3d-{target_uniprot}")
     assert exp_dir.exists() is True
     # Check that the log file has been created
     assert Path(exp_dir, "arctic3d.log").exists()
