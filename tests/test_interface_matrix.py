@@ -108,6 +108,16 @@ def test_filter_interfaces(example_mdu, example_interface_dict):
         example_interface_dict, pdb_resids
     )
     assert expected_filter_dict == observed_filter_dict
+    # lower int_cov_cutoff
+    expected_filter_dict = {
+        "int_1": [1, 2],
+        "int_2": [1, 2, 4],
+        "int_3": [250],
+    }
+    observed_filter_dict = filter_interfaces(
+        example_interface_dict, pdb_resids, int_cov_cutoff=0.4
+    )
+    assert expected_filter_dict == observed_filter_dict
 
 
 def test_interface_matrix(example_interface_dict, example_pdbpath):
