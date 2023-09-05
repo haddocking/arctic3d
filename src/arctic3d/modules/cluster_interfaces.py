@@ -6,7 +6,9 @@ from arctic3d.modules.interface_matrix import interface_matrix
 log = logging.getLogger("arctic3d.log")
 
 
-def cluster_interfaces(interface_dict, pdb_path, linkage_strategy, threshold):
+def cluster_interfaces(
+    interface_dict, pdb_path, linkage_strategy, threshold, distance
+):
     """
     Wrapper to call interface_matrix and clustering
 
@@ -27,7 +29,7 @@ def cluster_interfaces(interface_dict, pdb_path, linkage_strategy, threshold):
         dictionary of the clustered interfaces
     """
     filtered_interfaces, matrix_path = interface_matrix(
-        interface_dict, pdb_path
+        interface_dict, pdb_path, distance
     )
     if len(filtered_interfaces) > 0:
         clustered_residues = interface_clustering(

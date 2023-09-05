@@ -121,6 +121,14 @@ argument_parser.add_argument(
     default=0,
 )
 
+argument_parser.add_argument(
+    "--distance",
+    help="Use distance matrix instead of sine matrix",
+    required=False,
+    default=False,
+    action="store_true",
+)
+
 
 def load_args(arguments):
     """
@@ -177,6 +185,7 @@ def main(
     linkage_strategy,
     threshold,
     min_clust_size,
+    distance,
     log_level="DEBUG",
 ):
     """Main function."""
@@ -291,6 +300,7 @@ def main(
             pdb_path=pdb_f,
             linkage_strategy=linkage_strategy,
             threshold=threshold,
+            distance=distance,
         )
 
         log.info(f"Clustered interfaces {cl_dict}")

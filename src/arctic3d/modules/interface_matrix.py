@@ -210,7 +210,7 @@ def format_interface_name(int_name):
     return formatted_name
 
 
-def interface_matrix(interface_dict, pdb_path):
+def interface_matrix(interface_dict, pdb_path, distance=False):
     """
     Computes the interface matrix.
 
@@ -272,18 +272,33 @@ def interface_matrix(interface_dict, pdb_path):
                     Jij_mat,
                 )
                 prod_idx += 1
-        # calculate cosine and sine matrix
-        cos_mat = np.zeros(int_pairs)
-        mat_idx = 0
-        for idx_one in range(n_ret):
-            for idx_two in range(idx_one + 1, n_ret):
-                cos_mat[mat_idx] = scal_prods[mat_idx] / np.sqrt(
-                    norms[idx_one] * norms[idx_two]
-                )
-                mat_idx += 1
-        sin_mat = np.ones(int_pairs) - np.power(cos_mat, 2)
-        out_fl = "interface_matrix.txt"
-        output_interface_matrix(ret_keys, sin_mat, out_fl)
+        if distance is False:
+            # calculate cosine and sine matrix
+            cos_mat = np.zeros(int_pairs)
+            mat_idx = 0
+            for idx_one in range(n_ret):
+                for idx_two in range(idx_one + 1, n_ret):
+                    cos_mat[mat_idx] = scal_prods[mat_idx] / np.sqrt(
+                        norms[idx_one] * norms[idx_two]
+                    )
+                    mat_idx += 1
+            # sin_mat = np.ones(int_pairs) - np.power(cos_mat, 2)
+            dist_mat = np.ones(int_pairs) - np.power(cos_mat, 2)
+            out_fl = "interface_matrix.txt"
+        else:
+            dist_mat = np.zeros(int_pairs)
+            mat_idx = 0
+            for idx_one in range(n_ret):
+                for idx_two in range(idx_one + 1, n_ret):
+                    dist_mat[mat_idx] = np.sqrt(
+                        norms[idx_one]
+                        + norms[idx_two]
+                        - 2 * scal_prods[mat_idx]
+                    )
+                    mat_idx += 1
+            out_fl = "distance_matrix.txt"
+
+        output_interface_matrix(ret_keys, dist_mat, out_fl)
         elap_time = round((time.time() - start_time), 2)
         log.info(f"Interface matrix calculated in {elap_time} seconds")
     else:
