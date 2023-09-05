@@ -257,14 +257,13 @@ def make_plotly_plot(conv_resids, probs):
     """
     log.info("Creating interactive plot.")
     # create a qualitatively diverse set of colors
-    ref_colors = plt.cm.tab20.colors
-    odd_colors = [
-        f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 1
-    ]
-    even_colors = [
-        f"rgb{ref_colors[n]}" for n in range(len(ref_colors)) if n % 2 == 0
-    ]
-    colors = odd_colors + even_colors
+    ref_colors = plt.cm.Set2.colors
+    if len(probs.keys()) > len(ref_colors):
+        # extend the color list with the tab10 and tab20 colormaps
+        # this extends the interactivity up to 40 clusters
+        ref_colors = ref_colors + plt.cm.tab10.colors + plt.cm.tab20.colors
+    # convert to rgb
+    colors = [f"rgb{ref_colors[n]}" for n in range(len(ref_colors))]
 
     # create figure
     fig = go.Figure(layout={"width": len(conv_resids) * 10, "height": 500})
