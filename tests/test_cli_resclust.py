@@ -54,6 +54,7 @@ def test_resclust_maxclust(example_pdbpath):
         None,
     )
 
+
 def test_resclust_genoutput(example_pdbpath):
     main(
         example_pdbpath,
