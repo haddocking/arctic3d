@@ -138,7 +138,15 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, residue_list, chain, threshold, linkage, criterion, output):
+def main(
+    input_arg,
+    residue_list,
+    chain,
+    threshold,
+    linkage,
+    criterion,
+    output,
+):
     """Main function."""
     log.setLevel("INFO")
 
