@@ -219,8 +219,9 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion, output):
         # initiate output directory
         output_basepath = create_output_folder(output, uniprot_id='resclust')
         # write txt file
-        log.info(f'writing clusters data in "{output_basepath}/Clusters.txt"')
-        with open(f'{output_basepath}/clustered_residues.out', 'w') as filout:
+        output_fname = f'{output_basepath}/clustered_residues.out'
+        log.info(f'writing clusters data in "{output_fname}"')
+        with open(output_fname, 'w') as filout:
             for el in cl_dict.keys():
                 filout.write(
                     f"cluster {el} -> "
