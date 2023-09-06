@@ -65,6 +65,6 @@ def test_resclust_genoutput(example_pdbpath):
         "maxclust",
         "resclustout",
     )
-    assert os.path.exists("resclustout") == True
-    assert os.path.exists("resclustout/clustered_residues.out") == True
+    assert os.path.exists("resclustout") is True
+    assert os.path.exists("resclustout/clustered_residues.out") is True
     shutil.rmtree("resclustout")
