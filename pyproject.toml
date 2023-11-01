@@ -17,7 +17,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-bio = "1.5.9"
+bio = "1.6.0"
 defusedxml = "0.7.1"
 lxml = "4.9.3"
 mdanalysis = "2.6.1"
