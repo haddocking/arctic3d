@@ -123,7 +123,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--int_cov_cutoff",
-    help="Interface coverage cutoff (%)",
+    help="Interface coverage cutoff (%%)",
     type=float,
     required=False,
     default=0.7,
