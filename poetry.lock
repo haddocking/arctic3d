@@ -813,38 +813,56 @@ pyparsing = ">=2.3.1"
 python-dateutil = ">=2.7"
 
 [[package]]
+name = "mda-xdrlib"
+version = "0.2.0"
+description = "Stand-alone XDRLIB module (from cpython 3.10.8)"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mda_xdrlib-0.2.0-py3-none-any.whl", hash = "sha256:0d1757b339f5db2d017a89ddaae06a82cd7a2cce26b8063df9f52b64e933fb47"},
+    {file = "mda_xdrlib-0.2.0.tar.gz", hash = "sha256:f26f7158a83c32b96d15b530fce2cbc1190c4b7024e41faa4ab3e3db74e272af"},
+]
+
+[package.extras]
+testing = ["pytest"]
+
+[[package]]
 name = "mdanalysis"
-version = "2.6.1"
+version = "2.7.0"
 description = "An object-oriented toolkit to analyze molecular dynamics trajectories."
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "MDAnalysis-2.6.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:8d5bae20c6ad527aa68fce768da6fa5f199f4960d7efc148cf957ca24ceff215"},
-    {file = "MDAnalysis-2.6.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:82a0578459d8101009cf273311379c8d75a9b88a0b30c5b9ca51cd963bf9d8b1"},
-    {file = "MDAnalysis-2.6.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0c585925e48ccfe458e536786cf73bfb009bed9234e8c1f59537c974adb7ef3f"},
-    {file = "MDAnalysis-2.6.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:86e8dd71707f92e2a68601042d2a7099bdcbdbc8b75688facc02535bc4012bc1"},
-    {file = "MDAnalysis-2.6.1-cp310-cp310-win_amd64.whl", hash = "sha256:3108c8a285d7caf3e9eaf2073054a20227aa4342459009dc1817c469f6bb33bc"},
-    {file = "MDAnalysis-2.6.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:278941835bb670b42f6de61f8ff70b10fafa42c591035efb11b3613a202645b7"},
-    {file = "MDAnalysis-2.6.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:0af16a0c3777ee4ce35f670e2e09a493b686326464d3f0ef02ebad188960e6af"},
-    {file = "MDAnalysis-2.6.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:892c0d8d9048781f064fb278b7c254aaad5c23e49bb1fbf05bca95501aa71ea6"},
-    {file = "MDAnalysis-2.6.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f247e261e522029ce40edaf8e903e953e43f1669a5fb3003d621a8071f7364d1"},
-    {file = "MDAnalysis-2.6.1-cp311-cp311-win_amd64.whl", hash = "sha256:b88e802c2a0bebcf8e84307c6c19387b4548235ddc8d30e03bececf657097d6d"},
-    {file = "MDAnalysis-2.6.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:4021bc714b3529712702cd6dd33e503464cbdc4b6873d32e196a17c145dff923"},
-    {file = "MDAnalysis-2.6.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:b92f58c32fb69cccd599af679ebf761627e8d872b49bab2041a7a633411e83a2"},
-    {file = "MDAnalysis-2.6.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8c812739d64c33b53b32af37b3198100f7481a63f44230b87d38ffa0295d7c2e"},
-    {file = "MDAnalysis-2.6.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2e7f11597781282dc377ba1a78ed8fbc94147344da5055df30c08bfee012a2a0"},
-    {file = "MDAnalysis-2.6.1-cp39-cp39-win_amd64.whl", hash = "sha256:535f6e538bb576bd7e1ef9d2c112ab562746c7d7ba4b7c70c4a1a4e68e36efc7"},
-    {file = "MDAnalysis-2.6.1.tar.gz", hash = "sha256:9cc69b94bddd026f26ffcaf5bdbed6d568c1c10e19a341d84f8d37a2a70222f2"},
+    {file = "MDAnalysis-2.7.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:752a7e79f2195e284bd5c6c74510e7a587050aa15a5fd5d1f0b1c173238c7f9e"},
+    {file = "MDAnalysis-2.7.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:d9f5506b70614aa21974488c61b150dcf443c2ef50bacba0ff9c5369fdd1dec8"},
+    {file = "MDAnalysis-2.7.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:cd8d2d5318f5adaa2b4143c60f5006bb9f5ef294eea87bea5b35127cc8f30399"},
+    {file = "MDAnalysis-2.7.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3f6924273c498c7134cfe985f2779ebf2f1d4204161c354ae8175779a20794e9"},
+    {file = "MDAnalysis-2.7.0-cp310-cp310-win_amd64.whl", hash = "sha256:348372eacd74a6be0cd7e2af9a5d6f0aae6b86c16868937bd57f4636e4e6141e"},
+    {file = "MDAnalysis-2.7.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:45a6ad90705ff50ddae7f0d7a2b3ddfd0185e3e8314930874b9fc3ac56853ec9"},
+    {file = "MDAnalysis-2.7.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:3be89d52e3442d58b65eef89626147d1e319a7912a913c7fccd78ba878418800"},
+    {file = "MDAnalysis-2.7.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:9358a88e4558febc4eca58dc69aeaf836b8eacc92556e0205c6c40497907e3ab"},
+    {file = "MDAnalysis-2.7.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1fd4b24cfb5fc63e9ae758251af947702f1a033f9bb38e54e206453c6afd3db0"},
+    {file = "MDAnalysis-2.7.0-cp311-cp311-win_amd64.whl", hash = "sha256:eea51334fb3cc45475003e992c63205f5c5ea34920154ab2cea9d44120b5904b"},
+    {file = "MDAnalysis-2.7.0-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:486794d7e957e959f612e1f664878e0244594864c057bff0748eca6fef7d1523"},
+    {file = "MDAnalysis-2.7.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:aaf7c158a65e032d15ef63cc08a6790d87ec3d7ee6037eb778d1959aec6c305a"},
+    {file = "MDAnalysis-2.7.0-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5613c102d2ba4ac6ff2527ba9ea1b2564fdd90f3e06e921752bbcad82c6b173e"},
+    {file = "MDAnalysis-2.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cf975db416007242e5674ff44803ce8e36313c5602f401244858e26e848b9411"},
+    {file = "MDAnalysis-2.7.0-cp312-cp312-win_amd64.whl", hash = "sha256:3bcc653057e8ea6f35a32e9993d840ae919842fa0756a966966d6eedc1072ee5"},
+    {file = "MDAnalysis-2.7.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:c7dc2b9601126cdd19e2b39ee38fc359977f5ab949ae416fc2470b110fc2c75a"},
+    {file = "MDAnalysis-2.7.0-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:1bd57db448afd1b73f0ea8954f3f1fdf9033442d18cc9f2ef3f1c59930a24e0b"},
+    {file = "MDAnalysis-2.7.0-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:81dfcd1f519fd288921eda7f97db0d1d287d55645c5cbe96031baf6209bfd2f5"},
+    {file = "MDAnalysis-2.7.0-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:501a473d65ef6e296f50a8d246a77f31ca41752be1f7edc76f88e468d672a41d"},
+    {file = "MDAnalysis-2.7.0-cp39-cp39-win_amd64.whl", hash = "sha256:345043a6365237a55d20f8dc0e31aa1d4e09e348ca8e1877dee6a2a6f6500c0b"},
+    {file = "MDAnalysis-2.7.0.tar.gz", hash = "sha256:572e82945e5d058e3749ec5f18e6b3831ef7f2119cb54672567ae9a977201e93"},
 ]
 
 [package.dependencies]
-biopython = ">=1.80"
 fasteners = "*"
 GridDataFormats = ">=0.4.0"
 joblib = ">=0.12"
 matplotlib = ">=1.5.1"
+mda-xdrlib = "*"
 mmtf-python = ">=1.0.0"
-networkx = ">=2.0"
 numpy = ">=1.22.3,<2.0"
 packaging = "*"
 scipy = ">=1.5.0"
@@ -852,8 +870,8 @@ threadpoolctl = "*"
 tqdm = ">=4.43.0"
 
 [package.extras]
-analysis = ["scikit-learn", "seaborn", "tidynamics (>=1.0.0)"]
-doc = ["msmb-theme (==1.2.0)", "pybtex", "pybtex-docutils", "sphinx", "sphinx-rtd-theme", "sphinx-sitemap", "sphinxcontrib-bibtex"]
+analysis = ["biopython (>=1.80)", "networkx (>=2.0)", "scikit-learn", "seaborn", "tidynamics (>=1.0.0)"]
+doc = ["mdanalysis-sphinx-theme (>=1.3.0)", "pybtex", "pybtex-docutils", "sphinx", "sphinx-sitemap", "sphinxcontrib-bibtex"]
 extra-formats = ["chemfiles (>=0.10)", "gsd (>3.0.0)", "h5py (>=2.10)", "netCDF4 (>=1.0)", "parmed", "pyedr (>=0.7.0)", "pytng (>=0.2.3)", "rdkit (>=2020.03.1)"]
 
 [[package]]
@@ -962,24 +980,6 @@ files = [
 
 [package.dependencies]
 biothings-client = ">=0.2.6"
-
-[[package]]
-name = "networkx"
-version = "3.0"
-description = "Python package for creating and manipulating graphs and networks"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "networkx-3.0-py3-none-any.whl", hash = "sha256:58058d66b1818043527244fab9d41a51fcd7dcc271748015f3c181b8a90c8e2e"},
-    {file = "networkx-3.0.tar.gz", hash = "sha256:9a9992345353618ae98339c2b63d8201c381c2944f38a2ab49cb45a4c667e412"},
-]
-
-[package.extras]
-default = ["matplotlib (>=3.4)", "numpy (>=1.20)", "pandas (>=1.3)", "scipy (>=1.8)"]
-developer = ["mypy (>=0.991)", "pre-commit (>=2.20)"]
-doc = ["nb2plots (>=0.6)", "numpydoc (>=1.5)", "pillow (>=9.2)", "pydata-sphinx-theme (>=0.11)", "sphinx (==5.2.3)", "sphinx-gallery (>=0.11)", "texext (>=0.6.7)"]
-extra = ["lxml (>=4.6)", "pydot (>=1.4.2)", "pygraphviz (>=1.10)", "sympy (>=1.10)"]
-test = ["codecov (>=2.1)", "pytest (>=7.2)", "pytest-cov (>=4.0)"]
 
 [[package]]
 name = "numpy"
@@ -1531,4 +1531,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "fa29a9015489f45f853bc11a465d193cc88681c815de834b892270b9efcfb109"
+content-hash = "2dadc16bccbccf014eccadde0d9d919a29f15b511f67fd37532008ea11275adb"
