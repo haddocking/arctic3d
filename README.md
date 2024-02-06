@@ -29,6 +29,7 @@ Check [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 ### With `conda`
 
 Clone the repository on your computer and navigate to it
+
 ```bash
 git clone git@github.com:haddocking/arctic3d.git
 cd arctic3d
