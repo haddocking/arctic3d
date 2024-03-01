@@ -42,7 +42,7 @@ arctic3d-restraints = "arctic3d.cli_restraints:maincli"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
 pytest-cov = "^4.1.0"
-coverage = "^7.4.1"
+coverage = "^7.4.3"
 hypothesis = "^6.92.2"
 
 [tool.black]
