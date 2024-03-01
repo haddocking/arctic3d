@@ -30,7 +30,7 @@ pandas = "2.1.4"
 openpyxl = "3.1.2"
 plotly = "5.18.0"
 pdbecif = "1.5"
-jsonpickle = "3.0.2"
+jsonpickle = "3.0.3"
 kaleido = "0.2.1"
 
 [tool.poetry.scripts]
