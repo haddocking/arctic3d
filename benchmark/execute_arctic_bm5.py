@@ -112,7 +112,7 @@ def search_interfaces(interfaces, uniprot_id):
     return found, sth_else
 
 
-def cycle_run(arctic_io):
+def cycle_run(arctic_io, threshold):
     """run arctic for the set of pdb files."""
     stats = {
         # number of times arctic does something
@@ -145,7 +145,7 @@ def cycle_run(arctic_io):
         cmd = (
             "arctic3d"
             f" {self_uni} --full"
-            f" --run_dir={arctic_folder} {pdb_string}"
+            f" --run_dir={arctic_folder} {pdb_string} --threshold={threshold}"
         )
         if Path(arctic_folder).exists():
             logging.info(f"folder {arctic_folder} already exists")
@@ -170,7 +170,7 @@ def cycle_run(arctic_io):
                     "arctic3d"
                     f" {self_uni} --full"
                     f" --out_partner={paired_uni}"
-                    f" --run_dir=excl{paired_uni}-arctic3d-{self_uni}"
+                    f" --run_dir=excl{paired_uni}-arctic3d-{self_uni} --threshold={threshold}"
                 )
                 output = run_arctic(cmd)
         else:
@@ -195,14 +195,20 @@ def main():
     # monitoring time
     start_time = time.time()
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_file")
+    parser.add_argument("input_file", help="Input BM5 benchmark CSV file")
     parser.add_argument(
-        "output_folder"
+        "output_folder",
+        help="Output folder where the benchmark will be built"
     )  # directory where the benchmark must be built
+    parser.add_argument(
+        "threshold",
+        help="Clustering threshold",
+    )  # clustering threshold
     args = parser.parse_args()
 
     bm5_input_file = args.input_file
     output_folder = args.output_folder
+    threshold = float(args.threshold)
     if not os.path.exists(output_folder):
         raise Exception("output folder does not exist")
 
@@ -210,7 +216,7 @@ def main():
 
     arctic_io = get_arctic_io(bm5_input_file)
     os.chdir(output_folder)
-    cycle_run(arctic_io)
+    cycle_run(arctic_io, threshold)
     write_output_file(arctic_io, output_file)
 
     elap_time = time.time() - start_time

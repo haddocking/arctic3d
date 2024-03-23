@@ -143,8 +143,8 @@ def write_output_file(
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_file")
-    parser.add_argument("output_file")
+    parser.add_argument("input_file", help="BM5 Excel file.")
+    parser.add_argument("output_file", help="Output BM5 benchmark CSV file")
     args = parser.parse_args()
 
     bm5_input_file = args.input_file
