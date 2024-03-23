@@ -28,6 +28,15 @@ Check [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ### With `conda`
 
+Clone the repository on your computer and navigate to it
+
+```bash
+git clone git@github.com:haddocking/arctic3d.git
+cd arctic3d
+```
+
+Here you can create the arctic3d environment:
+
 ```bash
 conda create -n arctic3d python=3.10
 conda activate arctic3d
@@ -59,3 +68,9 @@ sphinx-build -E docs ./arctic3d-docs
 ```
 
 Then you can open the file `arctic3d-docs/index.html`, which contains all the necessary documentation.
+
+## Citing us
+
+If you used ARCTIC-3D in your work please cite the following publication:
+
+**Marco Giulini, Rodrigo V. Honorato, Jesús L. Rivera, and Alexandre MJJ Bonvin**: "ARCTIC-3D: automatic retrieval and clustering of interfaces in complexes from 3D structural information." Communications Biology 7, no. 1 (2024): 49. (www.nature.com/articles/s42003-023-05718-w)
