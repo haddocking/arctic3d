@@ -19,6 +19,7 @@ if [ "${OS}" == "Darwin" ] || [ "${OS}" == "Mac OS X" ]; then
 	BLAST_URL="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.15.0/ncbi-blast-2.15.0+-x64-macosx.tar.gz"
 elif [ "${OS}" == "Linux" ]; then
 	# Do something under GNU/Linux platform
+	echo "Downloading BLAST+ for Linux..."
 	BLAST_URL="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.15.0/ncbi-blast-2.15.0+-x64-linux.tar.gz"
 fi
 
