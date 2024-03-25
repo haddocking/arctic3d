@@ -1,21 +1,41 @@
 # ARCTIC-3D
 
-[![python lint](https://github.com/haddocking/arctic3d/actions/workflows/.lint.yml/badge.svg)](https://github.com/haddocking/arctic3d/actions/workflows/.lint.yml)
-[![unittests](https://github.com/haddocking/arctic3d/actions/workflows/unittests.yml/badge.svg)](https://github.com/haddocking/arctic3d/actions/workflows/unittests.yml)
+[![ci](https://github.com/haddocking/arctic3d/actions/workflows/ci.yml/badge.svg)](https://github.com/haddocking/arctic3d/actions/workflows/ci.yml)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/dc788367452c47928e30f2f1f481d7e4)](https://www.codacy.com/gh/haddocking/arctic3d/dashboard?utm_source=github.com&utm_medium=referral&utm_content=haddocking/arctic3d&utm_campaign=Badge_Coverage)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/dc788367452c47928e30f2f1f481d7e4)](https://www.codacy.com/gh/haddocking/arctic3d/dashboard?utm_source=github.com&utm_medium=referral&utm_content=haddocking/arctic3d&utm_campaign=Badge_Grade)
+[![SQAaaS badge shields.io](https://img.shields.io/badge/sqaaas%20software-bronze-e6ae77)](https://api.eu.badgr.io/public/assertions/oAuS52pQTWaC90qMk97hlA "SQAaaS bronze badge achieved")
+[![fair-software.eu](https://img.shields.io/badge/fair--software.eu-%E2%97%8F%20%20%E2%97%8F%20%20%E2%97%8B%20%20%E2%97%8B%20%20%E2%97%8F-orange)](https://fair-software.eu)
+
+[![SQAaaS badge](https://github.com/EOSC-synergy/SQAaaS/raw/master/badges/badges_150x116/badge_software_bronze.png)](https://api.eu.badgr.io/public/assertions/oAuS52pQTWaC90qMk97hlA "SQAaaS bronze badge achieved")
 
 <img src="docs/imgs/arctic3d.png" width="450">
 
 **A**utomatic **R**etrieval and **C**lus**T**ering of **I**nterfaces in Complexes from **3D** structural information
 
----
+## ARCTIC-3D: all you want to know about protein-specific interfaces
+
+ARCTIC-3D is a software for data-mining and clustering of protein interface information. It allows you to retrieve all the existing interface information for your desired protein from the PDBE graph database (https://www.ebi.ac.uk/pdbe/pdbe-kb/), grouping similar interfaces in interacting surfaces.
+
+The software first checks your input (a uniprot ID, a FASTA file, or a PDB file), and then retrieves the existing interaction data from the [graph API](https://www.ebi.ac.uk/pdbe/graph-api/pdbe_doc/). Such interfaces are projected on a selected PDB structure and their dissimilarity is calculated, thus allowing for the application of a hierarchical clustering algorithm.
+
+In output you will see how your favourite protein can display different binding surfaces, each one characterised by few residues that are always present (_hotspots_) and other amino acids which are at the interface only from time to time.
 
 ## Developing
 
-Check [DEVELOPING.md](DEVELOPING.md) for more information.
+Check [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## Installation
 
 ### With `conda`
+
+Clone the repository on your computer and navigate to it
+
+```bash
+git clone git@github.com:haddocking/arctic3d.git
+cd arctic3d
+```
+
+Here you can create the arctic3d environment:
 
 ```bash
 conda create -n arctic3d python=3.10
@@ -32,39 +52,25 @@ bash install_blast_deps.sh
 
 And put `blastp` in your `$PATH`.
 
-## Example
+## Example usage
 
-```bash
-# the default input is an uniprotID
-arctic3d P00760
-# one or more uniprot IDs can be excluded from the interface calls
-arctic3d P00760 --out_uniprot=P00760,P00974
-# one or more pdb IDs can be excluded from the interface calls
-arctic3d P00760 --out_pdb=4xoj,6sy3
-# the pdb that must be retrieved can be specified
-arctic3d P00760 --pdb_to_use=4xoj
-# the uniprotID can be identifed from the sequence, either remotely
-arctic3d example/1ppe_E.fasta
-# or locally
-arctic3d example/1ppe_E.fasta --db db/swissprot
-# it is also possible to provide a pdb file with a set of interfaces
-arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
-# small-molecule interaction information can be retrieved
-arctic3d P00760 --ligand=yes
-# or combined with standard interface information
-arctic3d P00760 --ligand=both
+Please refer to the [examples](docs/examples.md) documentation page.
+
+## Detailed documentation
+
+In order to generate a detailed html documentation please execute these commands
+
+```text
+pip install myst_parser
+pip install chardet
+conda install sphinx
+sphinx-build -E docs ./arctic3d-docs
 ```
 
----
+Then you can open the file `arctic3d-docs/index.html`, which contains all the necessary documentation.
 
-## Residue-based clustering
+## Citing us
 
-It is also possible to clusters separate residues with the following command:
+If you used ARCTIC-3D in your work please cite the following publication:
 
-```bash
-arctic3d example/1ppe_E.pdb --residue_list 49,50,51,100,101,102 --threshold=12.0 --chain=E --linkage=average
-```
-
-Here each residue is treated as an independent entity and the standard CA-CA distance matrix between the selected amino acids is clustered according to the `threshold` value and the `linkage` criterion. This can be useful if one wants to automatically separate groups of residues on a pdb structure.
-
-The user can change the `linkage` strategy employed to create the dendrogram by choosing between one of the keywords specified [here](https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html).
+**Marco Giulini, Rodrigo V. Honorato, Jesús L. Rivera, and Alexandre MJJ Bonvin**: "ARCTIC-3D: automatic retrieval and clustering of interfaces in complexes from 3D structural information." Communications Biology 7, no. 1 (2024): 49. (www.nature.com/articles/s42003-023-05718-w)

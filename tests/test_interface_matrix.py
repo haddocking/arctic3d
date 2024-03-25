@@ -53,11 +53,15 @@ def test_check_residues_coverage():
     interface_one = [1, 2, 3]
     interface_two = [2, 3, 4, 5]
     pdb_resids = [1, 2, 3, 4]
-    cov_one, filtered_int_one = check_residues_coverage(interface_one, pdb_resids)
+    cov_one, filtered_int_one = check_residues_coverage(
+        interface_one, pdb_resids
+    )
     assert cov_one == 1.0
     assert filtered_int_one == interface_one
 
-    cov_two, filtered_int_two = check_residues_coverage(interface_two, pdb_resids)
+    cov_two, filtered_int_two = check_residues_coverage(
+        interface_two, pdb_resids
+    )
     assert cov_two == 0.75
     expected_filtered_int_two = [2, 3, 4]
     assert expected_filtered_int_two == filtered_int_two
@@ -81,7 +85,9 @@ def test_get_coupling_matrix(example_mdu, reference_jij):
 def test_compute_scalar_product(reference_jij):
     """Test compute_scalar_product."""
     interface_one = [0, 1, 2]
-    observed_norm = compute_scalar_product(interface_one, interface_one, reference_jij)
+    observed_norm = compute_scalar_product(
+        interface_one, interface_one, reference_jij
+    )
     expected_norm = 4.51239
     np.testing.assert_allclose(expected_norm, observed_norm, atol=0.00001)
     interface_two = [0, 1]
@@ -89,14 +95,28 @@ def test_compute_scalar_product(reference_jij):
         interface_one, interface_two, reference_jij
     )
     expected_scal_prod = 3.11433
-    np.testing.assert_allclose(expected_scal_prod, observed_scal_prod, atol=0.00001)
+    np.testing.assert_allclose(
+        expected_scal_prod, observed_scal_prod, atol=0.00001
+    )
 
 
 def test_filter_interfaces(example_mdu, example_interface_dict):
     """Test filter_interfaces."""
     expected_filter_dict = {"int_1": [1, 2], "int_2": [1, 2, 4]}
     pdb_resids = example_mdu.select_atoms("name CA").resids
-    observed_filter_dict = filter_interfaces(example_interface_dict, pdb_resids)
+    observed_filter_dict = filter_interfaces(
+        example_interface_dict, pdb_resids
+    )
+    assert expected_filter_dict == observed_filter_dict
+    # lower int_cov_cutoff
+    expected_filter_dict = {
+        "int_1": [1, 2],
+        "int_2": [1, 2, 4],
+        "int_3": [250],
+    }
+    observed_filter_dict = filter_interfaces(
+        example_interface_dict, pdb_resids, int_cov_cutoff=0.4
+    )
     assert expected_filter_dict == observed_filter_dict
 
 
@@ -132,9 +152,13 @@ def test_read_int_matrix_nonexisting():
 def test_read_int_matrix():
     """Test correct reading of interface matrix."""
     matrix_path = Path(golden_data, "interface_matrix.txt")
-    expected_int_matrix = np.array([0.9972, 0.3742, 0.9736, 0.9996, 0.8841, 0.9991])
+    expected_int_matrix = np.array(
+        [0.9972, 0.3742, 0.9736, 0.9996, 0.8841, 0.9991]
+    )
     expected_ligands = ["int_1", "int_2", "int_3", "int_4"]
     observed_int_matrix, observed_ligands = read_int_matrix(matrix_path)
     assert expected_ligands == observed_ligands
     # now checking the matrix
-    np.testing.assert_allclose(expected_int_matrix, observed_int_matrix, atol=0.0001)
+    np.testing.assert_allclose(
+        expected_int_matrix, observed_int_matrix, atol=0.0001
+    )

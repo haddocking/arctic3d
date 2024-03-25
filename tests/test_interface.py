@@ -60,7 +60,11 @@ def test_parse_interface_line():
 
 def test_parse_out_partner():
     uniprot_strings = [None, "P00760", "P00760,P00974"]
-    expected_uniprot_strings = [set([]), set(["P00760"]), set(["P00760", "P00974"])]
+    expected_uniprot_strings = [
+        set([]),
+        set(["P00760"]),
+        set(["P00760", "P00974"]),
+    ]
     observed_uniprot_strings = []
     for string in uniprot_strings:
         obs_list = parse_out_partner(string)
@@ -102,7 +106,12 @@ def test_error_parse_out_pdb():
 def test_interface_data(inp_interface_data):
     """Test interface_data input json file."""
     obs_interface_residues = get_interface_residues(
-        "P40202", None, None, full=False, interface_data=inp_interface_data, ligand="no"
+        "P40202",
+        None,
+        None,
+        full=False,
+        interface_data=inp_interface_data,
+        ligand="no",
     )
     exp_interface_residues = {
         "P00441": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
@@ -115,7 +124,12 @@ def test_interface_data(inp_interface_data):
 def test_full_interface(inp_interface_data):
     """Test interface_data input json file with full option."""
     obs_interface_residues = get_interface_residues(
-        "P40202", None, None, full=True, interface_data=inp_interface_data, ligand="no"
+        "P40202",
+        None,
+        None,
+        full=True,
+        interface_data=inp_interface_data,
+        ligand="no",
     )
     exp_interface_residues = {
         "P00441-5u9m-A": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],

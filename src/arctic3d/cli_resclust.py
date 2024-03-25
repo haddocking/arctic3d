@@ -6,32 +6,36 @@ residues.
 
 USAGE::
 
-    arctic3d_resclust ./example/1ppe_E.pdb --residue_list 29,30,31,49,50,51 --threshold=20.0 --chain=E
+    arctic3d-resclust ./example/1ppe_E.pdb \
+        --residue_list 29,30,31,49,50,51 \
+        --threshold=20.0 \
+        --chain=E
 
 Input arguments:
-`residue_list` : the comma-separated list of residue IDs
-`threshold` : the number to be used as threshold for hierarchical clustering
-`chain` : the chain ID to be used
+    `residue_list` : the comma-separated list of residue IDs.
+
+    `threshold` : the number to be used as threshold for hierarchical
+        clustering. If `criterion` is `maxclust`, this is the maximum number
+        of clusters.
+
+    `chain` : the chain ID to be used.
+
+    `linkage` : the linkage strategy.
+
+    `criterion` : the criterion to extract the clusters.
 """
 import argparse
-import logging
 import sys
 
 import MDAnalysis as mda
 from scipy.spatial.distance import pdist
 
-from arctic3d.modules.clustering import cluster_similarity_matrix, get_clustering_dict
-from arctic3d.modules.input import Input
-
-LOGNAME = "arctic3d_resclust.log"
-logging.basicConfig(filename=LOGNAME, filemode="w")
-log = logging.getLogger(LOGNAME)
-ch = logging.StreamHandler()
-formatter = logging.Formatter(
-    " [%(asctime)s %(module)s:L%(lineno)d %(levelname)s] %(message)s"
+from arctic3d import log
+from arctic3d.modules.clustering import (
+    cluster_similarity_matrix,
+    get_clustering_dict,
 )
-ch.setFormatter(formatter)
-log.addHandler(ch)
+from arctic3d.modules.input import Input
 
 
 argument_parser = argparse.ArgumentParser()
@@ -41,7 +45,9 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--residue_list", help="List of residues to cluster", required=True
+    "--residue_list",
+    help="List of (comma-separated) residues to cluster",
+    required=True,
 )
 
 argument_parser.add_argument(
@@ -49,7 +55,16 @@ argument_parser.add_argument(
     help="Threshold (in angstroms) for clustering",
     type=float,
     required=False,
-    default=10.0,
+    default=15.0,
+)
+
+argument_parser.add_argument(
+    "--criterion",
+    help="Criterion for clustering",
+    type=str,
+    required=False,
+    choices=["distance", "maxclust"],
+    default="distance",
 )
 
 argument_parser.add_argument(
@@ -57,7 +72,15 @@ argument_parser.add_argument(
     help="Linkage strategy for clustering",
     type=str,
     required=False,
-    choices=["average", "single", "complete", "median", "centroid", "ward", "weighted"],
+    choices=[
+        "average",
+        "single",
+        "complete",
+        "median",
+        "centroid",
+        "ward",
+        "weighted",
+    ],
     default="average",
 )
 
@@ -105,7 +128,7 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, residue_list, chain, threshold, linkage):
+def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     """Main function."""
     log.setLevel("INFO")
 
@@ -142,25 +165,41 @@ def main(input_arg, residue_list, chain, threshold, linkage):
     unique_sorted_resids = u.resids
     log.info(f"retrieved residues: {unique_sorted_resids}")
 
-    n_chains = u.n_segments
+    n_chains = len(set(u.chainIDs))
+
     if n_chains != 1:
-        log.error(f"Number of consistent segments ({n_chains}) != 1. Aborting.")
-        sys.exit(1)
-
-    # do the clustering
-    log.info(
-        f"Clustering distance matrix with linkage {linkage} and threshold {threshold}"
-    )
-    distmap = pdist(u.positions)
-    clusters = cluster_similarity_matrix(
-        distmap, unique_sorted_resids, threshold=threshold, linkage_strategy=linkage
-    )
-
-    cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
-    for el in cl_dict.keys():
-        log.info(
-            f"cluster {el}, residues {' '.join([str(res) for res in cl_dict[el]])}"
+        log.error(
+            f"Number of consistent chains ({n_chains}) != 1."
+            "Please use the --chain option to specify the chain ID."
         )
+
+        sys.exit(1)
+    if len(unique_sorted_resids) != 1:
+        # do the clustering
+        if criterion == "maxclust":
+            threshold = int(threshold)
+        log.info(
+            f"Clustering distance matrix with linkage {linkage}, threshold"
+            f" {threshold}, and criterion {criterion}"
+        )
+        distmap = pdist(u.positions)
+        clusters = cluster_similarity_matrix(
+            distmap,
+            unique_sorted_resids,
+            threshold=threshold,
+            linkage_strategy=linkage,
+            crit=criterion,
+        )
+
+        cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
+        for el in cl_dict.keys():
+            log.info(
+                f"cluster {el}, residues"
+                f" {' '.join([str(res) for res in cl_dict[el]])}"
+            )
+    else:
+        log.info("Only one residue, no clustering performed.")
+        log.info(f"cluster 1, residues {unique_sorted_resids[0]}")
 
 
 if __name__ == "__main__":

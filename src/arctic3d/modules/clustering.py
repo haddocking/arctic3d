@@ -9,14 +9,12 @@ from scipy.cluster.hierarchy import dendrogram, fcluster, linkage
 
 from arctic3d.modules.interface_matrix import read_int_matrix
 
-LINKAGE = "average"
-# THRESHOLD = 0.7071  # np.sqrt(2)/2
-THRESHOLD = 0.8660  # np.sqrt(3)/2
-
 log = logging.getLogger("arctic3d.log")
 
 
-def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
+def plot_dendrogram(
+    linkage_matrix, entries, filename, threshold, max_entries=50
+):
     """
     Plots the dendrogram.
 
@@ -28,10 +26,12 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
         list of interface names
     filename : str or Path
         plot filename
+    threshold : float
+        threshold for coloring
     max_entries : int
         maximum number of entries to plot
     """
-    plt.figure(dpi=200)
+    plt.figure(figsize=(12, 12), dpi=400)
     truncate_mode = None
     p = len(entries)
     if len(entries) > max_entries:
@@ -40,22 +40,29 @@ def plot_dendrogram(linkage_matrix, entries, filename, max_entries=50):
         p = max_entries
     dendrogram(
         linkage_matrix,
-        color_threshold=THRESHOLD,
+        color_threshold=threshold,
         labels=entries,
         truncate_mode=truncate_mode,
         p=p,
         orientation="right",
     )
-    plt.ylabel("Interface Names")
-    plt.xlabel("Dissimilarity")
-    plt.title("ARCTIC3D dendrogram")
+    plt.ylabel("Interface Names", fontsize=20)
+    plt.xlabel("Dissimilarity", fontsize=20)
+    plt.title("ARCTIC3D dendrogram", fontsize=24)
+    plt.yticks(fontsize=16)
+    plt.xticks(fontsize=16)
     plt.tight_layout()
     plt.savefig(filename)
     plt.close()
 
 
 def cluster_similarity_matrix(
-    int_matrix, entries, threshold=THRESHOLD, plot=False, linkage_strategy=LINKAGE
+    int_matrix,
+    entries,
+    linkage_strategy="average",
+    threshold=0.866,
+    crit="distance",
+    plot=False,
 ):
     """
     Does the clustering.
@@ -66,20 +73,27 @@ def cluster_similarity_matrix(
         1D condensed interface similarity matrix
     entries : list
         names of the ligands
+    linkage_strategy : str
+        linkage strategy for clustering
+    threshold : float
+        threshold for clustering
     plot : bool
         if True, plot the dendrogram
+
     Returns
     -------
     clusters : list
         list of clusters ID, each one associated to an entry
     """
-    log.info(f"Clustering with threshold {threshold}")
+    log.info(
+        f"Clustering with linkage {linkage_strategy} and threshold {threshold}"
+    )
     Z = linkage(int_matrix, linkage_strategy)
     if plot:
-        dendrogram_figure_filename = "dendrogram_" + LINKAGE + ".png"
-        plot_dendrogram(Z, entries, dendrogram_figure_filename)
+        dendrogram_figure_filename = "dendrogram_" + linkage_strategy + ".png"
+        plot_dendrogram(Z, entries, dendrogram_figure_filename, threshold)
     # clustering
-    clusters = fcluster(Z, t=threshold, criterion="distance")
+    clusters = fcluster(Z, t=threshold, criterion=crit)
     log.info("Dendrogram created and clustered.")
     log.debug(f"Clusters = {clusters}")
     return clusters
@@ -100,10 +114,15 @@ def get_clustering_dict(clusters, ligands):
     -------
     cl_dict : dict
         dictionary of clustered interfaces
-        example { 1 : ['interface_1', 'interface_3'] ,
-                  2 : ['interface_2'],
-                  ...
-                }
+        *example* {
+            1 : [
+            'interface_1', 'interface_3'
+                ] ,
+            2 : [
+            'interface_2'
+            ],
+            ...
+            }
     """
     cl_dict = {}
     # loop over clusters
@@ -131,15 +150,10 @@ def get_residue_dict(cl_dict, interface_dict):
     -------
     clustered_residues : dict
         dictionary of clustered residues
-        example { 1 : [1,2,3,5,6,8] ,
-                  2 : [29,30,31],
-                  ...
-                }
+        *example* { 1 : [1,2,3,5,6,8] , 2 : [29,30,31], ... }
     cl_residues_probs : dict of dicts
         dictionary of probabilities for clustered residues
-        example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
-                  ...
-                }
+        *example* { 1 : {1:0.7, 2:0.2, 3:0.4 ...}, ... }
     """
     clustered_residues = {}
     cl_residues_probs = {}
@@ -158,7 +172,9 @@ def get_residue_dict(cl_dict, interface_dict):
     return clustered_residues, cl_residues_probs
 
 
-def interface_clustering(interface_dict, matrix_filename):
+def interface_clustering(
+    interface_dict, matrix_filename, linkage_strategy, threshold
+):
     """
     Clusters the interface matrix.
 
@@ -168,6 +184,10 @@ def interface_clustering(interface_dict, matrix_filename):
         dictionary of all the interfaces (each one with its uniprot ID as key)
     matrix_filename : str or Path
         input interface matrix
+    linkage_strategy : str
+        linkage strategy for clustering
+    threshold : float
+        threshold for clustering
 
     Returns
     -------
@@ -188,7 +208,9 @@ def interface_clustering(interface_dict, matrix_filename):
     else:
         int_matrix, entries = read_int_matrix(matrix_filename)  # read matrix
         # cluster matrix.
-        clusters = cluster_similarity_matrix(int_matrix, entries, plot=True)
+        clusters = cluster_similarity_matrix(
+            int_matrix, entries, linkage_strategy, threshold, plot=True
+        )
 
     # get clustering dictionary and clustered_residues
     cl_dict = get_clustering_dict(clusters, entries)
@@ -197,4 +219,52 @@ def interface_clustering(interface_dict, matrix_filename):
     # write time
     elap_time = round((time.time() - start_time), 3)
     log.info(f"Clustering performed in {elap_time} seconds")
+    log.info(f"Clustering produced {len(cl_dict)} clusters")
     return cl_dict, cl_residues, cl_residues_probs
+
+
+def filter_clusters(cl_dict, cl_residues, cl_residues_probs, min_clust_size):
+    """
+    Filter clusters based on size.
+
+    Parameters
+    ----------
+    cl_dict : dict
+        dictionary of clustered interfaces
+    cl_residues : dict
+        dictionary of clustered residues
+    cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+    min_clust_size : int
+        minimum cluster size
+
+    Returns
+    -------
+    flt_cl_dict : dict
+        dictionary of clustered interfaces
+    flt_cl_residues : dict
+        dictionary of clustered residues
+    flt_cl_residues_probs : dict of dicts
+        dictionary of probabilities for clustered residues
+    """
+    # gather clusters not respecting the minimum size
+    excl_clusts = []
+    for cl in cl_residues:
+        if len(cl_residues[cl]) < min_clust_size:
+            log.info(f"Cluster {cl} has less than {min_clust_size} residues.")
+            excl_clusts.append(cl)
+    # remove clusters not respecting the minimum size
+    for cl in excl_clusts:
+        log.info(f"Removing cluster {cl}")
+        del cl_dict[cl]
+        del cl_residues[cl]
+        del cl_residues_probs[cl]
+    # renumber clusters
+    flt_cl_dict = {}
+    flt_cl_residues = {}
+    flt_cl_residues_probs = {}
+    for idx, cl in enumerate(cl_dict.keys()):
+        flt_cl_dict[idx + 1] = cl_dict[cl]
+        flt_cl_residues[idx + 1] = cl_residues[cl]
+        flt_cl_residues_probs[idx + 1] = cl_residues_probs[cl]
+    return flt_cl_dict, flt_cl_residues, flt_cl_residues_probs

@@ -1,3 +1,4 @@
+"Interface_matrix library."
 import logging
 import os
 import time
@@ -8,7 +9,6 @@ import pandas as pd
 from scipy.spatial.distance import cdist
 
 SIGMA = 1.9
-INTERFACE_COV_CUTOFF = 0.7
 
 log = logging.getLogger("arctic3d.log")
 
@@ -61,7 +61,8 @@ def compute_scalar_product(interface_one, interface_two, Jij_mat):
     scalar_product : float
         scalar product between the two interfaces
     """
-    # log.debug(f"computing scal_prod between {interface_one} and {interface_two}")
+    # log.debug(f"computing scal_prod between {interface_one}
+    #   and {interface_two}")
     scalar_product = Jij_mat[np.ix_(interface_one, interface_two)].sum()
     return scalar_product
 
@@ -82,11 +83,14 @@ def get_coupling_matrix(mdu, int_resids):
     Jij_mat : np.array
         coupling matrix
     """
-    sel_residues = "name CA and resid " + " ".join([str(el) for el in int_resids])
+    sel_residues = "name CA and resid " + " ".join(
+        [str(el) for el in int_resids]
+    )
     u = mdu.select_atoms(sel_residues)
     if u.positions.shape[0] != len(int_resids):
         raise Exception(
-            "shape mismatch: positions do not match input residues {int_resids}"
+            "shape mismatch: positions do not match input residues"
+            f" {int_resids}"
         )
     distmap = cdist(u.positions, u.positions)
     exp_factor = 4 * SIGMA * SIGMA
@@ -117,7 +121,10 @@ def output_interface_matrix(int_names, int_matrix, output_filename):
     with open(output_filename, "w") as wmatrix:
         for int_one in range(len(int_names)):
             for int_two in range(int_one + 1, len(int_names)):
-                string = f"{int_names[int_one]} {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                string = (
+                    f"{int_names[int_one]}"
+                    f" {int_names[int_two]} {int_matrix[matrix_idx]:.4f}"
+                )
                 string += os.linesep
                 matrix_idx += 1
                 wmatrix.write(string)
@@ -146,7 +153,7 @@ def get_unique_sorted_resids(interface_dict):
     return int_resids
 
 
-def filter_interfaces(interface_dict, pdb_resids):
+def filter_interfaces(interface_dict, pdb_resids, int_cov_cutoff=0.7):
     """
     Filters the interfaces accoriding to the residues present in the pdb
 
@@ -158,24 +165,30 @@ def filter_interfaces(interface_dict, pdb_resids):
     pdb_resids : np.array
         residues present in the pdb
 
+    int_cov_cutoff : float
+        interface coverage cutoff
+
     Returns
     -------
     retained_interfaces : dict
         dictionary of the retained and filtered interfaces
         example : interface_dict = {"a" : [1,2], "b" : [2,3,4], "c": [5,6,7]}
                   pdb_resids = np.array([3,4,5,6,7])
-        then, if INTERFACE_COV_CUTOFF < 0.66:
+        then, if int_cov_cutoff < 0.66:
             retained_interfaces = {"b": [3,4], "c" : [5,6,7]}
         else:
             retained_interfaces = {"c" : [5,6,7]}
     """
-    log.debug("Filtering interface dictionary")
+    log.debug(
+        "Filtering interface dictionary "
+        f"with interface coverage cutoff = {int_cov_cutoff}"
+    )
     retained_interfaces = {}
     for key in interface_dict.keys():
         coverage, filtered_interface = check_residues_coverage(
             interface_dict[key], pdb_resids
         )
-        if coverage > INTERFACE_COV_CUTOFF:
+        if coverage > int_cov_cutoff:
             # formatting the interface name to avoid spaces
             formatted_key = format_interface_name(key)
             retained_interfaces[formatted_key] = filtered_interface
@@ -191,6 +204,7 @@ def format_interface_name(int_name):
     ----------
     int_names : str
         list of original names
+
     Returns
     -------
     formatted_int_names : str
@@ -201,7 +215,7 @@ def format_interface_name(int_name):
     return formatted_name
 
 
-def interface_matrix(interface_dict, pdb_path):
+def interface_matrix(interface_dict, pdb_path, int_cov_cutoff=0.7):
     """
     Computes the interface matrix.
 
@@ -215,7 +229,8 @@ def interface_matrix(interface_dict, pdb_path):
     Returns
     -------
     retained_interfaces : dict
-        dictionary of the retained interfaces (each one with its formatted uniprot ID as key)
+        dictionary of the retained interfaces
+        (each one with its formatted uniprot ID as key)
     out_fl : str
         path to the output interface matrix
     """
@@ -225,7 +240,10 @@ def interface_matrix(interface_dict, pdb_path):
         raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
     pdb_resids = mdu.select_atoms("name CA").resids
-    retained_interfaces = filter_interfaces(interface_dict, pdb_resids)
+    retained_interfaces = filter_interfaces(
+        interface_dict, pdb_resids, int_cov_cutoff
+    )
+    print(f"retained_interfaces: {retained_interfaces}")
     ret_keys = list(retained_interfaces.keys())
     log.debug(f"Retained interfaces: {ret_keys}")
     n_ret = len(ret_keys)
@@ -305,7 +323,8 @@ def read_int_matrix(filename):
         int_nligands = int(nligands)
         if abs(nligands - int_nligands) > 0.00001:
             raise Exception(
-                f"npairs {int_matrix.shape[0]}: interface matrix should be a 1D condensed similarity matrix"
+                f"npairs {int_matrix.shape[0]}: interface matrix should be a"
+                " 1D condensed similarity matrix"
             )
         # extracting ligands' names
         ligand_names = [int_matrix.iloc[0, 0]]

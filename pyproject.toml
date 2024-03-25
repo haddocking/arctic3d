@@ -1,0 +1,53 @@
+[tool.poetry]
+name = "arctic3d"
+license = "Apache-2.0"
+version = "0.4.1"
+description = ""
+authors = [
+  "Computational Structural Biology Group at Utrecht University <haddocking@gmail.com>",
+]
+readme = "README.md"
+classifiers = [
+  # "Development Status :: 5 - Production/Stable",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering :: Chemistry",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+bio = "1.6.2"
+defusedxml = "0.7.1"
+lxml = "5.1.0"
+mdanalysis = "2.7.0"
+requests = "2.31.0"
+biopython = "1.83"
+scipy = "1.11.4"
+matplotlib = "3.8.2"
+pdb-tools = "2.5.0"
+pandas = "2.1.4"
+openpyxl = "3.1.2"
+plotly = "5.19.0"
+pdbecif = "1.5"
+jsonpickle = "3.0.3"
+kaleido = "0.2.1"
+
+[tool.poetry.scripts]
+arctic3d = "arctic3d.cli:maincli"
+arctic3d-resclust = "arctic3d.cli_resclust:maincli"
+arctic3d-localise = "arctic3d.cli_localise:maincli"
+arctic3d-restraints = "arctic3d.cli_restraints:maincli"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.1.0"
+pytest-cov = "^4.1.0"
+coverage = "^7.4.3"
+hypothesis = "^6.98.15"
+
+[tool.black]
+line-length = 79
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
