@@ -537,7 +537,8 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
         log.warning(
             f"Identity between {max_id_chain} and {uniprot_id} lower than 90%"
         )
-    pdb_torenum = selchain_pdb(pdb_f, max_id_chain)
+    pdb_ch = selchain_pdb(pdb_f, max_id_chain)
+    pdb_torenum = preprocess_pdb(pdb_ch)
     pdb_numb_lines = open(f"{uniprot_id}.aln", "r").read().split("\n")
     nlines_pdb = list(range(2, len(pdb_numb_lines), 4))
     nlines_uniprot = list(range(0, len(pdb_numb_lines), 4))
@@ -788,7 +789,7 @@ def validate_api_hit(
     return validated_pdbs_and_cifs
 
 
-def preprocess_pdb(pdb_fname, chain_id):
+def preprocess_pdb(pdb_fname):
     """
     Apply a set of transformations to an input pdb file.
 
