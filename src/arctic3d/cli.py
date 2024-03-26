@@ -8,7 +8,7 @@ from arctic3d import log
 from arctic3d.modules.blast import run_blast
 from arctic3d.modules.clustering import filter_clusters
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
-from arctic3d.modules.input import Input
+from arctic3d.modules.input import is_fasta, is_pdb, is_uniprot
 from arctic3d.modules.interface import (
     get_interface_residues,
     read_interface_residues,
@@ -19,20 +19,31 @@ from arctic3d.modules.output import (
     create_output_folder,
     setup_output_folder,
 )
-from arctic3d.modules.pdb import get_best_pdb
+from arctic3d.modules.pdb import get_best_pdb, renumber_pdb_from_uniprot
 from arctic3d.modules.sequence import to_fasta
 from arctic3d.modules.log import add_log_for_CLI
 
 
 argument_parser = argparse.ArgumentParser()
+# three arguments: uniprot_id, fasta_file, pdb_file
 argument_parser.add_argument(
-    "input_arg",
-    help="",
+    "--input_uniprot",
+    help="Uniprot ID to search",
+)
+
+argument_parser.add_argument(
+    "--input_fasta",
+    help="FASTA file",
+)
+
+argument_parser.add_argument(
+    "--input_pdb",
+    help="input PDB file to be used",
 )
 
 argument_parser.add_argument(
     "--db",
-    help="",
+    help="database to use for blast search",
 )
 
 argument_parser.add_argument(
@@ -170,7 +181,9 @@ def maincli():
 
 
 def main(
-    input_arg,
+    input_uniprot,
+    input_fasta,
+    input_pdb,
     db,
     interface_file,
     out_partner,
@@ -192,22 +205,24 @@ def main(
     init_message = get_init_message()
     log.info(init_message)
     st_time = time.time()
-    inp = Input(input_arg)
+
+    # handling input files
     input_files = {}
-    # retrieve uniprot information
-    if inp.is_fasta():
-        input_files["fasta"] = Path(inp.arg)
+    if is_fasta(input_fasta):
+        input_files["fasta"] = Path(input_fasta)
         uniprot_id = run_blast(input_files["fasta"], db)
-    if inp.is_uniprot():
-        uniprot_id = inp.arg.upper()
-    if inp.is_pdb():
-        input_files["pdb"] = Path(inp.arg)
+    if is_pdb(input_pdb):
+        input_files["pdb"] = Path(input_pdb)
         if not interface_file:
             fasta_f = to_fasta(input_files["pdb"], temp=False)
             uniprot_id = run_blast(fasta_f.name, db)
         else:
             input_files["interface_file"] = Path(interface_file)
             uniprot_id = None
+    # 25/7/2023: if the pdb is provided, the blast uniprot_id can be
+    # overwritten by specifying the uniprot_id input argument
+    if is_uniprot(input_uniprot):
+        uniprot_id = input_uniprot.upper()
 
     # create output folder
     run_dir_path = create_output_folder(run_dir, uniprot_id)
@@ -256,17 +271,15 @@ def main(
 
     if interface_residues:
         # retrieve pdb file
-        if inp.is_pdb():
-            # interfaces will be filtered later
-            pdb_f, filtered_interfaces = input_files["pdb"], None
+        if "pdb" in input_files:
             if not interface_file:
                 log.warning(
-                    (
-                        "Input pdb file submitted without interface file. "
-                        "This assumes the pdb is coherent with the "
-                        "corresponding uniprot numbering."
-                    )
+                    f"input pdb file submitted without interface file. "
+                    f"Renumbering input pdb to match uniprot ID {uniprot_id}"
                 )
+            # interfaces will be filtered later
+            filtered_interfaces = None
+            pdb_f = renumber_pdb_from_uniprot(input_files["pdb"], uniprot_id)
         else:
             if pdb_data:
                 pdb_data_path = input_files["pdb_data"]

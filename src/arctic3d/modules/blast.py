@@ -84,6 +84,7 @@ def blast_local(fasta_file, db):
 
     out = p.stdout.decode("utf-8").split(os.linesep)
     uniprot_id = out[0].split("\t")[1]
+    log.info(f"BLAST Uniprot ID: {uniprot_id}")
     return uniprot_id
 
 

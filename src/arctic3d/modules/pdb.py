@@ -5,6 +5,7 @@ from pathlib import Path
 import jsonpickle
 import MDAnalysis as mda
 import requests
+from Bio import SeqIO
 from pdbecif.mmcif_io import MMCIF2Dict
 
 # from pdbtools.pdb_selaltloc import select_by_occupancy
@@ -15,11 +16,14 @@ from pdbtools.pdb_selmodel import select_model
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
+from arctic3d.modules.sequence import cycle_alignment, LETTERS, to_fasta
 
 log = logging.getLogger("arctic3d.log")
 
 BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
 PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"
+UNIPROT_API_URL = "https://www.ebi.ac.uk/proteins/api/proteins"
+RECORDS = ("ATOM", "TER")
 
 
 def _remove_altloc(lines):
@@ -418,6 +422,143 @@ def fetch_pdb_files(pdb_to_fetch, uniprot_id):
     return validated_pdb_and_cifs
 
 
+def write_renumbered_pdb(pdb_torenum, pdb_aln_string, uniprot_aln_string):
+    """
+    Writes down the renumbered pdb file based on the alignment between the
+     pdb and the uniprot sequence.
+
+    Insertions in the pdb sequence are marked with a letter in the insertion
+    code column (column 27).
+
+    Parameters
+    ----------
+    pdb_torenum : str or Path
+        input pdb file
+
+    pdb_renum : str or Path
+        output pdb file
+
+    pdb_aln_string : str
+        pdb sequence in the alignment
+
+    uniprot_aln_string : str
+        uniprot sequence in the alignment
+    """
+    pdb_renum = Path(f"{pdb_torenum.stem}-renum.pdb")
+    resid_idx, prev_resid, uniprot_resid = -1, -1, 1
+    uniprot_letter_idx = 0
+
+    file_content = ""
+    with open(pdb_renum, "w") as wfile:
+        with open(pdb_torenum) as rfile:
+            for ln in rfile:
+                if ln.startswith(RECORDS):
+                    resid = ln[22:26].strip()
+                    if resid != prev_resid:
+                        resid_idx += 1
+                        found_uniprot = False
+                        while found_uniprot is False:
+                            if pdb_aln_string[resid_idx] == "-":
+                                # unaligned uniprot residue: we skip it and
+                                # increment the uniprot_resid
+                                uniprot_resid += 1
+                                resid_idx += 1
+                            else:
+                                found_uniprot = True
+                        # pdb residue is not a gap (anymore)
+                        if uniprot_aln_string[resid_idx] == "-":
+                            # unaligned residue: we add a letter in the
+                            # insertion code column
+                            if uniprot_letter_idx > len(LETTERS) - 1:
+                                log.warning(
+                                    "A lot of gaps in the alignment..."
+                                    "reinitializing letters..."
+                                )
+                                uniprot_letter_idx = 0
+                            letter = LETTERS[uniprot_letter_idx]
+                            res_to_write = f"{uniprot_resid-1}{letter}"
+                            uniprot_letter_idx += 1
+                        else:
+                            # aligned residue, write down its uniprot residue
+                            res_to_write = f"{uniprot_resid} "
+                            uniprot_resid += 1
+                            uniprot_letter_idx = 0
+                    prev_resid = resid
+                    # renumbering takes place here
+                    n_spaces = 5 - len(res_to_write)
+                    resid_str = f"{' ' * n_spaces}{res_to_write} "
+                    file_content += f"{ln[:22]}{resid_str}{ln[28:]}"
+                else:
+                    file_content += f"{ln}"
+            wfile.write(file_content)
+    return pdb_renum
+
+
+def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
+    """
+    Renumbers a pdb file based on the information coming from the corresponding
+    uniprot sequence.
+
+    Parameters
+    ----------
+    pdb_f : str or Path
+        input pdb file
+    uniprot_id : str
+        Uniprot ID
+
+    Returns
+    -------
+    out_pdb_renum : Path
+        renumbered pdb file
+    """
+    log.warning(
+        "Uniprot-based renumbering should not be completely trusted..."
+    )
+    url = f"{UNIPROT_API_URL}/{uniprot_id}"
+    try:
+        pdb_dict = make_request(url, None)
+    except Exception as e:
+        log.warning(f"Could not make Sequence request for {uniprot_id}, {e}")
+        return pdb_f
+    ref_seq = pdb_dict["sequence"]["sequence"]
+
+    # extracting sequences from input pdb
+    fasta_f = to_fasta(pdb_f, temp=False)
+    fasta_sequences = SeqIO.parse(open(fasta_f.name), "fasta")
+
+    aln_fname = f"{uniprot_id}.aln"
+    max_id_chain, max_id = cycle_alignment(fasta_sequences, ref_seq, aln_fname)
+    # preprocess pdb before renumbering
+    log.info(
+        f"Renumbering chain {max_id_chain} of {pdb_f}"
+        f" ({(max_id*100):.2f}% identity with {uniprot_id})"
+    )
+    if max_id < 0.9:
+        log.warning(
+            f"Identity between {max_id_chain} and {uniprot_id} lower than 90%"
+        )
+    pdb_ch = selchain_pdb(pdb_f, max_id_chain)
+    pdb_torenum = preprocess_pdb(pdb_ch)
+    pdb_numb_lines = open(f"{uniprot_id}.aln", "r").read().split("\n")
+    nlines_pdb = list(range(2, len(pdb_numb_lines), 4))
+    nlines_uniprot = list(range(0, len(pdb_numb_lines), 4))
+
+    pdb_aln_string = "".join(
+        [pdb_numb_lines[n].split()[2] for n in nlines_pdb]
+    )
+    uniprot_aln_string = "".join(
+        [pdb_numb_lines[n].split()[2] for n in nlines_uniprot]
+    )
+
+    pdb_renum = write_renumbered_pdb(
+        pdb_torenum, pdb_aln_string, uniprot_aln_string
+    )
+
+    os.unlink(pdb_torenum)
+    out_pdb_renum = pdb_renum.rename(f"{pdb_f.stem}-{uniprot_id}.pdb")
+    return out_pdb_renum
+
+
 def fetch_pdb(pdb_id):
     """
     Fetches the pdb from PDBe database.
@@ -648,7 +789,7 @@ def validate_api_hit(
     return validated_pdbs_and_cifs
 
 
-def preprocess_pdb(pdb_fname, chain_id):
+def preprocess_pdb(pdb_fname):
     """
     Apply a set of transformations to an input pdb file.
 
