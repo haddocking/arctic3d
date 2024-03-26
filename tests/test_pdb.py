@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import os
 import pytest
 
 from arctic3d.modules.pdb import (
