@@ -1,26 +1,39 @@
+import logging
 import tempfile
 
 from Bio import Align
 from Bio.Align import substitution_matrices
 from pdbtools.pdb_tofasta import pdb_to_fasta
 
+import os
+import shutil
 
-def load_seq(fasta_file):
-    """
-    Load sequence.
+log = logging.getLogger("arctic3d.log")
 
-    Parameters
-    ----------
-    fasta_file : str
-        Fasta file.
-
-    Returns
-    -------
-    fasta_seq : str
-        Fasta sequence.
-
-    """
-    pass
+LETTERS = [
+    "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I",
+        "K",
+        "L",
+        "M",
+        "N",
+        "P",
+        "Q",
+        "R",
+        "S",
+        "T",
+        "V",
+        "W",
+        "Y",
+        "Z",
+    ]
 
 
 def to_fasta(pdb_f, temp):
@@ -74,9 +87,42 @@ def align_sequences(seq1, seq2):
     """
     aln_fname = "blosum80.aln"
     aligner = Align.PairwiseAligner()
-    aligner.substitution_matrix = substitution_matrices.load("BLOSUM80")
+    aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
     alns = aligner.align(seq1, seq2)
     top_aln = alns[0]
     with open(aln_fname, "w") as fh:
         fh.write(str(top_aln))
     return aln_fname, top_aln
+
+
+def cycle_alignment(fasta_sequences, ref_seq, output_aln_fname):
+    """
+    Perform pairwise alignment between a reference sequence and a list of
+     sequences.
+
+    Parameters
+    ----------
+    fasta_sequences : list
+        List of sequences
+
+    ref_seq : str
+        Reference sequence
+
+    output_aln_fname : str
+        Output alignment file name
+    """
+    # looping over sequences
+    max_id = -1.0
+    for fasta in fasta_sequences:
+        name, seq = fasta.id, str(fasta.seq)
+        aln_fname, top_aln = align_sequences(ref_seq, seq)
+        identity = str(top_aln).count("|") / float(min(len(ref_seq), len(seq)))
+        # compute percentage and logging
+        perc_identity = identity * 100
+        log.info(f"sequence {name} has {perc_identity:.2f}% sequence identity")
+        if identity > max_id:
+            max_id = identity
+            max_id_chain = name.split("|")[1]
+            shutil.copy(aln_fname, output_aln_fname)
+    os.unlink(aln_fname)
+    return max_id_chain, max_id

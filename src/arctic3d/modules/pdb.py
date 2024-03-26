@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 from pathlib import Path
 
 import jsonpickle
@@ -17,7 +16,7 @@ from pdbtools.pdb_selmodel import select_model
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
-from arctic3d.modules.sequence import align_sequences, to_fasta
+from arctic3d.modules.sequence import cycle_alignment, LETTERS, to_fasta
 
 log = logging.getLogger("arctic3d.log")
 
@@ -423,6 +422,78 @@ def fetch_pdb_files(pdb_to_fetch, uniprot_id):
     return validated_pdb_and_cifs
 
 
+def write_renumbered_pdb(pdb_torenum, pdb_aln_string, uniprot_aln_string):
+    """
+    Writes down the renumbered pdb file based on the alignment between the
+     pdb and the uniprot sequence.
+
+    Insertions in the pdb sequence are marked with a letter in the insertion
+    code column (column 27).
+
+    Parameters
+    ----------
+    pdb_torenum : str or Path
+        input pdb file
+
+    pdb_renum : str or Path
+        output pdb file
+
+    pdb_aln_string : str
+        pdb sequence in the alignment
+
+    uniprot_aln_string : str
+        uniprot sequence in the alignment
+    """
+    pdb_renum = Path(f"{pdb_torenum.stem}-renum.pdb")
+    resid_idx, prev_resid, uniprot_resid = -1, -1, 1
+    uniprot_letter_idx = 0
+
+    file_content = ""
+    with open(pdb_renum, "w") as wfile:
+        with open(pdb_torenum) as rfile:
+            for ln in rfile:
+                if ln.startswith(RECORDS):
+                    resid = ln[22:26].strip()
+                    if resid != prev_resid:
+                        resid_idx += 1
+                        found_uniprot = False
+                        while found_uniprot is False:
+                            if pdb_aln_string[resid_idx] == "-":
+                                # unaligned uniprot residue: we skip it and
+                                # increment the uniprot_resid
+                                uniprot_resid += 1
+                                resid_idx += 1
+                            else:
+                                found_uniprot = True
+                        # pdb residue is not a gap (anymore)
+                        if uniprot_aln_string[resid_idx] == "-":
+                            # unaligned residue: we add a letter in the
+                            # insertion code column
+                            if uniprot_letter_idx > len(LETTERS) - 1:
+                                log.warning(
+                                    "A lot of gaps in the alignment..."
+                                    "reinitializing letters..."
+                                )
+                                uniprot_letter_idx = 0
+                            letter = LETTERS[uniprot_letter_idx]
+                            res_to_write = f"{uniprot_resid-1}{letter}"
+                            uniprot_letter_idx += 1
+                        else:
+                            # aligned residue, write down its uniprot residue
+                            res_to_write = f"{uniprot_resid} "
+                            uniprot_resid += 1
+                            uniprot_letter_idx = 0
+                    prev_resid = resid
+                    # renumbering takes place here
+                    n_spaces = 5 - len(res_to_write)
+                    resid_str = f"{' ' * n_spaces}{res_to_write} "
+                    file_content += f"{ln[:22]}{resid_str}{ln[28:]}"
+                else:
+                    file_content += f"{ln}"
+            wfile.write(file_content)
+    return pdb_renum
+
+
 def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
     """
     Renumbers a pdb file based on the information coming from the corresponding
@@ -440,7 +511,9 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
     out_pdb_renum : Path
         renumbered pdb file
     """
-    log.warning("Uniprot-based renumbering should not be completely trusted...")
+    log.warning(
+        "Uniprot-based renumbering should not be completely trusted..."
+    )
     url = f"{UNIPROT_API_URL}/{uniprot_id}"
     try:
         pdb_dict = make_request(url, None)
@@ -453,48 +526,33 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
     fasta_f = to_fasta(pdb_f, temp=False)
     fasta_sequences = SeqIO.parse(open(fasta_f.name), "fasta")
 
-    # looping over sequences
-    max_id = -1.0
-    for fasta in fasta_sequences:
-        name, seq = fasta.id, str(fasta.seq)
-        aln_fname, top_aln = align_sequences(ref_seq, seq)
-        identity = str(top_aln).count("|") / float(min(len(ref_seq), len(seq)))
-
-        log.info(f"sequence {name} has identity {identity}")
-        if identity > max_id:
-            max_id = identity
-            max_id_chain = name.split("|")[1]
-            shutil.copy(aln_fname, f"{uniprot_id}.aln")
-    os.unlink(aln_fname)
-
+    aln_fname = f"{uniprot_id}.aln"
+    max_id_chain, max_id = cycle_alignment(fasta_sequences, ref_seq, aln_fname)
     # preprocess pdb before renumbering
     log.info(
-        f"Renumbering chain {max_id_chain} of {pdb_f} ({max_id} identity with {uniprot_id})"
+        f"Renumbering chain {max_id_chain} of {pdb_f}"
+        f" ({(max_id*100):.2f}% identity with {uniprot_id})"
     )
-    pdb_torenum = preprocess_pdb(pdb_f, max_id_chain)
-    pdb_numb = open(f"{uniprot_id}.aln", "r").read().split("\n")[2]
-    pdb_renum = Path(f"{pdb_torenum.stem}-renum.pdb")
+    if max_id < 0.9:
+        log.warning(
+            f"Identity between {max_id_chain} and {uniprot_id} lower than 90%"
+        )
+    pdb_torenum = selchain_pdb(pdb_f, max_id_chain)
+    pdb_numb_lines = open(f"{uniprot_id}.aln", "r").read().split("\n")
+    nlines_pdb = list(range(2, len(pdb_numb_lines), 4))
+    nlines_uniprot = list(range(0, len(pdb_numb_lines), 4))
 
-    # renumbering. Pdb is aligned to uniprot, so each letter in the alignment
-    # is positioned at the correct residue index (adjusted with + 1)
-    numbering_list = [n + 1 for n in range(len(pdb_numb)) if pdb_numb[n] != "-"]
-    resid_idx, prev_resid = -1, -1
-    file_content = ""
-    with open(pdb_renum, "w") as wfile:
-        with open(pdb_torenum) as rfile:
-            for ln in rfile:
-                if ln.startswith(RECORDS):
-                    resid = ln[22:26].strip()
-                    if resid != prev_resid:
-                        resid_idx += 1
-                    prev_resid = resid
-                    # renumbering takes place here
-                    n_spaces = 4 - len(str(numbering_list[resid_idx]))
-                    resid_str = f"{' ' * n_spaces}{numbering_list[resid_idx]} "
-                    file_content += f"{ln[:22]}{resid_str}{ln[27:]}"
-                else:
-                    file_content += f"{ln}"
-            wfile.write(file_content)
+    pdb_aln_string = "".join(
+        [pdb_numb_lines[n].split()[2] for n in nlines_pdb]
+    )
+    uniprot_aln_string = "".join(
+        [pdb_numb_lines[n].split()[2] for n in nlines_uniprot]
+    )
+
+    pdb_renum = write_renumbered_pdb(
+        pdb_torenum, pdb_aln_string, uniprot_aln_string
+    )
+
     os.unlink(pdb_torenum)
     out_pdb_renum = pdb_renum.rename(f"{pdb_f.stem}-{uniprot_id}.pdb")
     return out_pdb_renum

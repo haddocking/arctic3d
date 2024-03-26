@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 from scipy.spatial.distance import cdist
 
+from arctic3d.modules.sequence import LETTERS
+
 SIGMA = 1.9
 
 log = logging.getLogger("arctic3d.log")
@@ -239,7 +241,10 @@ def interface_matrix(interface_dict, pdb_path, int_cov_cutoff=0.7):
     if not os.path.exists(pdb_path):
         raise Exception(f"pdb_path {pdb_path} does not exist")
     mdu = mda.Universe(pdb_path)
-    pdb_resids = mdu.select_atoms("name CA").resids
+    pdb_resids = mdu.select_atoms(
+        f'protein and name CA and not icode in {" ".join(LETTERS)}'
+    ).resids
+    print(f"pdb_resids {pdb_resids}")
     retained_interfaces = filter_interfaces(
         interface_dict, pdb_resids, int_cov_cutoff
     )

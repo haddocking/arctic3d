@@ -1,12 +1,19 @@
-class Input:
-    def __init__(self, input_arg):
-        self.arg = input_arg
+def is_fasta(input_fasta):
+    if input_fasta:
+        return input_fasta.endswith(".fasta")
+    else:
+        return False
 
-    def is_fasta(self):
-        return self.arg.endswith(".fasta")
 
-    def is_pdb(self):
-        return self.arg.endswith(".pdb")
+def is_pdb(input_pdb):
+    if input_pdb:
+        return input_pdb.endswith(".pdb")
+    else:
+        return False
 
-    def is_uniprot(self):
-        return len(self.arg.split(".")) == 1
+
+def is_uniprot(input_uniprot):
+    if input_uniprot:
+        return len(input_uniprot.split(".")) == 1
+    else:
+        return False
