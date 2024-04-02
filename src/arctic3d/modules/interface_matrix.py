@@ -244,13 +244,12 @@ def interface_matrix(interface_dict, pdb_path, int_cov_cutoff=0.7):
     pdb_resids = mdu.select_atoms(
         f'protein and name CA and not icode in {" ".join(LETTERS)}'
     ).resids
-    print(f"pdb_resids {pdb_resids}")
     retained_interfaces = filter_interfaces(
         interface_dict, pdb_resids, int_cov_cutoff
     )
-    print(f"retained_interfaces: {retained_interfaces}")
     ret_keys = list(retained_interfaces.keys())
-    log.debug(f"Retained interfaces: {ret_keys}")
+    if len(ret_keys) < 10:
+        log.debug(f"Retained interfaces: {ret_keys}")
     n_ret = len(ret_keys)
     if n_ret > 1:
         int_pairs = int(n_ret * (n_ret - 1) / 2)
