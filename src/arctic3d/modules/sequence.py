@@ -87,7 +87,10 @@ def align_sequences(seq1, seq2):
     """
     aln_fname = "blosum80.aln"
     aligner = Align.PairwiseAligner()
+    aligner.open_gap_score = -1.01
+    aligner.extend_gap_score = -1.000
     aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
+    
     alns = aligner.align(seq1, seq2)
     top_aln = alns[0]
     with open(aln_fname, "w") as fh:
@@ -115,7 +118,15 @@ def cycle_alignment(fasta_sequences, ref_seq, output_aln_fname):
     max_id = -1.0
     for fasta in fasta_sequences:
         name, seq = fasta.id, str(fasta.seq)
-        aln_fname, top_aln = align_sequences(ref_seq, seq)
+        try:
+            aln_fname, top_aln = align_sequences(ref_seq, seq)
+        except Exception as e:
+            log.warning(
+                f"Error aligning sequence {name} to reference."
+                "Is it DNA/RNA? Skipping alingment"
+                )
+            identity = -1.0
+            continue
         identity = str(top_aln).count("|") / float(min(len(ref_seq), len(seq)))
         # compute percentage and logging
         perc_identity = identity * 100
