@@ -455,6 +455,8 @@ def write_renumbered_pdb(pdb_torenum, pdb_aln_string, uniprot_aln_string):
                 if ln.startswith(RECORDS):
                     resid = ln[22:26].strip()
                     if resid != prev_resid:
+                        # print(f"ln: {ln}")
+                        # print(f"resid_idx: {resid_idx}, prev_resid: {prev_resid}, uniprot_resid: {uniprot_resid}")
                         resid_idx += 1
                         found_uniprot = False
                         while found_uniprot is False:
@@ -521,9 +523,13 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
         log.warning(f"Could not make Sequence request for {uniprot_id}, {e}")
         return pdb_f
     ref_seq = pdb_dict["sequence"]["sequence"]
+    
+    # extracting the first model from pdb (in case it's an ensemble)
+    selmodel_pdb_f = selmodel_pdb(pdb_f)
+    atoms_pdb_f = keep_atoms(selmodel_pdb_f)
 
     # extracting sequences from input pdb
-    fasta_f = to_fasta(pdb_f, temp=False)
+    fasta_f = to_fasta(atoms_pdb_f, temp=False)
     fasta_sequences = SeqIO.parse(open(fasta_f.name), "fasta")
 
     aln_fname = f"{uniprot_id}.aln"
@@ -537,7 +543,7 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
         log.warning(
             f"Identity between {max_id_chain} and {uniprot_id} lower than 90%"
         )
-    pdb_ch = selchain_pdb(pdb_f, max_id_chain)
+    pdb_ch = selchain_pdb(atoms_pdb_f, max_id_chain)
     pdb_torenum = preprocess_pdb(pdb_ch)
     pdb_numb_lines = open(f"{uniprot_id}.aln", "r").read().split("\n")
     nlines_pdb = list(range(2, len(pdb_numb_lines), 4))
@@ -554,8 +560,11 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
         pdb_torenum, pdb_aln_string, uniprot_aln_string
     )
 
+    os.unlink(selmodel_pdb_f)
+    os.unlink(atoms_pdb_f)
+    os.unlink(pdb_ch)
     os.unlink(pdb_torenum)
-    out_pdb_renum = pdb_renum.rename(f"{pdb_f.stem}-{uniprot_id}.pdb")
+    out_pdb_renum = pdb_renum.rename(f"{pdb_f.stem}-{max_id_chain}-{uniprot_id}.pdb")
     return out_pdb_renum
 
 
@@ -863,7 +872,7 @@ def get_maxint_pdb(validated_pdbs, interface_residues, int_cov_cutoff=0.7):
             chain_id = curr_hit["chain_id"]
 
             # preprocessing pdb file
-            tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
+            tidy_pdb_f = preprocess_pdb(curr_pdb)
 
             try:
                 mdu = mda.Universe(tidy_pdb_f)
