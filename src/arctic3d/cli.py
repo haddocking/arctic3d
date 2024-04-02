@@ -216,6 +216,8 @@ def main(
         if not interface_file:
             fasta_f = to_fasta(input_files["pdb"], temp=False)
             uniprot_id = run_blast(fasta_f.name, db)
+            # remove fasta_f
+            input_files["pdb"].with_suffix(".fasta").unlink()
         else:
             input_files["interface_file"] = Path(interface_file)
             uniprot_id = None
