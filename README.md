@@ -55,6 +55,7 @@ bash install_blast_deps.sh
 ```
 
 And put `blastp` in your `$PATH` by adding the following line to your `.bashrc` or `.bash_profile` file:
+
 ```bash
 export PATH="PATH_TO_YOUR_ARCTIC3D_INSTALLATION/src/ncbi-blast-2.15.0+/bin:$PATH"
 ```
