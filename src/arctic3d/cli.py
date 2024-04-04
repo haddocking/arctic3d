@@ -274,14 +274,16 @@ def main(
     if interface_residues:
         # retrieve pdb file
         if "pdb" in input_files:
+            # interfaces will be filtered later
+            filtered_interfaces = None
             if not interface_file:
                 log.warning(
                     f"input pdb file submitted without interface file. "
                     f"Renumbering input pdb to match uniprot ID {uniprot_id}"
                 )
-            # interfaces will be filtered later
-            filtered_interfaces = None
-            pdb_f = renumber_pdb_from_uniprot(input_files["pdb"], uniprot_id)
+                pdb_f = renumber_pdb_from_uniprot(input_files["pdb"], uniprot_id)
+            else:
+                pdb_f = input_files["pdb"]
         else:
             if pdb_data:
                 pdb_data_path = input_files["pdb_data"]
