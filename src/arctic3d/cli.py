@@ -321,21 +321,25 @@ def main(
 
         log.info(f"Clustered interfaces {cl_dict}")
         log.info(f"Clustered interface residues: {cl_residues}")
-        if min_clust_size > 0:
-            log.info(
-                f"Excluding clusters with less than {min_clust_size} residues"
-            )
-            cl_dict, cl_residues, cl_residues_probs = filter_clusters(
-                cl_dict, cl_residues, cl_residues_probs, min_clust_size
-            )
+        
+        if cl_dict:
+            if min_clust_size > 0:
+                log.info(
+                    f"Excluding clusters with less than {min_clust_size} residues"
+                )
+                cl_dict, cl_residues, cl_residues_probs = filter_clusters(
+                    cl_dict, cl_residues, cl_residues_probs, min_clust_size
+                )
 
-        make_output(
-            interface_residues=interface_residues,
-            pdb_f=pdb_f,
-            cl_dict=cl_dict,
-            cl_residues=cl_residues,
-            cl_residues_probs=cl_residues_probs,
-        )
+            make_output(
+                interface_residues=interface_residues,
+                pdb_f=pdb_f,
+                cl_dict=cl_dict,
+                cl_residues=cl_residues,
+                cl_residues_probs=cl_residues_probs,
+            )
+        else:
+            log.error("No interfaces found after filtering. Please check your input carefully.")
     else:
         log.info("No interfaces found.")
 
