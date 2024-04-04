@@ -137,3 +137,28 @@ def cycle_alignment(fasta_sequences, ref_seq, output_aln_fname):
             shutil.copy(aln_fname, output_aln_fname)
     os.unlink(aln_fname)
     return max_id_chain, max_id
+
+
+def extract_aln_string(pdb_numb_ln, nlines):
+    """
+    Extracts sequence strings from the alignment file.
+
+    Parameters
+    ----------
+    pdb_numb_ln : list
+        list of alignment lines
+    
+    nlines : list
+        list of numbers of lines tp be extracted
+    
+    Returns
+    -------
+    aln_lines : list
+        list of alignment lines
+    """
+    aln_lines = []
+    for n_ln in nlines:
+        splt_ln = pdb_numb_ln[n_ln].split()
+        if len(splt_ln) > 2:
+            aln_lines.append(splt_ln[2])
+    return aln_lines
