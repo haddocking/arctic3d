@@ -2,6 +2,10 @@
 CWD="$(pwd)"
 echo "Current working directory: ${CWD}"
 DB_DIR=${CWD}/db
+# if DB_DIR does not exist, create it
+if [ ! -d "$DB_DIR" ]; then
+	mkdir -p "$DB_DIR"
+fi
 SRC_DIR=${CWD}/src
 OS=$(uname -s)
 echo "Operating System: ${OS}"
@@ -23,7 +27,9 @@ elif [ "${OS}" == "Linux" ]; then
 	BLAST_URL="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/2.15.0/ncbi-blast-2.15.0+-x64-linux.tar.gz"
 fi
 
+echo "Downloading BLAST+ from ${BLAST_URL}..."
 wget "$BLAST_URL" >/dev/null 2>&1
+echo "BLAST downloaded in ${SRC_DIR}"
 
 tar -xzf ncbi-blast-2.15.0+-x64-*.tar.gz
 rm ncbi-blast-2.15.0+-x64-*.tar.gz
