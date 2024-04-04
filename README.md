@@ -12,6 +12,10 @@
 
 **A**utomatic **R**etrieval and **C**lus**T**ering of **I**nterfaces in Complexes from **3D** structural information
 
+## WEB SERVER
+
+ARCTIC-3D is available at this webserver https://wenmr.science.uu.nl/arctic3d/
+
 ## ARCTIC-3D: all you want to know about protein-specific interfaces
 
 ARCTIC-3D is a software for data-mining and clustering of protein interface information. It allows you to retrieve all the existing interface information for your desired protein from the PDBE graph database (https://www.ebi.ac.uk/pdbe/pdbe-kb/), grouping similar interfaces in interacting surfaces.
@@ -50,7 +54,11 @@ arctic3d -h
 bash install_blast_deps.sh
 ```
 
-And put `blastp` in your `$PATH`.
+And put `blastp` in your `$PATH` by adding the following line to your `.bashrc` or `.bash_profile` file:
+
+```bash
+export PATH="PATH_TO_YOUR_ARCTIC3D_INSTALLATION/src/ncbi-blast-2.15.0+/bin:$PATH"
+```
 
 ## Example usage
 
