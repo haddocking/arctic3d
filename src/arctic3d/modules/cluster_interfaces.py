@@ -34,9 +34,11 @@ def cluster_interfaces(
         interface_dict, pdb_path, int_cov_cutoff
     )
     if len(filtered_interfaces) > 0:
-        clustered_residues = interface_clustering(
+        cl_dict, cl_residues, cl_residues_probs = interface_clustering(
             filtered_interfaces, matrix_path, linkage_strategy, threshold
         )
     else:
-        clustered_residues = None
-    return clustered_residues
+        cl_dict = None
+        cl_residues = None
+        cl_residues_probs = None
+    return cl_dict, cl_residues, cl_residues_probs
