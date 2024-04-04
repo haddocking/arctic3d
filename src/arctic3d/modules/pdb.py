@@ -16,7 +16,7 @@ from pdbtools.pdb_selmodel import select_model
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
-from arctic3d.modules.sequence import cycle_alignment, LETTERS, to_fasta
+from arctic3d.modules.sequence import cycle_alignment, extract_aln_string, LETTERS, to_fasta
 
 log = logging.getLogger("arctic3d.log")
 
@@ -545,16 +545,15 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
         )
     pdb_ch = selchain_pdb(atoms_pdb_f, max_id_chain)
     pdb_torenum = preprocess_pdb(pdb_ch)
-    pdb_numb_lines = open(f"{uniprot_id}.aln", "r").read().split("\n")
-    nlines_pdb = list(range(2, len(pdb_numb_lines), 4))
-    nlines_uniprot = list(range(0, len(pdb_numb_lines), 4))
+    pdb_numb_ln = open(f"{uniprot_id}.aln", "r").read().split("\n")
+    nlines_pdb = list(range(2, len(pdb_numb_ln), 4))
+    nlines_uniprot = list(range(0, len(pdb_numb_ln), 4))
 
-    pdb_aln_string = "".join(
-        [pdb_numb_lines[n].split()[2] for n in nlines_pdb]
-    )
-    uniprot_aln_string = "".join(
-        [pdb_numb_lines[n].split()[2] for n in nlines_uniprot]
-    )
+    pdb_aln_strings = extract_aln_string(pdb_numb_ln, nlines_pdb)
+    pdb_aln_string = "".join(pdb_aln_strings)
+    
+    uniprot_aln_strings = extract_aln_string(pdb_numb_ln, nlines_uniprot)
+    uniprot_aln_string = "".join(uniprot_aln_strings)
 
     pdb_renum = write_renumbered_pdb(
         pdb_torenum, pdb_aln_string, uniprot_aln_string
