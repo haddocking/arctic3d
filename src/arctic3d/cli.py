@@ -329,7 +329,7 @@ def main(
         if cl_dict:
             if min_clust_size > 0:
                 log.info(
-                    f"Excluding clusters with less than {min_clust_size} residues"
+                    f"Excluding clusters with less than {min_clust_size} residues"  # noqa
                 )
                 cl_dict, cl_residues, cl_residues_probs = filter_clusters(
                     cl_dict, cl_residues, cl_residues_probs, min_clust_size
@@ -344,7 +344,8 @@ def main(
             )
         else:
             log.error(
-                "No interfaces found after filtering. Please check your input carefully."
+                "No interfaces found after filtering."
+                " Please check your input carefully."
             )
     else:
         log.info("No interfaces found.")

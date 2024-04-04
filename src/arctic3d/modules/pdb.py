@@ -460,8 +460,6 @@ def write_renumbered_pdb(pdb_torenum, pdb_aln_string, uniprot_aln_string):
                 if ln.startswith(RECORDS):
                     resid = ln[22:26].strip()
                     if resid != prev_resid:
-                        # print(f"ln: {ln}")
-                        # print(f"resid_idx: {resid_idx}, prev_resid: {prev_resid}, uniprot_resid: {uniprot_resid}")
                         resid_idx += 1
                         found_uniprot = False
                         while found_uniprot is False:

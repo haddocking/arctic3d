@@ -123,7 +123,8 @@ def cycle_alignment(fasta_sequences, ref_seq, output_aln_fname):
         except Exception as e:
             log.warning(
                 f"Error aligning sequence {name} to reference."
-                "Is it DNA/RNA? Skipping alingment"
+                "Is it DNA/RNA? Skipping alingment..."
+                f"Error: {e}"
             )
             identity = -1.0
             continue
