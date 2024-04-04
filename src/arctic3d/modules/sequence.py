@@ -12,28 +12,28 @@ log = logging.getLogger("arctic3d.log")
 
 LETTERS = [
     "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "I",
-        "K",
-        "L",
-        "M",
-        "N",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "V",
-        "W",
-        "Y",
-        "Z",
-    ]
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "K",
+    "L",
+    "M",
+    "N",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "V",
+    "W",
+    "Y",
+    "Z",
+]
 
 
 def to_fasta(pdb_f, temp):
@@ -90,7 +90,7 @@ def align_sequences(seq1, seq2):
     aligner.open_gap_score = -1.01
     aligner.extend_gap_score = -1.000
     aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
-    
+
     alns = aligner.align(seq1, seq2)
     top_aln = alns[0]
     with open(aln_fname, "w") as fh:
@@ -124,7 +124,7 @@ def cycle_alignment(fasta_sequences, ref_seq, output_aln_fname):
             log.warning(
                 f"Error aligning sequence {name} to reference."
                 "Is it DNA/RNA? Skipping alingment"
-                )
+            )
             identity = -1.0
             continue
         identity = str(top_aln).count("|") / float(min(len(ref_seq), len(seq)))
@@ -147,10 +147,10 @@ def extract_aln_string(pdb_numb_ln, nlines):
     ----------
     pdb_numb_ln : list
         list of alignment lines
-    
+
     nlines : list
         list of numbers of lines tp be extracted
-    
+
     Returns
     -------
     aln_lines : list

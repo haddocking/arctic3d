@@ -16,7 +16,12 @@ from pdbtools.pdb_selmodel import select_model
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
-from arctic3d.modules.sequence import cycle_alignment, extract_aln_string, LETTERS, to_fasta
+from arctic3d.modules.sequence import (
+    cycle_alignment,
+    extract_aln_string,
+    LETTERS,
+    to_fasta,
+)
 
 log = logging.getLogger("arctic3d.log")
 
@@ -523,7 +528,7 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
         log.warning(f"Could not make Sequence request for {uniprot_id}, {e}")
         return pdb_f
     ref_seq = pdb_dict["sequence"]["sequence"]
-    
+
     # extracting the first model from pdb (in case it's an ensemble)
     selmodel_pdb_f = selmodel_pdb(pdb_f)
     atoms_pdb_f = keep_atoms(selmodel_pdb_f)
@@ -551,7 +556,7 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
 
     pdb_aln_strings = extract_aln_string(pdb_numb_ln, nlines_pdb)
     pdb_aln_string = "".join(pdb_aln_strings)
-    
+
     uniprot_aln_strings = extract_aln_string(pdb_numb_ln, nlines_uniprot)
     uniprot_aln_string = "".join(uniprot_aln_strings)
 
@@ -563,7 +568,9 @@ def renumber_pdb_from_uniprot(pdb_f, uniprot_id):
     os.unlink(atoms_pdb_f)
     os.unlink(pdb_ch)
     os.unlink(pdb_torenum)
-    out_pdb_renum = pdb_renum.rename(f"{pdb_f.stem}-{max_id_chain}-{uniprot_id}.pdb")
+    out_pdb_renum = pdb_renum.rename(
+        f"{pdb_f.stem}-{max_id_chain}-{uniprot_id}.pdb"
+    )
     return out_pdb_renum
 
 

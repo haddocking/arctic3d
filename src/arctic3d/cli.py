@@ -281,7 +281,9 @@ def main(
                     f"input pdb file submitted without interface file. "
                     f"Renumbering input pdb to match uniprot ID {uniprot_id}"
                 )
-                pdb_f = renumber_pdb_from_uniprot(input_files["pdb"], uniprot_id)
+                pdb_f = renumber_pdb_from_uniprot(
+                    input_files["pdb"], uniprot_id
+                )
             else:
                 pdb_f = input_files["pdb"]
         else:
@@ -323,7 +325,7 @@ def main(
 
         log.info(f"Clustered interfaces {cl_dict}")
         log.info(f"Clustered interface residues: {cl_residues}")
-        
+
         if cl_dict:
             if min_clust_size > 0:
                 log.info(
@@ -341,7 +343,9 @@ def main(
                 cl_residues_probs=cl_residues_probs,
             )
         else:
-            log.error("No interfaces found after filtering. Please check your input carefully.")
+            log.error(
+                "No interfaces found after filtering. Please check your input carefully."
+            )
     else:
         log.info("No interfaces found.")
 
