@@ -9,7 +9,9 @@ def test_cli_empty():
     target_uniprot = "P23804"
     start_cwd = os.getcwd()
     exit_code = main(
-        input_arg=target_uniprot,
+        input_uniprot=target_uniprot,
+        input_fasta=None,
+        input_pdb=None,
         db=None,
         interface_file=None,
         out_partner=None,
@@ -47,7 +49,9 @@ def test_cli_full():
         shutil.rmtree(exp_dir)
     start_cwd = os.getcwd()
     exit_code = main(
-        input_arg=target_uniprot,
+        input_uniprot=target_uniprot,
+        input_fasta=None,
+        input_pdb=None,
         db=None,
         interface_file=None,
         out_partner=None,
