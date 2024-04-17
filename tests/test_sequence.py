@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import pytest
 
-from arctic3d.modules.sequence import cycle_alignment
+from arctic3d.modules.sequence import align_sequences, cycle_alignment
 
 from . import golden_data
 
@@ -11,6 +11,24 @@ from . import golden_data
 @pytest.fixture
 def inp_fasta():
     return Path(golden_data, "1rypB_r_b.fasta")
+
+
+def test_align_sequences():
+    """Test align_sequences function."""
+    seq1 = "MTDRYSFSLTTFSPSGKLGQIDYALTAVKQGVTSLGIKATNGVVIATEKKSSSPLAMSET"
+    seq2 = "MTDRYSFSLTTFSPSGKLGQIDYALTAVKQGVTSLGIKATNGVVIATEKKSSSPLAMSET"
+    aln_fname, top_aln = align_sequences(seq1, seq2)
+    assert aln_fname == "blosum62.aln"
+    assert top_aln[0] == seq1
+    os.unlink(aln_fname)
+    seq3 = "GQIDWALTAVRQGVTSLGIRATNG"
+    aln_fname, top_aln = align_sequences(seq1, seq3)
+    assert aln_fname == "blosum62.aln"
+    assert (
+        top_aln[1]
+        == "------------------GQIDWALTAVRQGVTSLGIRATNG------------------"
+    )
+    os.unlink(aln_fname)
 
 
 def test_cycle_alignment(inp_fasta):
