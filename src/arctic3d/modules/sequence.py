@@ -85,7 +85,7 @@ def align_sequences(seq1, seq2):
     top_aln : str
         top alignment
     """
-    aln_fname = "blosum80.aln"
+    aln_fname = "blosum62.aln"
     aligner = Align.PairwiseAligner()
     aligner.open_gap_score = -1.01
     aligner.extend_gap_score = -1.000
