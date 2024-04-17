@@ -283,7 +283,6 @@ def test_renumber_pdb_from_uniprot(tricky_pdb):
     renum_pdbf = renumber_pdb_from_uniprot(tricky_pdb, "P00760")
     exp_resids = list(range(24, 247))
     renum_pdbf_content = open(renum_pdbf, "r").read().split(os.linesep)
-    print(renum_pdbf_content)
     obs_resids = [
         int(ln[22:26].strip())
         for ln in renum_pdbf_content
