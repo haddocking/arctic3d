@@ -208,16 +208,22 @@ def main(
 
     # handling input files
     input_files = {}
+    # fasta input
     if is_fasta(input_fasta):
         input_files["fasta"] = Path(input_fasta)
-        uniprot_id = run_blast(input_files["fasta"], db)
+        if not is_uniprot(input_uniprot):
+            uniprot_id = run_blast(input_files["fasta"], db)
+        else:
+            log.warning("Uniprot ID provided. The fasta file will be ignored.")
+    # pdb input
     if is_pdb(input_pdb):
         input_files["pdb"] = Path(input_pdb)
         if not interface_file:
             fasta_f = to_fasta(input_files["pdb"], temp=False)
-            uniprot_id = run_blast(fasta_f.name, db)
-            # remove fasta_f
-            input_files["pdb"].with_suffix(".fasta").unlink()
+            if not is_uniprot(input_uniprot):
+                uniprot_id = run_blast(fasta_f.name, db)
+                # remove fasta_f
+                input_files["pdb"].with_suffix(".fasta").unlink()
         else:
             input_files["interface_file"] = Path(interface_file)
             uniprot_id = None
