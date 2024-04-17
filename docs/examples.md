@@ -16,7 +16,7 @@ ARCTIC3D can be executed in several ways:
 In this example a uniprot ID is provided as input to arctic3d.
 
 ```bash
-arctic3d P00760
+arctic3d --input_uniprot P00760
 ```
 
 This is the basic ARCTIC3D scenario: here the program performs the following tasks sequentially:
@@ -29,7 +29,7 @@ This is the basic ARCTIC3D scenario: here the program performs the following tas
 Step 3 can be skipped by specifying the pdb that must be retrieved:
 
 ```bash
-arctic3d P00760 --pdb_to_use=4xoj
+arctic3d --input_uniprot P00760 --pdb_to_use=4xoj
 ```
 
 This typically allows to considerably reduce the execution time of the program.
@@ -37,13 +37,13 @@ This typically allows to considerably reduce the execution time of the program.
 One or more uniprot IDs can be excluded from set of interacting partners. As an example, this may be important if you want to exclude homodimer interfaces from the search:
 
 ```bash
-arctic3d P00760 --out_uniprot=P00760,P00974
+arctic3d --input_uniprot P00760 --out_uniprot=P00760,P00974
 ```
 
 Following the same logic, one or more pdb IDs can be excluded from the search:
 
 ```bash
-arctic3d P00760 --out_pdb=4xoj,6sy3
+arctic3d --input_uniprot P00760 --out_pdb=4xoj,6sy3
 ```
 
 ## standard-fasta-input
@@ -51,7 +51,7 @@ arctic3d P00760 --out_pdb=4xoj,6sy3
 Here a single sequence (in FASTA format) is given to ARCTIC3D. The program blasts the sequence against the local version of blast to get the corresponding uniprot ID.
 
 ```bash
-arctic3d example/1ppe_E.fasta --db db/swissprot
+arctic3d --input_fasta example/1ppe_E.fasta --db db/swissprot
 ```
 
 Once the uniprot ID is retrieved the workflow proceeds as explained in [standard-uniprot-input](standard-uniprot-input).
@@ -59,25 +59,33 @@ Once the uniprot ID is retrieved the workflow proceeds as explained in [standard
 To run blast remotely simply remove the db reference:
 
 ```bash
-arctic3d example/1ppe_E.fasta
+arctic3d --input_fasta example/1ppe_E.fasta
 ```
+
+This will take a lot longer.
 
 ## standard-pdb-input
 
 It is also possible to provide ARCTIC3D with a set of pre-calculated interfaces. These might be extracted with any computational or experimental methodology. In this case an input pdb is mandatory:
 
 ```bash
-arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
+arctic3d --input_pdb example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
 ```
 
 One may want to run ARCTIC3D on a custom pdb, without providing an interface file. Here the program extracts the pdb sequence and finds the corresponding uniprot ID. The input file is then renumbered according to the canonical numbering. Finally, the workflow showcased in [standard-uniprot-input](standard-uniprot-input) can be executed.
+
+If known, the uniprot ID of the protein can be specified as follows:
+```bash
+arctic3d --input_pdb example/1ppe_E.pdb --input_uniprot P00760
+```
+On the one hand this allows to speed-up the execution by eliminating the need for the BLAST search. On the other hand, it allows to specify a uniprot ID different from the best-matching one (particularly useful if close homologues can be identified).
 
 ## uniprot-full-input
 
 In the PDB it might happen that the same protein partners interact with a different set of residues, depending on a variety of factors. As an example, proteins forming homotrimers form at least two different interfaces. By default, ARCTIC3D does not consider this multimeric information, but the `full` option can be utilized to separate protein-protein interfaces at the pdb-chain level.
 
 ```bash
-arctic3d P00760 --full=True
+arctic3d --input_uniprot P00760 --full=True
 ```
 
 ## uniprot-ligand-input
@@ -85,13 +93,13 @@ arctic3d P00760 --full=True
 Small-molecule interaction information is not retrieved by default by ARCTIC3D. By setting the `ligand` option to `yes` the retrieval can be limited to ligands:
 
 ```bash
-arctic3d P00760 --ligand=yes
+arctic3d --input_uniprot P00760 --ligand=yes
 ```
 
 Such information can be combined with standard interface information by setting the `ligand` option to `both`:
 
 ```bash
-arctic3d P00760 --ligand=both
+arctic3d --input_uniprot P00760 --ligand=both
 ```
 
 **Disclaimer**: typically, different small molecules of the same type (ions in particular) cannot be distinguished according to the [graph-api](https://www.ebi.ac.uk/pdbe/pdbe-kb/api). Therefore results have to be interpreted carefully.
