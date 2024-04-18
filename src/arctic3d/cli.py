@@ -208,6 +208,7 @@ def main(
 
     # handling input files
     input_files = {}
+    uniprot_id = None
     # fasta input
     if is_fasta(input_fasta):
         input_files["fasta"] = Path(input_fasta)
@@ -226,7 +227,6 @@ def main(
                 input_files["pdb"].with_suffix(".fasta").unlink()
         else:
             input_files["interface_file"] = Path(interface_file)
-            uniprot_id = None
     # 25/7/2023: if the pdb is provided, the blast uniprot_id can be
     # overwritten by specifying the uniprot_id input argument
     if is_uniprot(input_uniprot):
