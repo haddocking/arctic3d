@@ -64,6 +64,12 @@ arctic3d --input_fasta example/1ppe_E.fasta
 
 This will take a lot longer.
 
+*Note*: this was an example running within the arctic3d repository folder. To run it somewhere else in your system simply add the full (or relative) path to the database:
+
+```bash
+arctic3d --input_fasta my_own.fasta --db PATH-TO-YOUR-ARCTIC3D-INSTALLATION/db/swissprot
+```
+
 ## standard-pdb-input
 
 It is also possible to provide ARCTIC3D with a set of pre-calculated interfaces. These might be extracted with any computational or experimental methodology. In this case an input pdb is mandatory:
@@ -74,13 +80,17 @@ arctic3d --input_pdb example/1ppe_E.pdb --interface_file example/1ppe_E_example_
 
 One may want to run ARCTIC3D on a custom pdb, without providing an interface file. Here the program extracts the pdb sequence and finds the corresponding uniprot ID. The input file is then renumbered according to the canonical numbering. Finally, the workflow showcased in [standard-uniprot-input](standard-uniprot-input) can be executed.
 
+```bash
+arctic3d --input_pdb example/1ppe_E.pdb --db db/swissprot
+```
+
 If known, the uniprot ID of the protein can be specified as follows:
 
 ```bash
 arctic3d --input_pdb example/1ppe_E.pdb --input_uniprot P00760
 ```
 
-On the one hand this speeds up the execution by eliminating the need for the BLAST search. On the other hand, it allows to specify a uniprot ID different from the best-matching one (particularly useful if close homologues can be identified).
+On the one hand this speeds up the execution by eliminating the need for the BLAST search. On the other hand, it allows to specify a uniprot ID different from the best-matching one (particularly useful if close homologues can be present).
 
 ## uniprot-full-input
 
