@@ -1,5 +1,5 @@
-from pathlib import Path
 import os
+from pathlib import Path
 import pytest
 
 from arctic3d.modules.pdb import (
@@ -8,6 +8,7 @@ from arctic3d.modules.pdb import (
     get_maxint_pdb,
     keep_atoms,
     occ_pdb,
+    renumber_pdb_from_uniprot,
     selchain_pdb,
     selmodel_pdb,
     tidy_pdb,
@@ -275,6 +276,19 @@ def test_pdb_data(inp_pdb_data):
     assert filtered_interfaces == orig_interfaces
     pdb.unlink()
     cif.unlink()
+
+
+def test_renumber_pdb_from_uniprot(tricky_pdb):
+    """Test renumber_pdb_from_uniprot."""
+    renum_pdbf = renumber_pdb_from_uniprot(tricky_pdb, "P00760")
+    exp_resids = list(range(24, 247))
+    renum_pdbf_content = open(renum_pdbf, "r").read().split(os.linesep)
+    obs_resids = [
+        int(ln[22:26].strip())
+        for ln in renum_pdbf_content
+        if ln.startswith("ATOM") and ln[13:15] == "CA"
+    ]
+    assert exp_resids == obs_resids
 
 
 def test_convert_cif_to_pdbs(inp_cif_3psg):

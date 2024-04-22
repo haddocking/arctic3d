@@ -229,9 +229,13 @@ def output_pdb(pdb_f, cl_residues_probs):
         with open(new_filename, "w") as wfile:
             for ln in original_content:
                 if ln.startswith("ATOM"):
-                    resid = int(ln[23:27].strip())
+                    resid = int(ln[23:26].strip())
+                    ins_code = ln[26]
                     new_beta = 0.00
-                    if resid in cl_residues_probs[cl_id].keys():
+                    if (
+                        resid in cl_residues_probs[cl_id].keys()
+                        and ins_code == " "
+                    ):
                         new_beta = (
                             st_beta
                             + (100 - st_beta) * cl_residues_probs[cl_id][resid]

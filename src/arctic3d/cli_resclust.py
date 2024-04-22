@@ -35,7 +35,7 @@ from arctic3d.modules.clustering import (
     cluster_similarity_matrix,
     get_clustering_dict,
 )
-from arctic3d.modules.input import Input
+from arctic3d.modules.input import is_pdb
 
 
 argument_parser = argparse.ArgumentParser()
@@ -133,16 +133,15 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
     log.setLevel("INFO")
 
     # check input
-    inp = Input(input_arg)
-    if not inp.is_pdb:
+    if not is_pdb(input_arg):
         log.error("Input must be a pdb file")
         sys.exit(1)
 
     # read pdb
     try:
-        mdu = mda.Universe(inp.arg)
+        mdu = mda.Universe(input_arg)
     except ValueError:
-        log.error(f"Unable to read input PDB file {inp.arg}")
+        log.error(f"Unable to read input PDB file {input_arg}")
         sys.exit(1)
 
     # extract atoms

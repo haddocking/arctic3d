@@ -10,7 +10,9 @@ from . import golden_data
 @pytest.fixture
 def example_pdbpath():
     """Example pdb path."""
-    return Path(golden_data, "1rypB_r_b.pdb")
+    pdb_path = Path(golden_data, "1rypB_r_b.pdb")
+    pdb_path_string = str(pdb_path.resolve())
+    return pdb_path_string
 
 
 def test_resclust_cli(example_pdbpath):
