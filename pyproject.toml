@@ -2,17 +2,16 @@
 name = "arctic3d"
 license = "Apache-2.0"
 version = "0.4.1"
-description = ""
-authors = [
-  "Computational Structural Biology Group at Utrecht University <haddocking@gmail.com>",
-]
+description = "Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information"
+authors = ["BonvinLab <bonvinlab.support@uu.nl>"]
 readme = "README.md"
 classifiers = [
-  # "Development Status :: 5 - Production/Stable",
+  "Development Status :: 5 - Production/Stable",
   "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.9",
   "Topic :: Scientific/Engineering :: Chemistry",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Intended Audience :: Science/Research",
 ]
 
 [tool.poetry.dependencies]
