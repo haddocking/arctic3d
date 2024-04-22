@@ -8,7 +8,7 @@
 
 [![SQAaaS badge](https://github.com/EOSC-synergy/SQAaaS/raw/master/badges/badges_150x116/badge_software_bronze.png)](https://api.eu.badgr.io/public/assertions/oAuS52pQTWaC90qMk97hlA "SQAaaS bronze badge achieved")
 
-<img src="docs/imgs/arctic3d.png" width="450">
+<img src="https://raw.githubusercontent.com/haddocking/arctic3d/main/docs/imgs/arctic3d.png" width="450">
 
 **A**utomatic **R**etrieval and **C**lus**T**ering of **I**nterfaces in Complexes from **3D** structural information
 
