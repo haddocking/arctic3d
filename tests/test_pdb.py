@@ -214,7 +214,7 @@ def test_validate_api_hit_check_pdb(pdb_hit_no_resolution):
 def test_get_best_pdb(example_interfaces):
     """Test get_best_pdb."""
     pdb, cif, filtered_interfaces = get_best_pdb("P20023", example_interfaces)
-    exp_pdb = Path("P20023-1ghq-C.pdb")
+    exp_pdb = Path("P20023-1ghq-B.pdb")
     exp_cif = Path("1ghq_updated.cif")
     exp_interfaces = {"P01024": [103, 104, 105]}
     assert pdb == exp_pdb
