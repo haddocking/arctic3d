@@ -1,9 +1,11 @@
-from arctic3d.modules.pdb import BESTPDB_URL
-import requests
 import http
-from pathlib import Path
 import json
+from pathlib import Path
+
 import pytest
+import requests
+
+from arctic3d.modules.pdb import BESTPDB_URL
 
 TARGET_UNIPROT = "P07550"
 
