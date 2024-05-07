@@ -25,9 +25,11 @@ jobs:
 
       - run: poetry install --no-interaction --no-root
 
+      - name: Run sanity check on the API endpoints
+        run: poetry run pytest -m sanity -vvv
+
       - name: Test
-        run: |
-          poetry run pytest --cov=./ --cov-report=xml -v
+        run: poetry run pytest -m "not sanity" --cov=./ --cov-report=xml -v
 
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
