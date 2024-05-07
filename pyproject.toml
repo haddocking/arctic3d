@@ -47,6 +47,10 @@ hypothesis = "^6.100.0"
 [tool.black]
 line-length = 79
 
+[tool.pytest.ini_options]
+pythonpath = "src"
+markers = ["sanity: tests if the apis are working as expected"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
