@@ -41,6 +41,7 @@ def example_uniprot_data():
     }
 
 
+@pytest.mark.integration
 def test_localise_cli_empty(empty_cluster_filepath):
     """Test localise cli with empty cluster file."""
     start_cwd = os.getcwd()

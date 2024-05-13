@@ -28,8 +28,11 @@ jobs:
       - name: Run sanity check on the API endpoints
         run: poetry run pytest -m sanity -vvv
 
-      - name: Test
-        run: poetry run pytest -m "not sanity" --cov=./ --cov-report=xml -v
+      - name: Run unit tests
+        run: poetry run pytest -m "not (sanity or integration)" --cov=./ --cov-report=xml -v
+
+      - name: Run integration tests
+        run: poetry run pytest -m integration
 
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1

@@ -50,7 +50,10 @@ line-length = 79
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-markers = ["sanity: tests if the apis are working as expected"]
+markers = [
+  "sanity: tests if the apis are working as expected",
+  "integration: tests the integration of different components",
+]
 
 [build-system]
 requires = ["poetry-core"]
