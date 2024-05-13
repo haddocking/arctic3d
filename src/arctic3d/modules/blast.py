@@ -1,4 +1,5 @@
 """Function to BLAST input sequence and return accession id."""
+
 import logging
 import os
 import shlex
@@ -7,7 +8,7 @@ import subprocess
 from pathlib import Path
 
 from Bio.Blast import NCBIWWW
-from defusedxml import lxml as ET
+from lxml import etree as ET
 
 log = logging.getLogger("arctic3d.log")
 
