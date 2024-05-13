@@ -1,14 +1,15 @@
-from arctic3d.cli_localise import (
-    main,
-    get_quickgo_information,
-    get_uniprot_subcellular_location,
-)
-
+import os
+import shutil
 from pathlib import Path
 
 import pytest
-import os
-import shutil
+
+from arctic3d.cli_localise import (
+    call_uniprot,
+    get_quickgo_information,
+    get_uniprot_subcellular_location,
+    main,
+)
 
 from . import golden_data
 
@@ -76,3 +77,20 @@ def test_get_uniprot_subcellular_location(example_uniprot_data):
     obs_locs = get_uniprot_subcellular_location(example_uniprot_data)
     exp_locs = ["Nucleus"]
     assert exp_locs == obs_locs
+
+
+def test_call_uniprot(mocker):
+
+    mock_make_request = mocker.patch("arctic3d.cli_localise.make_request")
+
+    mock_make_request.return_value = {}
+
+    result = call_uniprot("P12345")
+
+    assert result == {}
+
+    mock_make_request.side_effect = Exception("Mocked exception")
+
+    result = call_uniprot("P12345")
+
+    assert result is None
