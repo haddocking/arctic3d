@@ -878,7 +878,7 @@ def get_best_pdb(
             log.warning(f"Could not read input interface_data {pdb_data}, {e}")
             return
 
-    # TODO: Redo this logic, pdb_dict should never be None (?)
+    # FIXME: Redo this logic, pdb_dict should never be None (?)
     assert pdb_dict is not None
 
     # if pdb_to_use is not None, already filter the list
@@ -902,7 +902,7 @@ def get_best_pdb(
         log.warning(f"Could not fetch PDB/mmcif file for {uniprot_id}")
         return None, None, None
 
-    # TODO: Redo this logic, top_hit should never be None (?)
+    # FIXME: Redo this logic, top_hit should never be None (?)
     assert top_hit is not None
 
     pdb_id = top_hit["pdb_id"]
