@@ -627,6 +627,8 @@ def validate_api_hit(
         exp_method = str(hit["experimental_method"])
         if check_pdb:
             # check coverage value
+
+            # FIXME: `coverage` can be None, so we should add a check here (?)
             assert coverage is not None
             if float(coverage) > coverage_cutoff:
                 check_list.append(True)
@@ -751,6 +753,8 @@ def get_maxint_pdb(
     if validated_pdbs != []:
         max_nint = 0
         for curr_pdb, curr_cif_f, curr_hit in validated_pdbs:
+
+            # FIXME: Can chain_id be None?
             assert isinstance(curr_hit["chain_id"], str)
             chain_id = curr_hit["chain_id"]
 
