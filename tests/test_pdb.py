@@ -2,6 +2,7 @@ import copy
 import json
 import os
 from pathlib import Path
+from typing import Union
 
 import pytest
 
@@ -394,7 +395,7 @@ def test_validate_api_hit(
     assert validated_pdbs == mock_fetch_pdb_files.return_value
 
     # Test the behaviour when the experimental method is NMR
-    _validate_api_hit_input: dict[str, int | float | str | None] = (
+    _validate_api_hit_input: dict[str, Union[int, float, str, None]] = (
         copy.deepcopy(validate_api_hit_input[0])
     )
 

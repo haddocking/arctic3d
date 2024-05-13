@@ -210,7 +210,9 @@ def select_by_occupancy(fhandle, option=None):
         yield _line
 
 
-def fetch_updated_cif(pdb_id: str, cif_fname: str | Path) -> Path | None:
+def fetch_updated_cif(
+    pdb_id: str, cif_fname: Union[str, Path]
+) -> Union[Path, None]:
     """
     Fetch updated cif from PDBE database.
 
@@ -238,8 +240,8 @@ def fetch_updated_cif(pdb_id: str, cif_fname: str | Path) -> Path | None:
 
 
 def get_cif_dict(
-    cif_name: str | Path,
-) -> dict[str, dict[str, Any]] | None:
+    cif_name: Union[str, Path]
+) -> Union[dict[str, dict[str, Any]], None]:
     """
     Convert cif file to dict.
 
@@ -286,7 +288,7 @@ def check_big_uni(ats_dict, uniprot_id):
 
 
 def convert_cif_to_pdbs(
-    cif_fname: str | Path, pdb_id: str, uniprot_id: str
+    cif_fname: Union[str, Path], pdb_id: str, uniprot_id: str
 ) -> list[Path]:
     """
     Converts a cif file into a pdb file for each chain matching the uniprot_id
@@ -583,7 +585,7 @@ def keep_atoms(inp_pdb_f):
 
 
 def validate_api_hit(
-    fetch_list: list[dict[str, str | int | float | None]],
+    fetch_list: list[dict[str, Union[str, int, float, None]]],
     uniprot_id: str,
     check_pdb: bool = True,
     resolution_cutoff: float = 4.0,
@@ -690,7 +692,9 @@ def preprocess_pdb(pdb_fname, chain_id):
     return tidy_pdb_f
 
 
-def unlink_files(suffix: str = "pdb", to_exclude: list[Path] | None = None):
+def unlink_files(
+    suffix: str = "pdb", to_exclude: Union[list[Path], None] = None
+):
     """
     Remove all files with suffix in the cwd except for those in to_exclude.
 
@@ -710,14 +714,14 @@ def unlink_files(suffix: str = "pdb", to_exclude: list[Path] | None = None):
 
 
 def get_maxint_pdb(
-    validated_pdbs: list[tuple[Path, Path, dict[str, int | float | str]]],
+    validated_pdbs: list[tuple[Path, Path, dict[str, Union[int, float, str]]]],
     interface_residues: dict[str, list[int]],
     int_cov_cutoff: float = 0.7,
 ) -> tuple[
-    Path | None,
-    Path | None,
-    dict[str, int | float | str] | None,
-    dict[str, list[int]] | None,
+    Union[Path, None],
+    Union[Path, None],
+    Union[dict[str, Union[int, float, str]], None],
+    Union[dict[str, list[int]], None],
 ]:
     """
     Get PDB ID that retains the most interfaces.
@@ -783,10 +787,10 @@ def get_maxint_pdb(
 
 
 def filter_pdb_list(
-    fetch_list: list[dict[str, str | int | float | None]],
-    pdb_to_use: str | None = None,
-    chain_to_use: str | None = None,
-) -> list[dict[str, str | int | float | None]]:
+    fetch_list: list[dict[str, Union[int, float, str, None]]],
+    pdb_to_use: Union[str, None] = None,
+    chain_to_use: Union[str, None] = None,
+) -> list[dict[str, Union[int, float, str, None]]]:
     """
     Filter the PDB fetch list.
 
@@ -803,7 +807,7 @@ def filter_pdb_list(
         List containing only the pdb_to_use hit
     """
 
-    reduced_list: list[dict[str, str | int | float | None]] = []
+    reduced_list: list[dict[str, Union[int, float, str, None]]] = []
     for hit in fetch_list:
         pdb_id = hit["pdb_id"]
         chain_id = hit["chain_id"]
@@ -824,9 +828,9 @@ def filter_pdb_list(
 def get_best_pdb(
     uniprot_id: str,
     interface_residues: dict[str, list[int]],
-    pdb_to_use: str | None = None,
-    chain_to_use: str | None = None,
-    pdb_data: str | None = None,
+    pdb_to_use: Union[str, None] = None,
+    chain_to_use: Union[str, None] = None,
+    pdb_data: Union[str, None] = None,
     int_cov_cutoff: float = 0.7,
 ):
     """
@@ -854,7 +858,9 @@ def get_best_pdb(
     filtered_interfaces : dict or None
         Dictionary of the retained and filtered interfaces.
     """
-    pdb_dict: dict[str, list[dict[str, str | int | float | None]]] | None = {}
+    pdb_dict: Union[
+        dict[str, list[dict[str, Union[str, int, float, None]]]], None
+    ] = {}
     if not pdb_data:
         url = f"{BESTPDB_URL}/{uniprot_id}"
         try:
