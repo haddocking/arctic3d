@@ -1,3 +1,5 @@
+import copy
+import json
 import os
 from pathlib import Path
 
@@ -5,6 +7,7 @@ import pytest
 
 from arctic3d.modules.pdb import (
     convert_cif_to_pdbs,
+    fetch_pdb_files,
     filter_pdb_list,
     get_best_pdb,
     get_maxint_pdb,
@@ -346,7 +349,7 @@ def test_keep_atoms(inp_pdb):
 
 
 def test_selmodel_pdb(inp_pdb):
-    pdb = selmodel_pdb(inp_pdb, "1")
+    pdb = selmodel_pdb(inp_pdb, 1)
     assert pdb.exists()
     pdb.unlink()
 
@@ -362,10 +365,11 @@ def test_validate_api_hit(
     mock_fetch_pdb_files = mocker.patch("arctic3d.modules.pdb.fetch_pdb_files")
     mock_fetch_pdb_files.return_value = fetch_pdb_files_output
 
-    # validated_pdbs = validate_api_hit(validate_api_hit_input, "P40202")
-    # assert validated_pdbs == fetch_pdb_files_output
+    validated_pdbs = validate_api_hit(
+        fetch_list=validate_api_hit_input, uniprot_id="P40202"
+    )
+    assert validated_pdbs == fetch_pdb_files_output
 
-    # Change the resolution cutoff
     mock_fetch_pdb_files.return_value = [
         {
             "end": 140,
@@ -381,38 +385,31 @@ def test_validate_api_hit(
         }
     ]
     validated_pdbs = validate_api_hit(
-        validate_api_hit_input, "P40202", resolution_cutoff=1.6
+        fetch_list=validate_api_hit_input,
+        uniprot_id="P40202",
+        resolution_cutoff=1.6,
     )
-    assert len(validated_pdbs) == 0
 
-    # assert "1ej8" in validated_pdbs[0]
+    # Since `validate_api` will return the output of `fetch_pdb_files` (?)
+    assert validated_pdbs == mock_fetch_pdb_files.return_value
 
-    # pdb, cif, dict = validated_pdbs[0]
-    # assert pdb.name == "2gsx-A.pdb"
-    # assert cif.name == "2gsx_updated.cif"
-    # assert dict == pdb_hit_no_resolution
+    # Test the behaviour when the experimental method is NMR
+    _validate_api_hit_input: dict[str, int | float | str | None] = (
+        copy.deepcopy(validate_api_hit_input[0])
+    )
 
+    _validate_api_hit_input["experimental_method"] = "Solution NMR"
+    _validate_api_hit_input["resolution"] = None
+    _api_hit_input = [_validate_api_hit_input]
 
-# def test_validate_api_hit_nmr(pdb_hit_no_resolution):
-#     """Test validate_api_hit with NMR data."""
-#     pdb_hit_no_resolution["experimental_method"] = "Solution NMR"
-#     # NMR structures have no resolution but should be accepted
-#     validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
-#     pdb, cif, dict = validated_pdbs[0]
-#     assert pdb.name == "2gsx-A.pdb"
-#     assert cif.name == "2gsx_updated.cif"
-#     assert dict == pdb_hit_no_resolution
+    mock_fetch_pdb_files.return_value = _api_hit_input
 
+    validated_pdbs = validate_api_hit(
+        fetch_list=_api_hit_input, uniprot_id="P20023"
+    )
 
-# def test_validate_api_hit_check_pdb(pdb_hit_no_resolution):
-#     """Test validate_api_hit with check_pdb == False."""
-#     validated_pdbs = validate_api_hit(
-#         [pdb_hit_no_resolution], "P20023", check_pdb=False
-#     )
-#     pdb, cif, dict = validated_pdbs[0]
-#     assert pdb.name == "2gsx-A.pdb"
-#     assert cif.name == "2gsx_updated.cif"
-#     assert dict == pdb_hit_no_resolution
+    # Since `validate_api` will return the output of `fetch_pdb_files` (?)
+    assert validated_pdbs == mock_fetch_pdb_files.return_value
 
 
 def test_get_best_pdb(
@@ -420,22 +417,22 @@ def test_get_best_pdb(
 ):
     """Test get_best_pdb."""
 
-    # mock_make_request = mocker.patch("arctic3d.modules.pdb.make_request")
-    # mock_make_request.return_value = json.load(open(inp_pdb_data, "r"))
+    mock_make_request = mocker.patch("arctic3d.modules.pdb.make_request")
+    mock_make_request.return_value = json.load(open(inp_pdb_data, "r"))
 
-    # mock_fetch_pdb_files = mocker.patch("arctic3d.modules.pdb.fetch_pdb_files")
-    # mock_fetch_pdb_files.return_value = fetch_pdb_files_output
+    mock_fetch_pdb_files = mocker.patch("arctic3d.modules.pdb.fetch_pdb_files")
+    mock_fetch_pdb_files.return_value = fetch_pdb_files_output
 
     observed_pdb, observed_cif, filtered_interfaces = get_best_pdb(
         uniprot_id="P40202",
         interface_residues=example_interfaces,
-        # pdb_data=False,
     )  # type: ignore
     expected_pdb = Path("P40202-5u9m-B.pdb")
     expected_cif = Path("5u9m_updated.cif")
     exp_interfaces = {"P01024": [103, 104, 105]}
 
-    # mock_make_request.assert_called()
+    mock_make_request.assert_called()
+    mock_fetch_pdb_files.assert_called()
 
     assert observed_pdb is not None
     assert observed_cif is not None
@@ -444,12 +441,62 @@ def test_get_best_pdb(
     assert observed_cif.name == expected_cif.name
     assert filtered_interfaces == exp_interfaces
 
-    # expected_pdb.unlink()
-    # expected_cif.unlink()
+    expected_pdb.unlink()
+
+    # FIXME: What is this testing?
+    orig_interfaces = {"P00441": [85, 137, 138]}
+    observed_pdb, _, filtered_interfaces = get_best_pdb(
+        "P40202", orig_interfaces, pdb_data=inp_pdb_data
+    )  # type: ignore
+
+    assert filtered_interfaces == orig_interfaces
+
+    expected_pdb.unlink()
 
 
-def test_fetch_pdb_files():
-    pass
+def test_fetch_pdb_files(mocker):
+
+    mock_fetch_updated_cif = mocker.patch(
+        "arctic3d.modules.pdb.fetch_updated_cif"
+    )
+    mock_fetch_updated_cif.return_value = Path("1ej8_updated.cif")
+
+    mock_convert_cif_to_pdbs = mocker.patch(
+        "arctic3d.modules.pdb.convert_cif_to_pdbs"
+    )
+    # `convert_cif_to_pdb` would produce a file, mock this
+    converted_pdb = Path("1ej8-A.pdb")
+    converted_pdb.touch()
+    converted_cif = Path("1ej8_updated.cif")
+
+    mock_convert_cif_to_pdbs.return_value = [converted_pdb]
+
+    pdb_to_fetch = [
+        {
+            "end": 140,
+            "chain_id": "A",
+            "pdb_id": "1ej8",
+            "start": 1,
+            "unp_end": 217,
+            "coverage": 0.562,
+            "unp_start": 78,
+            "resolution": 1.55,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        }
+    ]
+
+    observed_output = fetch_pdb_files(
+        pdb_to_fetch=pdb_to_fetch,
+        uniprot_id="P40202",
+    )
+    expected_output = [(converted_pdb, converted_cif, pdb_to_fetch[0])]
+
+    assert observed_output[0][0] == expected_output[0][0]
+    assert observed_output[0][1] == expected_output[0][1]
+    assert observed_output[0][2] == expected_output[0][2]
+
+    converted_pdb.unlink()
 
 
 def test_get_maxint_pdb_empty():
@@ -470,11 +517,19 @@ def test_get_maxint_pdb(good_hits, example_interfaces):
     pdb_f, cif_f, top_hit, filtered_interfaces = get_maxint_pdb(
         validated_pdbs, example_interfaces
     )
+
+    assert pdb_f is not None
+    assert cif_f is not None
+    assert top_hit is not None
+
     assert pdb_f.name == "4xoj-A-occ-tidy.pdb"
     assert cif_f.name == "4xoj_updated.cif"
     assert top_hit["pdb_id"] == "4xoj"
     assert top_hit["chain_id"] == "A"
     assert filtered_interfaces == {"P01024": [103, 104, 105]}
+
+    pdb_f.unlink()
+    cif_f.unlink()
 
 
 def test_filter_pdb_list(good_hits):
@@ -493,18 +548,6 @@ def test_filter_pdb_list(good_hits):
     assert observed_red_list == expected_red_list
 
 
-def test_pdb_data(inp_pdb_data):
-    """Test pdb_data input json file."""
-    orig_interfaces = {"P00441": [85, 137, 138]}
-    pdb, cif, filtered_interfaces = get_best_pdb(
-        "P40202", orig_interfaces, pdb_data=inp_pdb_data
-    )
-
-    assert filtered_interfaces == orig_interfaces
-    pdb.unlink()
-    cif.unlink()
-
-
 def test_convert_cif_to_pdbs(inp_cif_3psg):
     """Test convert_cif_to_pdbs."""
     obs_out_pdb_fnames = convert_cif_to_pdbs(inp_cif_3psg, "3psg", "P00791")
@@ -519,3 +562,5 @@ def test_convert_cif_to_pdbs(inp_cif_3psg):
     ]
     assert obs_pdb_lines[0] == exp_pdb_lines[0]
     assert obs_pdb_lines[-1] == exp_pdb_lines[-1]
+
+    obs_out_pdb_fnames[0].unlink()
