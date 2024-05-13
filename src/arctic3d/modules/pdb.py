@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+from typing import Union
 
 import jsonpickle
 import MDAnalysis as mda
@@ -9,9 +10,8 @@ from pdbecif.mmcif_io import MMCIF2Dict
 
 # from pdbtools.pdb_selaltloc import select_by_occupancy
 from pdbtools.pdb_selchain import select_chain
-from pdbtools.pdb_tidy import tidy_pdbfile
 from pdbtools.pdb_selmodel import select_model
-
+from pdbtools.pdb_tidy import tidy_pdbfile
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
@@ -382,7 +382,9 @@ def convert_cif_to_pdbs(cif_fname, pdb_id, uniprot_id):
     return out_pdb_fnames
 
 
-def fetch_pdb_files(pdb_to_fetch, uniprot_id):
+def fetch_pdb_files(
+    pdb_to_fetch: list[dict[str, Union[str, float, int]]], uniprot_id: str
+) -> list[tuple[Path, Path, dict[str, Union[str, float, int]]]]:
     """
     Fetches the pdb files from PDBe database.
 
@@ -402,13 +404,9 @@ def fetch_pdb_files(pdb_to_fetch, uniprot_id):
         pdb_id = hit["pdb_id"]
         chain_id = hit["chain_id"]
         cif_fname = f"{pdb_id}_updated.cif"
-        # if the cif file has not been downloaded yet, download it
-        if cif_fname not in os.listdir():
-            cif_f = fetch_updated_cif(pdb_id, cif_fname)
-            pdb_files = convert_cif_to_pdbs(cif_f, pdb_id, uniprot_id)
-            log.info(f"converted cif to pdb files: {pdb_files}")
-        else:
-            cif_f = Path(cif_fname)
+        cif_f = fetch_updated_cif(pdb_id, cif_fname)
+        pdb_files = convert_cif_to_pdbs(cif_f, pdb_id, uniprot_id)
+        log.info(f"converted cif to pdb files: {pdb_files}")
         pdb_fname = f"{pdb_id}-{chain_id}.pdb"
         pdb_f = Path(pdb_fname)
         if pdb_f.exists():
