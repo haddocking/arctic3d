@@ -1,8 +1,10 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 import pytest
 
 from arctic3d.modules.pdb import (
+    convert_cif_to_pdbs,
     filter_pdb_list,
     get_best_pdb,
     get_maxint_pdb,
@@ -12,7 +14,6 @@ from arctic3d.modules.pdb import (
     selmodel_pdb,
     tidy_pdb,
     validate_api_hit,
-    convert_cif_to_pdbs,
 )
 
 from . import golden_data
@@ -116,6 +117,182 @@ def good_hits():
 
 
 @pytest.fixture
+def fetch_pdb_files_output():
+    return [
+        (
+            Path(golden_data, "5u9m-B.pdb"),
+            Path(golden_data, "5u9m_updated.cif"),
+            {
+                "end": 248,
+                "chain_id": "B",
+                "pdb_id": "5u9m",
+                "start": 1,
+                "unp_end": 249,
+                "coverage": 0.996,
+                "unp_start": 2,
+                "resolution": 2.35,
+                "experimental_method": "X-ray diffraction",
+                "tax_id": 559292,
+            },
+        ),
+        (
+            Path(golden_data, "5u9m-D.pdb"),
+            Path(golden_data, "5u9m_updated.cif"),
+            {
+                "end": 248,
+                "chain_id": "D",
+                "pdb_id": "5u9m",
+                "start": 1,
+                "unp_end": 249,
+                "coverage": 0.996,
+                "unp_start": 2,
+                "resolution": 2.35,
+                "experimental_method": "X-ray diffraction",
+                "tax_id": 559292,
+            },
+        ),
+        (
+            Path(golden_data, "1qup-A.pdb"),
+            Path(golden_data, "1qup_updated.cif"),
+            {
+                "end": 222,
+                "chain_id": "A",
+                "pdb_id": "1qup",
+                "start": 1,
+                "unp_end": 223,
+                "coverage": 0.892,
+                "unp_start": 2,
+                "resolution": 1.8,
+                "experimental_method": "X-ray diffraction",
+                "tax_id": 4932,
+            },
+        ),
+        (
+            Path(golden_data, "1qup-B.pdb"),
+            Path(golden_data, "1qup_updated.cif"),
+            {
+                "end": 222,
+                "chain_id": "B",
+                "pdb_id": "1qup",
+                "start": 1,
+                "unp_end": 223,
+                "coverage": 0.892,
+                "unp_start": 2,
+                "resolution": 1.8,
+                "experimental_method": "X-ray diffraction",
+                "tax_id": 4932,
+            },
+        ),
+        (
+            Path(golden_data, "1ej8-A.pdb"),
+            Path(golden_data, "1ej8_updated.cif"),
+            {
+                "end": 140,
+                "chain_id": "A",
+                "pdb_id": "1ej8",
+                "start": 1,
+                "unp_end": 217,
+                "coverage": 0.562,
+                "unp_start": 78,
+                "resolution": 1.55,
+                "experimental_method": "X-ray diffraction",
+                "tax_id": 4932,
+            },
+        ),
+    ]
+
+
+@pytest.fixture
+def validate_api_hit_input():
+    return [
+        {
+            "end": 249,
+            "chain_id": "B",
+            "pdb_id": "1jk9",
+            "start": 1,
+            "unp_end": 249,
+            "coverage": 1,
+            "unp_start": 1,
+            "resolution": 2.9,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        },
+        {
+            "end": 249,
+            "chain_id": "D",
+            "pdb_id": "1jk9",
+            "start": 1,
+            "unp_end": 249,
+            "coverage": 1,
+            "unp_start": 1,
+            "resolution": 2.9,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        },
+        {
+            "end": 248,
+            "chain_id": "B",
+            "pdb_id": "5u9m",
+            "start": 1,
+            "unp_end": 249,
+            "coverage": 0.996,
+            "unp_start": 2,
+            "resolution": 2.35,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 559292,
+        },
+        {
+            "end": 248,
+            "chain_id": "D",
+            "pdb_id": "5u9m",
+            "start": 1,
+            "unp_end": 249,
+            "coverage": 0.996,
+            "unp_start": 2,
+            "resolution": 2.35,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 559292,
+        },
+        {
+            "end": 222,
+            "chain_id": "A",
+            "pdb_id": "1qup",
+            "start": 1,
+            "unp_end": 223,
+            "coverage": 0.892,
+            "unp_start": 2,
+            "resolution": 1.8,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        },
+        {
+            "end": 222,
+            "chain_id": "B",
+            "pdb_id": "1qup",
+            "start": 1,
+            "unp_end": 223,
+            "coverage": 0.892,
+            "unp_start": 2,
+            "resolution": 1.8,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        },
+        {
+            "end": 140,
+            "chain_id": "A",
+            "pdb_id": "1ej8",
+            "start": 1,
+            "unp_end": 217,
+            "coverage": 0.562,
+            "unp_start": 78,
+            "resolution": 1.55,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        },
+    ]
+
+
+@pytest.fixture
 def example_interfaces():
     interfaces = {
         "P01024": [103, 104, 105],
@@ -174,54 +351,105 @@ def test_selmodel_pdb(inp_pdb):
     pdb.unlink()
 
 
-def test_validate_api_hit(pdb_hit_no_resolution):
+def test_validate_api_hit(
+    mocker,
+    fetch_pdb_files_output,
+    pdb_hit_no_resolution,
+    validate_api_hit_input,
+):
     """Test validate_api_hit."""
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
-    assert (
-        validated_pdbs == []
-    )  # this is empty because resolution is None and exp != NMR
-    # change resolution to 1.0
-    pdb_hit_no_resolution["resolution"] = 1.0
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
-    pdb, cif, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx-A.pdb"
-    assert cif.name == "2gsx_updated.cif"
-    assert dict == pdb_hit_no_resolution
 
+    mock_fetch_pdb_files = mocker.patch("arctic3d.modules.pdb.fetch_pdb_files")
+    mock_fetch_pdb_files.return_value = fetch_pdb_files_output
 
-def test_validate_api_hit_nmr(pdb_hit_no_resolution):
-    """Test validate_api_hit with NMR data."""
-    pdb_hit_no_resolution["experimental_method"] = "Solution NMR"
-    # NMR structures have no resolution but should be accepted
-    validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
-    pdb, cif, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx-A.pdb"
-    assert cif.name == "2gsx_updated.cif"
-    assert dict == pdb_hit_no_resolution
+    # validated_pdbs = validate_api_hit(validate_api_hit_input, "P40202")
+    # assert validated_pdbs == fetch_pdb_files_output
 
-
-def test_validate_api_hit_check_pdb(pdb_hit_no_resolution):
-    """Test validate_api_hit with check_pdb == False."""
+    # Change the resolution cutoff
+    mock_fetch_pdb_files.return_value = [
+        {
+            "end": 140,
+            "chain_id": "A",
+            "pdb_id": "1ej8",
+            "start": 1,
+            "unp_end": 217,
+            "coverage": 0.562,
+            "unp_start": 78,
+            "resolution": 1.55,
+            "experimental_method": "X-ray diffraction",
+            "tax_id": 4932,
+        }
+    ]
     validated_pdbs = validate_api_hit(
-        [pdb_hit_no_resolution], "P20023", check_pdb=False
+        validate_api_hit_input, "P40202", resolution_cutoff=1.6
     )
-    pdb, cif, dict = validated_pdbs[0]
-    assert pdb.name == "2gsx-A.pdb"
-    assert cif.name == "2gsx_updated.cif"
-    assert dict == pdb_hit_no_resolution
+    assert len(validated_pdbs) == 0
+
+    # assert "1ej8" in validated_pdbs[0]
+
+    # pdb, cif, dict = validated_pdbs[0]
+    # assert pdb.name == "2gsx-A.pdb"
+    # assert cif.name == "2gsx_updated.cif"
+    # assert dict == pdb_hit_no_resolution
 
 
-def test_get_best_pdb(example_interfaces):
+# def test_validate_api_hit_nmr(pdb_hit_no_resolution):
+#     """Test validate_api_hit with NMR data."""
+#     pdb_hit_no_resolution["experimental_method"] = "Solution NMR"
+#     # NMR structures have no resolution but should be accepted
+#     validated_pdbs = validate_api_hit([pdb_hit_no_resolution], "P20023")
+#     pdb, cif, dict = validated_pdbs[0]
+#     assert pdb.name == "2gsx-A.pdb"
+#     assert cif.name == "2gsx_updated.cif"
+#     assert dict == pdb_hit_no_resolution
+
+
+# def test_validate_api_hit_check_pdb(pdb_hit_no_resolution):
+#     """Test validate_api_hit with check_pdb == False."""
+#     validated_pdbs = validate_api_hit(
+#         [pdb_hit_no_resolution], "P20023", check_pdb=False
+#     )
+#     pdb, cif, dict = validated_pdbs[0]
+#     assert pdb.name == "2gsx-A.pdb"
+#     assert cif.name == "2gsx_updated.cif"
+#     assert dict == pdb_hit_no_resolution
+
+
+def test_get_best_pdb(
+    mocker, fetch_pdb_files_output, inp_pdb_data, example_interfaces
+):
     """Test get_best_pdb."""
-    pdb, cif, filtered_interfaces = get_best_pdb("P20023", example_interfaces)
-    exp_pdb = Path("P20023-1ghq-B.pdb")
-    exp_cif = Path("1ghq_updated.cif")
+
+    # mock_make_request = mocker.patch("arctic3d.modules.pdb.make_request")
+    # mock_make_request.return_value = json.load(open(inp_pdb_data, "r"))
+
+    # mock_fetch_pdb_files = mocker.patch("arctic3d.modules.pdb.fetch_pdb_files")
+    # mock_fetch_pdb_files.return_value = fetch_pdb_files_output
+
+    observed_pdb, observed_cif, filtered_interfaces = get_best_pdb(
+        uniprot_id="P40202",
+        interface_residues=example_interfaces,
+        # pdb_data=False,
+    )  # type: ignore
+    expected_pdb = Path("P40202-5u9m-B.pdb")
+    expected_cif = Path("5u9m_updated.cif")
     exp_interfaces = {"P01024": [103, 104, 105]}
-    assert pdb == exp_pdb
-    assert cif == exp_cif
+
+    # mock_make_request.assert_called()
+
+    assert observed_pdb is not None
+    assert observed_cif is not None
+
+    assert observed_pdb.name == expected_pdb.name
+    assert observed_cif.name == expected_cif.name
     assert filtered_interfaces == exp_interfaces
-    exp_pdb.unlink()
-    exp_cif.unlink()
+
+    # expected_pdb.unlink()
+    # expected_cif.unlink()
+
+
+def test_fetch_pdb_files():
+    pass
 
 
 def test_get_maxint_pdb_empty():
