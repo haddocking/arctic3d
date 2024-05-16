@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import pytest
@@ -103,26 +104,81 @@ def test_error_parse_out_pdb():
             parse_out_pdb(string)
 
 
-def test_interface_data(inp_interface_data):
+def test_interface_data(mocker, inp_interface_data, inp_interface_ligand_data):
     """Test interface_data input json file."""
-    obs_interface_residues = get_interface_residues(
-        "P40202",
-        None,
-        None,
-        full=False,
-        interface_data=inp_interface_data,
-        ligand="no",
-    )
+
+    # Mock the `make_request` to make sure the tests are not dependent on the API
+    mock_make_request = mocker.patch("arctic3d.modules.interface.make_request")
+
     exp_interface_residues = {
         "P00441": [85, 137, 138, 187, 217, 218, 222, 229, 231, 232],
         "P00445": [136, 137, 138, 187, 217, 218, 226, 229, 230],
         "P40202": [136, 137, 138, 183, 184, 186, 187, 217, 218],
     }
+
+    # Case 1 - interface_data is provided
+    mock_make_request.return_value = {}
+
+    obs_interface_residues = get_interface_residues(
+        uniprot_id="P40202",
+        out_partner_string=None,
+        out_pdb_string=None,
+        full=False,
+        interface_data=inp_interface_data,
+        ligand="no",
+    )
+
     assert obs_interface_residues == exp_interface_residues
 
+    # Case 2 -  interface_data=None & ligand="no"
+    mock_make_request.return_value = json.load(
+        open(
+            inp_interface_data,
+        )
+    )
 
-def test_full_interface(inp_interface_data):
+    obs_interface_residues = get_interface_residues(
+        uniprot_id="P40202",
+        out_partner_string=None,
+        out_pdb_string=None,
+        full=False,
+        interface_data=None,  # setting interface as None should trigger a call to the API
+        ligand="no",  # setting ligand as `no` will trigger a call to `INTERFACE_URL`
+    )
+    assert obs_interface_residues == exp_interface_residues
+
+    # Case 3 -  interface_data=None & ligand="yes"
+    mock_make_request.return_value = json.load(
+        open(
+            inp_interface_ligand_data,
+        )
+    )
+
+    obs_interface_residues = get_interface_residues(
+        uniprot_id="P40202",
+        out_partner_string=None,
+        out_pdb_string=None,
+        full=False,
+        interface_data=None,  # setting interface as None should trigger a call to the API
+        ligand="yes",  # setting ligand as `no` will trigger a call to `LIGAND_URL`
+    )
+
+    assert obs_interface_residues == {
+        "ZN": [17, 20],
+        "SO4": [76, 77, 188, 217],
+    }
+
+    # Make sure the mock was called
+    mock_make_request.assert_called()
+
+
+def test_full_interface(mocker, inp_interface_data):
     """Test interface_data input json file with full option."""
+
+    # Mock the `make_request` to make sure the tests are not dependent on the API
+    mock_make_request = mocker.patch("arctic3d.modules.interface.make_request")
+    mock_make_request.return_value = {}
+
     obs_interface_residues = get_interface_residues(
         "P40202",
         None,
@@ -142,8 +198,13 @@ def test_full_interface(inp_interface_data):
     assert obs_interface_residues == exp_interface_residues
 
 
-def test_ligandyes_interface(inp_interface_ligand_data):
+def test_ligandyes_interface(mocker, inp_interface_ligand_data):
     """Test get_interface_residues when ligand == yes."""
+
+    # Mock the `make_request` to make sure the tests are not dependent on the API
+    mock_make_request = mocker.patch("arctic3d.modules.interface.make_request")
+    mock_make_request.return_value = {}
+
     obs_interface_residues = get_interface_residues(
         "P40202",
         None,
