@@ -1,14 +1,17 @@
-from arctic3d.cli_restraints import (
-    main,
-    filter_residues_probs,
-    generate_restraints,
-    compress_tbl_files,
-)
-
-from pathlib import Path
+import glob
 import os
 import shutil
-import glob
+from pathlib import Path
+
+import pytest
+
+from arctic3d.cli_restraints import (
+    compress_tbl_files,
+    filter_residues_probs,
+    generate_restraints,
+    main,
+)
+
 from . import golden_data
 
 
@@ -71,6 +74,7 @@ def test_compress_tbl_files():
     os.unlink(out_tgz)
 
 
+@pytest.mark.integration
 def test_main():
     """Test main."""
     start_cwd = os.getcwd()

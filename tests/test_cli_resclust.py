@@ -13,6 +13,7 @@ def example_pdbpath():
     return Path(golden_data, "1rypB_r_b.pdb")
 
 
+@pytest.mark.integration
 def test_resclust_cli(example_pdbpath):
     main(
         example_pdbpath,
@@ -24,6 +25,7 @@ def test_resclust_cli(example_pdbpath):
     )
 
 
+@pytest.mark.integration
 def test_wrong_residue_list(example_pdbpath):
     with pytest.raises(SystemExit) as e:
         main(
@@ -38,6 +40,7 @@ def test_wrong_residue_list(example_pdbpath):
     assert e.value.code == 1
 
 
+@pytest.mark.integration
 def test_resclust_maxclust(example_pdbpath):
     main(
         example_pdbpath,

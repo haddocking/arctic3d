@@ -1,9 +1,13 @@
-from arctic3d.cli import main
+import os
 import shutil
 from pathlib import Path
-import os
+
+import pytest
+
+from arctic3d.cli import main
 
 
+@pytest.mark.integration
 def test_cli_empty():
     """Test main cli with uniprot ID with no interfaces."""
     target_uniprot = "P23804"
@@ -38,6 +42,7 @@ def test_cli_empty():
         shutil.rmtree(exp_dir)
 
 
+@pytest.mark.integration
 def test_cli_full():
     """Test main cli with uniprot ID with one interface."""
     target_uniprot = "W5JXD7"
