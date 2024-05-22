@@ -15,11 +15,9 @@ from pdbtools.pdb_tidy import tidy_pdbfile
 
 from arctic3d.functions import make_request
 from arctic3d.modules.interface_matrix import filter_interfaces
+from arctic3d.modules.url import BESTPDB_URL, PDBE_URL
 
 log = logging.getLogger("arctic3d.log")
-
-BESTPDB_URL = "https://www.ebi.ac.uk/pdbe/graph-api/mappings/best_structures"
-PDBE_URL = "https://www.ebi.ac.uk/pdbe/entry-files/download"
 
 
 def _remove_altloc(lines):
