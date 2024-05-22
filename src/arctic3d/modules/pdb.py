@@ -414,8 +414,8 @@ def fetch_pdb_files(
     for hit in pdb_to_fetch:
         try:
             pdb_id = str(hit["pdb_id"])
-        except:
-            raise ValueError(f"No `pdb_id` field in hit {hit}")
+        except Exception as e:
+            raise ValueError(f"No `pdb_id` field in hit {hit}") from e
 
         chain_id = hit["chain_id"]
         cif_fname = f"{pdb_id}_updated.cif"
@@ -624,9 +624,7 @@ def validate_api_hit(
             float(hit["resolution"]) if hit["resolution"] is not None else None
         )
         exp_method = str(hit["experimental_method"])
-        if check_pdb:
-            # check coverage value
-            assert coverage is not None, f"`coverage` field of {hit} is None"
+        if check_pdb and coverage is not None:
 
             if float(coverage) > coverage_cutoff:
                 check_list.append(True)
@@ -756,10 +754,6 @@ def get_maxint_pdb(
 
             try:
                 chain_id = str(curr_hit["chain_id"])
-            except TypeError:
-                raise ValueError(
-                    f"`chain_id` field on is not a string {curr_hit}"
-                )
             except Exception as e:
                 raise e
 
