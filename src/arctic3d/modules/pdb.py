@@ -1,5 +1,6 @@
 import logging
 import os
+from http import HTTPStatus
 from pathlib import Path
 from typing import Any, Union
 
@@ -210,9 +211,7 @@ def select_by_occupancy(fhandle, option=None):
         yield _line
 
 
-def fetch_updated_cif(
-    pdb_id: str, cif_fname: Union[str, Path]
-) -> Union[Path, None]:
+def fetch_updated_cif(pdb_id: str, cif_fname: Union[str, Path]) -> Path:
     """
     Fetch updated cif from PDBE database.
 
@@ -230,18 +229,16 @@ def fetch_updated_cif(
     """
     log.debug(f"Fetching updated CIF file {pdb_id} from PDBE")
     cif_response = requests.get(f"{PDBE_URL}/{pdb_id}_updated.cif")
-    if cif_response.status_code != 200:
-        log.warning(f"Could not fetch CIF file for {pdb_id}")
-        return None
+    if cif_response.status_code != HTTPStatus.OK:
+        raise FileNotFoundError(f"Could not fetch CIF file for {pdb_id}")
 
     with open(cif_fname, "wb") as wfile:
         wfile.write(cif_response.content)
+
     return Path(cif_fname)
 
 
-def get_cif_dict(
-    cif_name: Union[str, Path]
-) -> Union[dict[str, dict[str, Any]], None]:
+def get_cif_dict(cif_name: Union[str, Path]) -> dict[str, dict[str, Any]]:
     """
     Convert cif file to dict.
 
@@ -257,6 +254,10 @@ def get_cif_dict(
     """
     mmcif_dict = MMCIF2Dict()
     cif_dict = mmcif_dict.parse(cif_name)
+
+    if cif_dict is None:
+        raise ValueError(f"Could not parse {cif_name}")
+
     return cif_dict
 
 
@@ -309,13 +310,12 @@ def convert_cif_to_pdbs(
     """
     cif_dict = get_cif_dict(cif_fname)
 
-    # FIXME: `cif_dict` can be None, so we should add a check here (?)
-    assert cif_dict is not None
-
     ats_dict = cif_dict[pdb_id.upper()]["_atom_site"]
     len_sifts_mapping = len(ats_dict["auth_seq_id"])
     # initialising lists
-    out_pdb_fnames, out_pdb_lines, atom_ids = [], [], []
+    out_pdb_fnames = []
+    atom_ids = []
+    out_pdb_lines: list[list[str]] = []
     big_uni = check_big_uni(ats_dict, uniprot_id)
     if big_uni:
         log.info(f"uniprot id {uniprot_id} in {pdb_id} has residue IDs > 9999")
@@ -393,8 +393,9 @@ def convert_cif_to_pdbs(
 
 
 def fetch_pdb_files(
-    pdb_to_fetch: list[dict[str, Union[str, float, int]]], uniprot_id: str
-) -> list[tuple[Path, Path, dict[str, Union[str, float, int]]]]:
+    pdb_to_fetch: list[dict[str, Union[str, float, int, None]]],
+    uniprot_id: str,
+) -> list[tuple[Path, Path, dict[str, Union[str, float, int, None]]]]:
     """
     Fetches the pdb files from PDBe database.
 
@@ -411,16 +412,14 @@ def fetch_pdb_files(
     validated_pdb_and_cifs = []
     valid_pdb_set = set()  # set of valid pdb IDs
     for hit in pdb_to_fetch:
-        pdb_id = str(hit["pdb_id"])
+        try:
+            pdb_id = str(hit["pdb_id"])
+        except:
+            raise ValueError(f"No `pdb_id` field in hit {hit}")
+
         chain_id = hit["chain_id"]
         cif_fname = f"{pdb_id}_updated.cif"
         cif_f = fetch_updated_cif(pdb_id=pdb_id, cif_fname=cif_fname)
-
-        # FIXME: `cif_f` can be None, so we should add a check here (?)
-        assert cif_f is not None
-
-        # FIXME: `pdb_id` can be None, so we should add a check here (?)
-        assert pdb_id is not None
 
         pdb_files = convert_cif_to_pdbs(
             cif_fname=cif_f, pdb_id=pdb_id, uniprot_id=uniprot_id
@@ -488,7 +487,7 @@ def selchain_pdb(inp_pdb_f, chain):
     return out_pdb_fname
 
 
-def selmodel_pdb(inp_pdb_f, model_id: int = 1) -> Path:
+def selmodel_pdb(inp_pdb_f: Path, model_id: int = 1) -> Path:
     """
     Select model from PDB file.
 
@@ -591,7 +590,7 @@ def validate_api_hit(
     resolution_cutoff: float = 4.0,
     coverage_cutoff: float = 0.0,
     max_pdb_num: int = 20,
-):
+) -> list[tuple[Path, Path, dict[str, Union[str, float, int, None]]]]:
     """
     Validate PDB fetch request file.
 
@@ -627,9 +626,8 @@ def validate_api_hit(
         exp_method = str(hit["experimental_method"])
         if check_pdb:
             # check coverage value
+            assert coverage is not None, f"`coverage` field of {hit} is None"
 
-            # FIXME: `coverage` can be None, so we should add a check here (?)
-            assert coverage is not None
             if float(coverage) > coverage_cutoff:
                 check_list.append(True)
             else:
@@ -696,7 +694,7 @@ def preprocess_pdb(pdb_fname, chain_id):
 
 def unlink_files(
     suffix: str = "pdb", to_exclude: Union[list[Path], None] = None
-):
+) -> None:
     """
     Remove all files with suffix in the cwd except for those in to_exclude.
 
@@ -716,14 +714,16 @@ def unlink_files(
 
 
 def get_maxint_pdb(
-    validated_pdbs: list[tuple[Path, Path, dict[str, Union[int, float, str]]]],
+    validated_pdbs: list[
+        tuple[Path, Path, dict[str, Union[int, float, str, None]]]
+    ],
     interface_residues: dict[str, list[int]],
     int_cov_cutoff: float = 0.7,
 ) -> tuple[
     Union[Path, None],
     Union[Path, None],
-    Union[dict[str, Union[int, float, str]], None],
-    Union[dict[str, list[int]], None],
+    Union[dict[str, Union[int, float, str, None]], None],
+    Union[dict[Any, Any], None],
 ]:
     """
     Get PDB ID that retains the most interfaces.
@@ -754,9 +754,14 @@ def get_maxint_pdb(
         max_nint = 0
         for curr_pdb, curr_cif_f, curr_hit in validated_pdbs:
 
-            # FIXME: Can chain_id be None?
-            assert isinstance(curr_hit["chain_id"], str)
-            chain_id = curr_hit["chain_id"]
+            try:
+                chain_id = str(curr_hit["chain_id"])
+            except TypeError:
+                raise ValueError(
+                    f"`chain_id` field on is not a string {curr_hit}"
+                )
+            except Exception as e:
+                raise e
 
             # preprocessing pdb file
             tidy_pdb_f = preprocess_pdb(curr_pdb, chain_id)
@@ -787,6 +792,7 @@ def get_maxint_pdb(
         if max_nint != 0:
             log.info(f"filtered_interfaces {filtered_interfaces}")
             log.info(f"pdb {pdb_f} retains the most interfaces ({max_nint})")
+
     return pdb_f, cif_f, hit, filtered_interfaces
 
 
@@ -836,7 +842,7 @@ def get_best_pdb(
     chain_to_use: Union[str, None] = None,
     pdb_data: Union[str, None] = None,
     int_cov_cutoff: float = 0.7,
-):
+) -> tuple[Union[Path, None], Union[Path, None], Union[dict[Any, Any], None]]:
     """
     Get best PDB ID.
 
@@ -873,17 +879,16 @@ def get_best_pdb(
             log.warning(
                 f"Could not make BestStructure request for {uniprot_id}, {e}"
             )
-            return
+            return None, None, {}
     else:
         try:
             # FIXME: Make sure this decode is correct
             pdb_dict = jsonpickle.decode(open(pdb_data, "r").read())  # type: ignore
         except Exception as e:
             log.warning(f"Could not read input interface_data {pdb_data}, {e}")
-            return
+            return None, None, {}
 
-    # FIXME: Redo this logic, pdb_dict should never be None (?)
-    assert pdb_dict is not None
+    assert pdb_dict is not None, "`pdb_dict` is None"
 
     # if pdb_to_use is not None, already filter the list
     check_pdb = True
@@ -904,7 +909,7 @@ def get_best_pdb(
 
     if pdb_f is None or cif_f is None:
         log.warning(f"Could not fetch PDB/mmcif file for {uniprot_id}")
-        return None, None, None
+        return None, None, {}
 
     # FIXME: Redo this logic, top_hit should never be None (?)
     assert top_hit is not None

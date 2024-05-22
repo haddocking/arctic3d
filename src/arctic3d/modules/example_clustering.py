@@ -1,6 +1,8 @@
+from typing import Any
+
 from clustering import interface_clustering
 
-interface_dict = {
+interface_dict: dict[str, Any] = {
     "int_1": [],
     "int_2": [],
     "int_3": [],
