@@ -26,7 +26,7 @@ jobs:
       - run: poetry install --no-interaction --no-root
 
       - name: Check types
-        run: mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
+        run: poetry run mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
 
       - name: Run sanity check on the API endpoints
         run: poetry run pytest -m sanity -vvv
