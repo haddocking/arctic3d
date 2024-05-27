@@ -3,9 +3,12 @@ import http
 import pytest
 import requests
 
-from arctic3d.cli_localise import UNIPROT_API_URL
-from arctic3d.modules.interface import LIGAND_URL
-from arctic3d.modules.pdb import BESTPDB_URL, PDBE_URL
+from arctic3d.modules.url import (  # noqa
+    BESTPDB_URL,
+    LIGAND_URL,
+    PDBE_URL,
+    UNIPROT_API_URL,
+)
 
 TARGET_UNIPROT = "P07550"
 TARGET_PDB = "1crn"
