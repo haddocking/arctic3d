@@ -128,9 +128,9 @@ def get_clustering_dict(clusters, ligands):
     # loop over clusters
     for cl in range(len(clusters)):
         if clusters[cl] not in cl_dict.keys():
-            cl_dict[clusters[cl]] = [ligands[cl]]
+            cl_dict[cl] = [ligands[cl]]
         else:
-            cl_dict[clusters[cl]].append(ligands[cl])
+            cl_dict[cl].append(ligands[cl])
     log.info(f"Cluster dictionary {cl_dict}")
     return cl_dict
 
