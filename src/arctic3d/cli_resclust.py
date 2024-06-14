@@ -23,6 +23,8 @@ Input arguments:
     `linkage` : the linkage strategy.
 
     `criterion` : the criterion to extract the clusters.
+
+    `output` : the path where to output clusters data.
 """
 import argparse
 import sys
@@ -36,6 +38,7 @@ from arctic3d.modules.clustering import (
     get_clustering_dict,
 )
 from arctic3d.modules.input import Input
+from arctic3d.modules.output import create_output_folder
 
 
 argument_parser = argparse.ArgumentParser()
@@ -88,6 +91,13 @@ argument_parser.add_argument(
     "--chain", help="Segment ID to be considered", required=False
 )
 
+argument_parser.add_argument(
+    "--output",
+    help="Path to the generated output dictionary",
+    type=str,
+    required=False,
+)
+
 
 def load_args(arguments):
     """
@@ -128,7 +138,15 @@ def maincli():
     cli(argument_parser, main)
 
 
-def main(input_arg, residue_list, chain, threshold, linkage, criterion):
+def main(
+    input_arg,
+    residue_list,
+    chain,
+    threshold,
+    linkage,
+    criterion,
+    output,
+):
     """Main function."""
     log.setLevel("INFO")
 
@@ -192,14 +210,32 @@ def main(input_arg, residue_list, chain, threshold, linkage, criterion):
         )
 
         cl_dict = get_clustering_dict(clusters, unique_sorted_resids)
-        for el in cl_dict.keys():
-            log.info(
-                f"cluster {el}, residues"
-                f" {' '.join([str(res) for res in cl_dict[el]])}"
-            )
     else:
         log.info("Only one residue, no clustering performed.")
-        log.info(f"cluster 1, residues {unique_sorted_resids[0]}")
+        # fake cluster dict with only one entry
+        cl_dict = {1: unique_sorted_resids}
+
+    # log data
+    for el in cl_dict.keys():
+        log.info(
+            f"cluster {el}, residues"
+            f" {' '.join([str(res) for res in cl_dict[el]])}"
+        )
+
+    # check if data must be flushed to output file
+    if output:
+        # initiate output directory
+        output_basepath = create_output_folder(output, uniprot_id='resclust')
+        # write txt file
+        output_fname = f'{output_basepath}/clustered_residues.out'
+        log.info(f'writing clusters data in "{output_fname}"')
+        with open(output_fname, 'w') as filout:
+            for el in cl_dict.keys():
+                filout.write(
+                    f"cluster {el} -> "
+                    f"{' '.join([str(res) for res in cl_dict[el]])}"
+                    "\n"
+                )
 
 
 if __name__ == "__main__":
