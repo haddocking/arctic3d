@@ -41,6 +41,7 @@ The scale parameter can be used to scale the images::
     arctic3d-localise ./example/clustered_interfaces.out \
         --scale=2.0
 """
+
 import argparse
 import os
 import sys
@@ -48,20 +49,17 @@ import time
 from pathlib import Path
 
 from arctic3d import log
-
 from arctic3d.functions import make_request
 from arctic3d.modules.interface import parse_out_partner
 from arctic3d.modules.log import add_log_for_CLI
-from arctic3d.modules.output import (
-    #    create_barplot,
+from arctic3d.modules.output import (  # create_barplot,
     create_barplotly,
     create_output_folder,
     parse_clusters,
     setup_output_folder,
     write_dict,
 )
-
-UNIPROT_API_URL = "https://www.ebi.ac.uk/proteins/api/proteins"
+from arctic3d.modules.url import UNIPROT_API_URL
 
 argument_parser = argparse.ArgumentParser()
 argument_parser.add_argument(
