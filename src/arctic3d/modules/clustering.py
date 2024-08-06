@@ -127,7 +127,7 @@ def get_clustering_dict(clusters, ligands):
     cl_dict = {}
     # loop over clusters
     for cl in range(len(clusters)):
-        cluster_members = cl_dict.setdefautl(cl, [])
+        cluster_members = cl_dict.setdefault(cl, [])
         cluster_members.append(ligands[cl])
     log.info(f"Cluster dictionary {cl_dict}")
     return cl_dict
