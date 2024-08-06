@@ -1,7 +1,5 @@
 # Developing ARCTIC-3D
 
-This section is still work in progress
-
 ## Installation
 
 We use `poetry` to manage the dependencies and the virtual environment, so it makes things easier if you need to install it first; check the [official documentation](https://python-poetry.org/docs/#installation) for more details.

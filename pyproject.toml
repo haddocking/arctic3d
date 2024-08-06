@@ -2,35 +2,33 @@
 name = "arctic3d"
 license = "Apache-2.0"
 version = "0.4.1"
-description = ""
-authors = [
-  "Computational Structural Biology Group at Utrecht University <haddocking@gmail.com>",
-]
+description = "Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information"
+authors = ["BonvinLab <bonvinlab.support@uu.nl>"]
 readme = "README.md"
 classifiers = [
-  # "Development Status :: 5 - Production/Stable",
+  "Development Status :: 5 - Production/Stable",
   "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.9",
   "Topic :: Scientific/Engineering :: Chemistry",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Intended Audience :: Science/Research",
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
-bio = "1.5.9"
-defusedxml = "0.7.1"
-lxml = "4.9.3"
-mdanalysis = "2.6.1"
-requests = "2.31.0"
-biopython = "1.81"
-scipy = "1.11.2"
-matplotlib = "3.7.2"
+bio = "1.6.2"
+lxml = "5.2.2"
+mdanalysis = "2.7.0"
+requests = "2.32.3"
+biopython = "1.84"
+scipy = "1.13.1"
+matplotlib = "3.9.1"
 pdb-tools = "2.5.0"
-pandas = "2.0.3"
-openpyxl = "3.1.2"
-plotly = "5.16.1"
+pandas = "2.2.2"
+openpyxl = "3.1.5"
+plotly = "5.22.0"
 pdbecif = "1.5"
-jsonpickle = "3.0.2"
+jsonpickle = "3.0.4"
 kaleido = "0.2.1"
 
 [tool.poetry.scripts]
@@ -40,13 +38,23 @@ arctic3d-localise = "arctic3d.cli_localise:maincli"
 arctic3d-restraints = "arctic3d.cli_restraints:maincli"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.4.1"
-pytest-cov = "^4.1.0"
-coverage = "^7.3.0"
-hypothesis = "^6.84.0"
+pytest = "^8.1.0"
+pytest-cov = "^5.0.0"
+pytest-mock = "^3.14.0"
+coverage = "^7.4.3"
+hypothesis = "^6.100.0"
+mypy = "^1.10.0"
+types-requests = "^2.32.0"
 
 [tool.black]
 line-length = 79
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+markers = [
+  "sanity: tests if the apis are working as expected",
+  "integration: tests the integration of different components",
+]
 
 [build-system]
 requires = ["poetry-core"]

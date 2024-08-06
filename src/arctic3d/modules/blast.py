@@ -1,13 +1,15 @@
 """Function to BLAST input sequence and return accession id."""
+
 import logging
 import os
 import shlex
 import shutil
 import subprocess
+import tempfile
 from pathlib import Path
 
 from Bio.Blast import NCBIWWW
-from defusedxml import lxml as ET
+from lxml import etree as ET
 
 log = logging.getLogger("arctic3d.log")
 
@@ -87,7 +89,7 @@ def blast_local(fasta_file, db):
     return uniprot_id
 
 
-def blast_remote(fasta_file):
+def blast_remote(fasta_file: str) -> str:
     """
     Blast sequence.
 
@@ -106,12 +108,22 @@ def blast_remote(fasta_file):
         "blastp", "swissprot", fasta_file, hitlist_size=50
     )
 
-    # temp file for storing results
-    with open("blast_res.xml", "w") as save_output:
-        blast_res = blast_res_handle.read()
-        save_output.write(blast_res)
+    # TODO: Handle scenario in which the `qblast` call fails
 
-    tree = ET.parse("blast_res.xml")
+    with tempfile.NamedTemporaryFile(
+        mode="w+", delete=True, suffix=".xml"
+    ) as temp:
+        blast_res = blast_res_handle.read()
+        temp.write(blast_res)
+        temp.flush()
+        accession_id = parse_xml(temp.name)
+
+    return accession_id
+
+
+def parse_xml(xml_file: str) -> str:
+    """Parse the BLAST XML file and return the first (?) accession ID."""
+    tree = ET.parse(source=xml_file, parser=ET.XMLParser(encoding="utf-8"))
     root = tree.getroot()
 
     # root [BlastOutput_iterations] [Iteration] [Iteration_hits] \
