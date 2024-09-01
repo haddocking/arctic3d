@@ -577,13 +577,13 @@ files = [
 
 [[package]]
 name = "jsonpickle"
-version = "3.0.4"
-description = "Serialize any Python object to JSON"
+version = "3.2.2"
+description = "Python library for serializing arbitrary object graphs into JSON"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "jsonpickle-3.0.4-py3-none-any.whl", hash = "sha256:04ae7567a14269579e3af66b76bda284587458d7e8a204951ca8f71a3309952e"},
-    {file = "jsonpickle-3.0.4.tar.gz", hash = "sha256:a1b14c8d6221cd8f394f2a97e735ea1d7edc927fbd135b26f2f8700657c8c62b"},
+    {file = "jsonpickle-3.2.2-py3-none-any.whl", hash = "sha256:87cd82d237fd72c5a34970e7222dddc0accc13fddf49af84111887ed9a9445aa"},
+    {file = "jsonpickle-3.2.2.tar.gz", hash = "sha256:d425fd2b8afe9f5d7d57205153403fbf897782204437882a477e8eed60930f8c"},
 ]
 
 [package.extras]
@@ -1783,4 +1783,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "d8bc646400133fbe3dc5e6fb48eb008c43ecabbcefccaedb42adcd8660be8925"
+content-hash = "a7ca49dc0d9603239e0afb036fe9f03a92efdc0a3353a124b7405123d280600d"
