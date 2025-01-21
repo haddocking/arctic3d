@@ -590,7 +590,7 @@ version = "1.0.7"
 description = "A minimal low-level HTTP client."
 category = "main"
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.8"
 files = [
     {file = "httpcore-1.0.7-py3-none-any.whl", hash = "sha256:a3fff8f43dc260d5bd363d9f9cf1830fa3a458b332856f34282de498ed420edd"},
     {file = "httpcore-1.0.7.tar.gz", hash = "sha256:8551cb62a169ec7162ac7be8d4817d561f60e08eaa485234898414bb5a8a0b4c"},
@@ -729,8 +729,8 @@ files = [
 
 [[package]]
 name = "jsonpickle"
-version = "3.0.4"
-description = "Serialize any Python object to JSON"
+version = "4.0.0"
+description = "jsonpickle encodes/decodes any Python object to/from JSON"
 category = "main"
 optional = false
 python-versions = ">=3.8"
@@ -2085,4 +2085,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "af039613c90e91da1a4fbab43a2b859396b0efe6b15a42c6455410265394f35a"
+content-hash = "28ad6f6649c0e348b8f38a04e800329495860074df05ec66c16a4d93432a75c8"
