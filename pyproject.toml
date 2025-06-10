@@ -19,7 +19,7 @@ dependencies = [
   "bio==1.6.2",
   "lxml==5.4.0",
   "mdanalysis==2.7.0",
-  "requests==2.32.3",
+  "requests==2.32.4",
   "biopython==1.85",
   "scipy==1.13.1",
   "matplotlib==3.9.4",
