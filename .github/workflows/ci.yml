@@ -8,43 +8,32 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: snok/install-poetry@v1
-        with:
-          version: 1.3.2
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+      - uses: astral-sh/setup-uv@v6
 
-      - run: poetry install --no-interaction --no-root
+      - run: uv pip install '.[dev]' --system
 
-      - name: Check types
-        run: poetry run mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
+      - run: mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
 
       - name: Run sanity check on the API endpoints
-        run: poetry run pytest -m sanity -vvv
+        run: pytest -m sanity -vvv
 
       - name: Run unit tests
-        run: poetry run pytest -m "not (sanity or integration)" --cov=./ --cov-report=xml -v
+        run: pytest -m "not (sanity or integration)" --cov=./ --cov-report=xml -v
 
       - name: Run integration tests
-        run: poetry run pytest -m integration
+        run: pytest -m integration
 
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: coverage.xml
-
-      # - uses: codecov/codecov-action@v3
-      #   with:
-      #     fail_ci_if_error: false
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     files: ./coverage.xml
