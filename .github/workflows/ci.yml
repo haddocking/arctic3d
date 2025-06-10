@@ -19,7 +19,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@v6
 
-      - run: uv pip install '.[dev]'
+      - run: uv pip install '.[dev]' --system
 
       - run: mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
 
