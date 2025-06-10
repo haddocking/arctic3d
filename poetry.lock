@@ -738,14 +738,14 @@ files = [
 
 [[package]]
 name = "jsonpickle"
-version = "4.0.5"
+version = "4.1.0"
 description = "jsonpickle encodes/decodes any Python object to/from JSON"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "jsonpickle-4.0.5-py3-none-any.whl", hash = "sha256:b4ac7d0a75ddcdfd93445737f1d36ff28768690d43e54bf5d0ddb1d915e580df"},
-    {file = "jsonpickle-4.0.5.tar.gz", hash = "sha256:f299818b39367c361b3f26bdba827d4249ab5d383cd93144d0f94b5417aacb35"},
+    {file = "jsonpickle-4.1.0-py3-none-any.whl", hash = "sha256:763f837a0b2586b45424d9a07108a798d9feac52f3a152606336f7f9e1a22ffa"},
+    {file = "jsonpickle-4.1.0.tar.gz", hash = "sha256:d417d6d693a63fb137e53334164aba618d18aca05a4fd025ff01c2ec134ae4c8"},
 ]
 
 [package.extras]
@@ -2095,4 +2095,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.12"
-content-hash = "80c7780508c3f22f0693002e41f238e8fd071933f8f5a46c051240408bee8b2b"
+content-hash = "5f3a9818b10e7d199b6122bb27aaf7c69d1b5c1b541ba58d7eb4bbaaa1e5655d"
