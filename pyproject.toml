@@ -1,9 +1,10 @@
-[tool.poetry]
+[project]
 name = "arctic3d"
 license = "Apache-2.0"
 version = "0.4.1"
 description = "Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information"
-authors = ["BonvinLab <bonvinlab.support@uu.nl>"]
+authors = [{ name = "Marco Giulini" }]
+maintainers = [{ name = "BonvinLab", email = "bonvinlab.support@uu.nl" }]
 readme = "README.md"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -14,40 +15,40 @@ classifiers = [
   "Intended Audience :: Science/Research",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<3.12"
-bio = "1.6.2"
-lxml = "5.4.0"
-mdanalysis = "2.7.0"
-requests = "2.32.3"
-biopython = "1.85"
-scipy = "1.13.1"
-matplotlib = "3.9.4"
-pdb-tools = "2.5.0"
-pandas = "2.2.3"
-openpyxl = "3.1.5"
-plotly = "6.0.1"
-pdbecif = "1.5"
-jsonpickle = "4.1.0"
-kaleido = "0.2.1"
+dependencies = [
+  "bio==1.6.2",
+  "lxml==5.4.0",
+  "mdanalysis==2.7.0",
+  "requests==2.32.3",
+  "biopython==1.85",
+  "scipy==1.13.1",
+  "matplotlib==3.9.4",
+  "pdb-tools==2.5.0",
+  "pandas==2.2.3",
+  "openpyxl==3.1.5",
+  "plotly==6.0.1",
+  "pdbecif==1.5",
+  "jsonpickle==4.1.0",
+  "kaleido==0.2.1",
+]
 
-[tool.poetry.scripts]
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "pytest-mock",
+  "coverage",
+  "hypothesis",
+  "mypy",
+  "types-requests",
+]
+
+[project.scripts]
 arctic3d = "arctic3d.cli:maincli"
 arctic3d-resclust = "arctic3d.cli_resclust:maincli"
 arctic3d-localise = "arctic3d.cli_localise:maincli"
 arctic3d-restraints = "arctic3d.cli_restraints:maincli"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.1.0"
-pytest-cov = ">=5,<7"
-pytest-mock = "^3.14.0"
-coverage = "^7.4.3"
-hypothesis = "^6.100.0"
-mypy = "^1.10.0"
-types-requests = "^2.32.0"
-
-[tool.black]
-line-length = 79
 
 [tool.pytest.ini_options]
 pythonpath = "src"
@@ -57,5 +58,5 @@ markers = [
 ]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
