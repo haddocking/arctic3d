@@ -24,7 +24,7 @@ dependencies = [
   "scipy==1.13.1",
   "matplotlib==3.9.4",
   "pdb-tools==2.5.0",
-  "pandas==2.2.3",
+  "pandas==2.3.0",
   "openpyxl==3.1.5",
   "plotly==6.0.1",
   "pdbecif==1.5",
