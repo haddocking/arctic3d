@@ -28,7 +28,7 @@ dependencies = [
   "openpyxl==3.1.5",
   "plotly==6.0.1",
   "pdbecif==1.5",
-  "jsonpickle==4.1.0",
+  "jsonpickle==4.1.1",
   "kaleido==0.2.1",
 ]
 
