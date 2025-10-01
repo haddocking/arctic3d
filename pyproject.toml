@@ -17,7 +17,7 @@ classifiers = [
 
 dependencies = [
   "bio==1.6.2",
-  "lxml==5.4.0",
+  "lxml==6.0.2",
   "mdanalysis==2.7.0",
   "requests==2.32.4",
   "biopython==1.85",
