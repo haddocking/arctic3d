@@ -65,24 +65,27 @@ argument_parser.add_argument(
 argument_parser.add_argument(
     "--ch1",
     default="A",
-    help="chain ID for run1 residues",
+    help="chain ID for run1 residues. (default: %(default)s)",
 )
 
 argument_parser.add_argument(
     "--ch2",
     default="B",
-    help="chain ID for run2 residues",
+    help="chain ID for run2 residues. (default: %(default)s)",
 )
 
 argument_parser.add_argument(
     "--run_dir",
     help="directory where to store the run",
-    default="arctic3d-restraints",
+    default="arctic3d-restraints. (default: %(default)s)",
 )
 
 argument_parser.add_argument(
     "--prob_threshold",
-    help="probability threshold for interface residues",
+    help=(
+        "probability threshold for interface residues. "
+        "(default: %(default)s)"
+    ),
     type=float,
     default=0.3,
 )

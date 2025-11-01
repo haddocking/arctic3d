@@ -67,30 +67,30 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--interface_data",
-    help=".json file containing the interface data",
+    help=".json file containing the interface data. (default: %(default)s)",
 )
 
 argument_parser.add_argument(
     "--pdb_data",
-    help=".json file containing the pdb data",
+    help=".json file containing the pdb data. (default: %(default)s)",
 )
 
 argument_parser.add_argument(
     "--full",
-    help="consider full uniprot-pdb-chain information in the retrieval",
+    help="consider full uniprot-pdb-chain information in the retrieval. (default: %(default)s)",
     action="store_true",
 )
 
 argument_parser.add_argument(
     "--ligand",
-    help="retrieve ligand binding residues",
+    help="retrieve ligand binding residues. (default: %(default)s)",
     default="no",
     choices=["yes", "no", "both"],
 )
 
 argument_parser.add_argument(
     "--threshold",
-    help="Threshold for clustering",
+    help="Threshold for clustering. (default: %(default)s)",
     type=float,
     required=False,
     default=0.866,
@@ -98,7 +98,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--linkage_strategy",
-    help="Linkage strategy for clustering",
+    help="Linkage strategy for clustering. (default: %(default)s)",
     type=str,
     required=False,
     choices=[
@@ -115,7 +115,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--min_clust_size",
-    help="Minimum number of residues in clusters",
+    help="Minimum number of residues in clusters. (default: %(default)s)",
     type=int,
     required=False,
     default=0,
@@ -123,7 +123,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--int_cov_cutoff",
-    help="Interface coverage cutoff (%%)",
+    help="Interface coverage cutoff (%%). (default: %(default)s)",
     type=float,
     required=False,
     default=0.7,

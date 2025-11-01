@@ -69,27 +69,33 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--run_dir",
-    help="directory where to store the run",
+    help="directory where to store the run. (default: %(default)s)",
     default="arctic3d-localise",
 )
 
 argument_parser.add_argument(
     "--out_partner",
-    help="Set of comma-separated partner IDs to exclude from the search",
+    help=(
+        "Set of comma-separated partner IDs to exclude from the search."
+        " (default: %(default)s)"
+        ),
 )
 
 argument_parser.add_argument(
     "--quickgo",
     help="Use quickgo (https://www.ebi.ac.uk/QuickGO/annotations) information "
-    "instead of uniprot",
+    "instead of uniprot. (default: %(default)s)",
     required=False,
     choices=["C", "F", "P"],
 )
 
 argument_parser.add_argument(
     "--weight",
-    help="Weight histograms according to uniprot. The more populated an"
-    " UNIPROT record, the less weight it will have in the histogram.",
+    help=(
+        "Weight histograms according to uniprot. The more populated an"
+        " UNIPROT record, the less weight it will have in the histogram."
+        " (default: %(default)s)"
+    ),
     required=False,
     choices=["yes", "no"],
     default="no",
@@ -97,7 +103,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--format",
-    help="produce images in the desired format",
+    help="produce images in the desired format. (default: %(default)s)",
     required=False,
     type=str,
     default="png",
@@ -105,7 +111,11 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--scale", help="scale for images", required=False, type=float, default=4.0
+    "--scale",
+    help="scale for images. (default: %(default)s)",
+    required=False,
+    type=float,
+    default=4.0,
 )
 
 

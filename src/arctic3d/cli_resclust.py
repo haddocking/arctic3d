@@ -55,7 +55,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--threshold",
-    help="Threshold (in angstroms) for clustering",
+    help="Threshold (in angstroms) for clustering. (default: %(default)s)",
     type=float,
     required=False,
     default=15.0,
@@ -63,7 +63,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--criterion",
-    help="Criterion for clustering",
+    help="Criterion for clustering. (default: %(default)s)",
     type=str,
     required=False,
     choices=["distance", "maxclust"],
@@ -72,7 +72,7 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--linkage",
-    help="Linkage strategy for clustering",
+    help="Linkage strategy for clustering. (default: %(default)s)",
     type=str,
     required=False,
     choices=[
@@ -88,12 +88,14 @@ argument_parser.add_argument(
 )
 
 argument_parser.add_argument(
-    "--chain", help="Segment ID to be considered", required=False
+    "--chain",
+    help="Segment ID to be considered",
+    required=False,
 )
 
 argument_parser.add_argument(
     "--output",
-    help="Path to the generated output dictionary",
+    help="Path to the generated output dictionary. (default: %(default)s)",
     type=str,
     required=False,
 )
