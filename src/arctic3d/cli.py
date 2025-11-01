@@ -77,7 +77,10 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--full",
-    help="consider full uniprot-pdb-chain information in the retrieval. (default: %(default)s)",
+    help=(
+        "consider full uniprot-pdb-chain information in the retrieval. "
+        "(default: %(default)s)"
+    ),
     action="store_true",
 )
 
@@ -273,7 +276,7 @@ def main(
             else:
                 pdb_data_path = None
             # get best pdb
-            pdb_f, cif_f, filtered_interfaces = get_best_pdb(
+            pdb_f, _cif_f, filtered_interfaces = get_best_pdb(
                 uniprot_id=uniprot_id,
                 interface_residues=interface_residues,
                 pdb_to_use=pdb_to_use,
