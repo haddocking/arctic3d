@@ -61,7 +61,9 @@ from arctic3d.modules.output import (  # create_barplot,
 )
 from arctic3d.modules.url import UNIPROT_API_URL
 
-argument_parser = argparse.ArgumentParser()
+argument_parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
 argument_parser.add_argument(
     "input_arg",
     help="Input clustered_interfaces.out file",

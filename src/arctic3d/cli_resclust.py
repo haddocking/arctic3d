@@ -41,7 +41,9 @@ from arctic3d.modules.input import Input
 from arctic3d.modules.output import create_output_folder
 
 
-argument_parser = argparse.ArgumentParser()
+argument_parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
 argument_parser.add_argument(
     "input_arg",
     help="Input PDB file",

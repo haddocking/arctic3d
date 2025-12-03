@@ -24,15 +24,17 @@ from arctic3d.modules.sequence import to_fasta
 from arctic3d.modules.log import add_log_for_CLI
 
 
-argument_parser = argparse.ArgumentParser()
+argument_parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
 argument_parser.add_argument(
     "input_arg",
-    help="",
+    help="UniprotID, FASTA file, or PDB file",
 )
 
 argument_parser.add_argument(
     "--db",
-    help="",
+    help="Local BLAST database path (e.g., db/swissprot). If not provided, remote BLAST will be used",
 )
 
 argument_parser.add_argument(
