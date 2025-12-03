@@ -49,7 +49,9 @@ from arctic3d.modules.output import (
 from arctic3d.modules.log import add_log_for_CLI
 
 
-argument_parser = argparse.ArgumentParser()
+argument_parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
 argument_parser.add_argument(
     "--r1",
     required=True,

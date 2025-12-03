@@ -16,12 +16,19 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 
-argument_parser = argparse.ArgumentParser()
-argument_parser.add_argument("input_pdbs", nargs="+", default=[])
+argument_parser = argparse.ArgumentParser(
+    formatter_class=argparse.ArgumentDefaultsHelpFormatter
+)
+argument_parser.add_argument(
+    "input_pdbs",
+    nargs="+",
+    default=[],
+    help="One or more PDB files to extract sequences and find UniprotIDs",
+)
 
 argument_parser.add_argument(
     "--db",
-    help="",
+    help="Local BLAST database path (e.g., db/swissprot). If not provided, remote BLAST will be used",
 )
 
 
