@@ -131,6 +131,17 @@ argument_parser.add_argument(
     default=0.7,
 )
 
+argument_parser.add_argument(
+    "--biological_clustering",
+    help="Perform biological clustering of partners. Can specify multiple types: "
+    "'location' clusters by subcellular location, "
+    "'function' clusters by protein function, "
+    "'process' clusters by biological process",
+    nargs="*",
+    choices=["location", "function", "process"],
+    default=[],
+)
+
 
 def load_args(arguments):
     """
@@ -188,6 +199,7 @@ def main(
     threshold,
     min_clust_size,
     int_cov_cutoff,
+    biological_clustering,
     log_level="DEBUG",
 ):
     """Main function."""
@@ -333,6 +345,56 @@ def main(
     # check if there's at least one interface
     if Path("clustered_interfaces.out").is_file() is False:
         return 255
+
+    # run biological clustering if requested
+    if biological_clustering and interface_residues:
+        from arctic3d.cli_localise import main as localise_main
+
+        # map user-friendly names to quickgo keys and directory names
+        # to match webserver behavior
+        clustering_config = {
+            "location": {
+                "quickgo": "C",  # QuickGO subcellular location
+                "dir": "arctic3d-localise-subcellular",
+            },
+            "function": {
+                "quickgo": "F",  # QuickGO protein function
+                "dir": "arctic3d-localise-proteinfunction",
+            },
+            "process": {
+                "quickgo": "P",  # QuickGO biological process
+                "dir": "arctic3d-localise-biologicalprocess",
+            },
+        }
+
+        for clustering_type in biological_clustering:
+            config = clustering_config[clustering_type]
+            quickgo_param = config["quickgo"]
+            localise_run_dir = config["dir"]
+
+            log.info(
+                f"Running biological clustering by {clustering_type}..."
+            )
+
+            try:
+                localise_main(
+                    input_arg="clustered_interfaces.out",
+                    run_dir=localise_run_dir,
+                    out_partner=out_partner,
+                    quickgo=quickgo_param,
+                    weight="no",
+                    format="png",
+                    scale=4.0,
+                    log_level=log_level,
+                )
+                log.info(
+                    f"Biological clustering by {clustering_type} completed. "
+                    f"Results in {localise_run_dir}/"
+                )
+            except Exception as e:
+                log.warning(
+                    f"Biological clustering by {clustering_type} failed: {e}"
+                )
 
     return 0
 
