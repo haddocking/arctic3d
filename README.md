@@ -85,6 +85,79 @@ sphinx-build -E docs ./arctic3d-docs
 
 Then you can open the file `arctic3d-docs/index.html`, which contains all the necessary documentation.
 
+## Result interpretation
+
+After running ARCTIC-3D, results are stored in the output directory (default: `arctic3d-{uniprot_id}/`). Below is an explanation of each output file and how to interpret them.
+
+### Output files
+
+| File | Description |
+|------|-------------|
+| `arctic3d.log` | Log file with execution details and warnings |
+| `input_data/` | Directory containing copies of input files |
+| `{pdb_id}_updated.cif` | Structure file downloaded from PDBe (mmCIF format) |
+| `{pdb_id}-{chain}.pdb` | Cleaned PDB structure used for analysis (renumbered to UniProt numbering) |
+| `retrieved_interfaces.out` | All interfaces retrieved from PDBe, listing partner IDs and their residue lists |
+| `interface_matrix.txt` | Pairwise dissimilarity values between all interfaces (used for clustering) |
+| `dendrogram_{linkage}.png` | Hierarchical clustering dendrogram (e.g., `dendrogram_average.png`) |
+| `clustered_interfaces.out` | Interfaces grouped into clusters (binding surfaces) |
+| `clustered_residues.out` | Residues belonging to each cluster |
+| `clustered_residues_probs.out` | Residues ranked by probability within each cluster |
+| `{pdb_id}-{chain}_cl{N}.pdb` | PDB structure for cluster N with probabilities encoded in B-factor column |
+| `sequence_probability.html` | Interactive bar plot of per-residue probabilities |
+| `sequence_probability.json` | JSON data for the interactive plot |
+
+### Understanding the clustering
+
+ARCTIC-3D groups similar interfaces into **binding surfaces** (clusters). Two interfaces are considered similar when they overlap spatially on the protein surface. The dissimilarity is measured using the squared sine of the angle between interface vectors in a Hilbert space representation - values close to 0 indicate overlapping interfaces, while values close to 1 indicate completely distinct regions.
+
+The `interface_matrix.txt` file contains the pairwise dissimilarity values in the format:
+```
+interface1 interface2 dissimilarity_value
+```
+
+### Interpreting residue probabilities
+
+The **probability** (or "contact probability score") represents **the fraction of interfaces within a cluster where a residue is observed**. It is calculated independently for each cluster:
+
+```
+probability = (number of interfaces containing the residue) / (total interfaces in cluster)
+```
+
+For each cluster, residues are assigned a probability value between 0 and 1:
+
+- **Probability = 1.0**: The residue appears in every interface within the cluster (a "hotspot" residue)
+- **Probability = 0.5**: The residue appears in half of the cluster's interfaces
+- **Probability close to 0**: The residue rarely appears at this binding surface
+
+**Important**: Probabilities do NOT sum to 1.0 across clusters for a given residue. A residue can have high probability in multiple clusters if it participates in different binding surfaces. For example, a residue with probability 0.8 in cluster 1 and 0.6 in cluster 2 means it appears in 80% of cluster 1's interfaces and 60% of cluster 2's interfaces.
+
+The `clustered_residues_probs.out` file lists residues ranked by probability:
+```
+Cluster 1 : 15 residues
+rank    resid   resname probability
+1       42      ALA     1.000
+2       45      GLU     0.875
+...
+```
+
+### Visualizing probabilities in PDB files
+
+The output PDB files (`{pdb_id}-{chain}_cl{N}.pdb`) encode probabilities in the B-factor column:
+
+- Cluster residues: `B = 50 × (1 + probability)`, ranging from 50 (probability=0) to 100 (probability=1)
+- Non-cluster residues: `B = 0`
+
+This allows visualization in molecular viewers (PyMOL, ChimeraX, etc.) using a color spectrum where high B-factors (red) indicate hotspot residues and low values (blue) indicate residues not involved in that binding surface.
+
+### Interpreting the dendrogram
+
+The dendrogram (`dendrogram_average.png`) shows the hierarchical relationship between all retrieved interfaces. The x-axis represents the dissimilarity between interfaces or groups. Interfaces that merge below the threshold (default: 0.866, corresponding to a 60° angle) form a single binding surface. The threshold can be adjusted with `--threshold` to obtain finer or coarser clustering.
+
+### Using the interactive plot
+
+Open `sequence_probability.html` in a web browser to explore per-residue binding probabilities. Each cluster is shown as a separate colored bar series, allowing you to identify which residues are involved in which binding surface and compare hotspots across different clusters.
+
 ## Citing us
 
 If you used ARCTIC-3D in your work please cite the following publication:
