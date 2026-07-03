@@ -37,7 +37,7 @@ This typically allows to considerably reduce the execution time of the program.
 One or more uniprot IDs can be excluded from set of interacting partners. As an example, this may be important if you want to exclude homodimer interfaces from the search:
 
 ```bash
-arctic3d P00760 --out_uniprot=P00760,P00974
+arctic3d P00760 --out_partner=P00760,P00974
 ```
 
 Following the same logic, one or more pdb IDs can be excluded from the search:

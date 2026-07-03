@@ -280,15 +280,13 @@ def make_plotly_plot(conv_resids, probs):
     fig.update_layout(
         title="ARCTIC3D clustering",
         xaxis=dict(
-            title="Residue ID",
+            title=dict(text="Residue ID", font=dict(size=16)),
             tickfont_size=14,
-            titlefont_size=16,
             tick0=conv_resids[0],
             dtick=10,
         ),
         yaxis=dict(
-            title="Probability",
-            titlefont_size=16,
+            title=dict(text="Probability", font=dict(size=16)),
             tickfont_size=14,
         ),
         legend=dict(x=1.01, y=1.0, font_family="Helvetica", font_size=16),
