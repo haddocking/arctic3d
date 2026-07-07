@@ -44,7 +44,8 @@ def test_pdbe():
 
     # Check if the response is a PDB file (content signature, not header,
     # which PDBe may serve as text/plain or application/octet-stream)
-    assert "ATOM" in response.text, "Response is not a PDB file"
+    # Check if coordinates are present
+    assert ("ATOM" or "HETATM") in response.text, "Response is not a PDB file"
 
     response = requests.get(f"{PDBE_URL}/{TARGET_PDB}_updated.cif")
 
