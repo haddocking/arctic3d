@@ -53,6 +53,7 @@ def test_pdbe():
     ), f"Endpoint {PDBE_URL} not reachable"
 
     # Check if the response is a CIF file (content signature, not header)
+    # CIF file usually start by `data_PIDBID`
     assert response.text.startswith("data_"), "Response is not a CIF file"
 
 
