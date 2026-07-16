@@ -39,13 +39,13 @@ def test_pdbe():
         response.status_code == http.HTTPStatus.OK
     ), f"Endpoint {PDBE_URL} not reachable"
 
-    # Check if the response is a text file
-    assert (
-        response.headers["Content-Type"] == "text/plain; charset=UTF-8"
-    ), "Response is not a PDB file"
-
     # Check if the response is not empty
     assert response.text, "Response is empty"
+
+    # Check if the response is a PDB file (content signature, not header,
+    # which PDBe may serve as text/plain or application/octet-stream)
+    # Check if coordinates are present
+    assert ("ATOM" or "HETATM") in response.text, "Response is not a PDB file"
 
     response = requests.get(f"{PDBE_URL}/{TARGET_PDB}_updated.cif")
 
@@ -53,13 +53,9 @@ def test_pdbe():
         response.status_code == http.HTTPStatus.OK
     ), f"Endpoint {PDBE_URL} not reachable"
 
-    # Check if the response is a text file
-    assert (
-        response.headers["Content-Type"] == "text/plain; charset=UTF-8"
-    ), "Response is not a CIF file"
-
-    # Check if the response is not empty
-    assert response.text, "Response is empty"
+    # Check if the response is a CIF file (content signature, not header)
+    # CIF file usually start by `data_PIDBID`
+    assert response.text.startswith("data_"), "Response is not a CIF file"
 
 
 @pytest.mark.sanity

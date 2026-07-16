@@ -5,7 +5,9 @@ import pytest
 
 from arctic3d.modules.output import (
     create_output_folder,
+    make_plotly_plot,
     output_pdb,
+    plot_interactive_probs,
     read_residues_probs,
     remove_duplicate_labels,
     setup_output_folder,
@@ -204,3 +206,27 @@ def test_remove_duplicate_labels():
     obs_labels, obs_values = remove_duplicate_labels(tmp_labels, tmp_values)
     assert exp_labels == obs_labels
     assert exp_values == obs_values
+
+
+def test_make_plotly_plot():
+    """Test make_plotly_plot builds the interactive plot without errors."""
+    conv_resids = [f"{n}-A" for n in range(1, 30)]
+    probs = {
+        "Cluster 1": [0.0] * len(conv_resids),
+        "Cluster 2": [1.0] * len(conv_resids),
+    }
+    make_plotly_plot(conv_resids, probs)
+    for fname in ("sequence_probability.html", "sequence_probability.json"):
+        assert Path.exists(Path(fname))
+        os.unlink(fname)
+
+
+def test_plot_interactive_probs():
+    """Test plot_interactive_probs produces the expected output files."""
+    cl_residues_probs = {1: {5: 0.7, 6: 0.2}, 2: {10: 0.4, 11: 0.9}}
+    resnames_dict = {n: "A" for n in range(1, 30)}
+    plot_interactive_probs(cl_residues_probs, resnames_dict)
+    # the plot is only produced if no exception was swallowed internally
+    for fname in ("sequence_probability.html", "sequence_probability.json"):
+        assert Path.exists(Path(fname))
+        os.unlink(fname)

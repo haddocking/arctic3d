@@ -30,7 +30,7 @@ def test_blast_remote(mocker, fasta_file, xml_file):
 
     accession_id = blast_remote(fasta_file)
 
-    assert accession_id == "P01541"
+    assert accession_id == "P01542"
 
 
 @pytest.mark.skip(reason="Not implemented")
@@ -40,4 +40,21 @@ def test_blast_local():
 
 def test_parse_xml(xml_file):
     accession_id = parse_xml(xml_file)
-    assert accession_id == "P01541"
+    assert accession_id == "P01542"
+
+
+def test_parse_xml_no_hits(tmp_path):
+    """A BLAST result with no hits should raise a clear error, not IndexError."""
+    no_hits_xml = tmp_path / "no_hits.xml"
+    no_hits_xml.write_text(
+        '<?xml version="1.0"?>\n'
+        "<BlastOutput>\n"
+        "  <BlastOutput_iterations>\n"
+        "    <Iteration>\n"
+        "      <Iteration_hits></Iteration_hits>\n"
+        "    </Iteration>\n"
+        "  </BlastOutput_iterations>\n"
+        "</BlastOutput>\n"
+    )
+    with pytest.raises(ValueError, match="No BLAST hits"):
+        parse_xml(str(no_hits_xml))

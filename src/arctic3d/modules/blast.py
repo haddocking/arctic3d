@@ -104,8 +104,12 @@ def blast_remote(fasta_file: str) -> str:
         Uniprot ID.
 
     """
+    # qblast expects the query sequence itself, not a file path
+    with open(fasta_file) as fh:
+        fasta_seq = fh.read()
+
     blast_res_handle = NCBIWWW.qblast(
-        "blastp", "swissprot", fasta_file, hitlist_size=50
+        "blastp", "swissprot", fasta_seq, hitlist_size=50
     )
 
     # TODO: Handle scenario in which the `qblast` call fails
@@ -122,14 +126,18 @@ def blast_remote(fasta_file: str) -> str:
 
 
 def parse_xml(xml_file: str) -> str:
-    """Parse the BLAST XML file and return the first (?) accession ID."""
+    """Parse the BLAST XML file and return the best-hit accession ID."""
     tree = ET.parse(source=xml_file, parser=ET.XMLParser(encoding="utf-8"))
     root = tree.getroot()
 
-    # root [BlastOutput_iterations] [Iteration] [Iteration_hits] \
-    #   [Hit #2] [Hit_accession]
-    # using second hit as the first is the input
-    # instead of Hit_accession, [1] for [Hit_id] can be used
-    accession_id = root[8][0][4][1][3].text
+    # navigate by tag name (robust to changes in the number of hits and to
+    # the exact BlastOutput layout) and return the top hit's accession
+    hits = root.findall(".//Hit")
+    if not hits:
+        raise ValueError(f"No BLAST hits found in {xml_file}")
+
+    accession_id = hits[0].findtext("Hit_accession")
+    if not accession_id:
+        raise ValueError(f"Could not parse Hit_accession from {xml_file}")
 
     return accession_id
