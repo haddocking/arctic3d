@@ -17,4 +17,5 @@ def test_version_matches_pyproject():
     assert semver_match is not None
 
     assert VERSION == expected_version
+    assert all(isinstance(part, str) for part in (v_major, v_minor, v_patch))
     assert (v_major, v_minor, v_patch) == semver_match.groups()

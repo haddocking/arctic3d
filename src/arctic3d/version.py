@@ -22,4 +22,7 @@ _semver_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", VERSION)
 if _semver_match is None:
     raise RuntimeError(f"Could not parse semantic version from {VERSION!r}.")
 
+v_major: str
+v_minor: str
+v_patch: str
 v_major, v_minor, v_patch = _semver_match.groups()
