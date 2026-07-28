@@ -13,7 +13,7 @@ def _read_version() -> str:
         pyproject_contents = pyproject_path.read_text(encoding="utf-8")
         match = re.search(r'^version = "([^"]+)"$', pyproject_contents, re.MULTILINE)
         if match is None:
-            raise RuntimeError(f"Version field not found in {pyproject_path}.")
+            raise RuntimeError(f"Version field not found or malformed in {pyproject_path}.")
         return match.group(1)
 
 
@@ -25,4 +25,6 @@ if _semver_match is None:
 v_major: str
 v_minor: str
 v_patch: str
-v_major, v_minor, v_patch = _semver_match.groups()
+v_major = _semver_match.group(1)
+v_minor = _semver_match.group(2)
+v_patch = _semver_match.group(3)

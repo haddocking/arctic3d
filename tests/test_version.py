@@ -15,7 +15,12 @@ def test_version_matches_pyproject():
     expected_version = version_match.group(1)
     semver_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", expected_version)
     assert semver_match is not None
+    expected_parts = (
+        semver_match.group(1),
+        semver_match.group(2),
+        semver_match.group(3),
+    )
 
     assert VERSION == expected_version
     assert all(isinstance(part, str) for part in (v_major, v_minor, v_patch))
-    assert (v_major, v_minor, v_patch) == semver_match.groups()
+    assert (v_major, v_minor, v_patch) == expected_parts
