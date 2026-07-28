@@ -13,13 +13,13 @@ def _read_version() -> str:
         pyproject_contents = pyproject_path.read_text(encoding="utf-8")
         match = re.search(r'^version = "([^"]+)"$', pyproject_contents, re.MULTILINE)
         if match is None:
-            raise RuntimeError(f"Could not determine version from {pyproject_path}.")
+            raise RuntimeError(f"Version field not found in {pyproject_path}.")
         return match.group(1)
 
 
 VERSION = _read_version()
-version_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", VERSION)
-if version_match is None:
+_semver_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", VERSION)
+if _semver_match is None:
     raise RuntimeError(f"Could not parse semantic version from {VERSION!r}.")
 
-v_major, v_minor, v_patch = version_match.groups()
+v_major, v_minor, v_patch = _semver_match.groups()
