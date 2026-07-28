@@ -18,4 +18,8 @@ def _read_version() -> str:
 
 
 VERSION = _read_version()
-v_major, v_minor, v_patch = VERSION.split(".")
+version_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", VERSION)
+if version_match is None:
+    raise RuntimeError(f"Could not parse semantic version from {VERSION!r}.")
+
+v_major, v_minor, v_patch = version_match.groups()
