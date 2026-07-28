@@ -6,12 +6,27 @@ from pathlib import Path
 
 
 def _find_pyproject_path() -> Path:
-    for directory in Path(__file__).resolve().parents:
+    start_path = Path(__file__).resolve()
+    for directory in start_path.parents:
         pyproject_path = directory / "pyproject.toml"
         if pyproject_path.exists():
             return pyproject_path
 
-    raise RuntimeError("Could not find pyproject.toml for version fallback.")
+    raise RuntimeError(f"Could not find pyproject.toml for version fallback from {start_path}.")
+
+
+def _parse_version_parts(version_string: str) -> tuple[str, str, str]:
+    version_parts_match = re.match(
+        r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", version_string
+    )
+    if version_parts_match is None:
+        raise RuntimeError(f"Could not parse semantic version from {version_string!r}.")
+
+    return (
+        version_parts_match.group(1),
+        version_parts_match.group(2),
+        version_parts_match.group(3),
+    )
 
 
 def _read_version() -> str:
@@ -22,18 +37,14 @@ def _read_version() -> str:
         pyproject_contents = pyproject_path.read_text(encoding="utf-8")
         match = re.search(r'^version = "([^"]+)"$', pyproject_contents, re.MULTILINE)
         if match is None:
-            raise RuntimeError(f"Version field not found or malformed in {pyproject_path}.")
+            if 'version = "' in pyproject_contents:
+                raise RuntimeError(f"Version field is malformed in {pyproject_path}.")
+            raise RuntimeError(f"Version field not found in {pyproject_path}.")
         return match.group(1)
 
 
 VERSION = _read_version()
-_semver_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", VERSION)
-if _semver_match is None:
-    raise RuntimeError(f"Could not parse semantic version from {VERSION!r}.")
-
 v_major: str
 v_minor: str
 v_patch: str
-v_major = _semver_match.group(1)
-v_minor = _semver_match.group(2)
-v_patch = _semver_match.group(3)
+v_major, v_minor, v_patch = _parse_version_parts(VERSION)
