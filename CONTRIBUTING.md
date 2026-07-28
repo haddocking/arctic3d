@@ -2,20 +2,21 @@
 
 ## Installation
 
-We use `poetry` to manage the dependencies and the virtual environment, so it makes things easier if you need to install it first; check the [official documentation](https://python-poetry.org/docs/#installation) for more details.
+We use `uv` to manage the dependencies and the virtual environment, so it makes things easier if you need to install it first; check the [official documentation](https://docs.astral.sh/uv/getting-started/installation/) for more details.
 
 Clone the repository and install the dependencies:
 
 ```text
 git clone https://github.com/haddocking/arctic3d.git && cd arctic3d
-poetry install
+uv sync
 ```
 
 OR if you prefer `pip`
 
 ```text
 git clone https://github.com/haddocking/arctic3d.git && cd arctic3d
-pip install . pytest-cov
+pip install .
+pip install pytest pytest-cov pytest-mock coverage hypothesis mypy types-requests
 ```
 
 ## Testing
