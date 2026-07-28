@@ -15,7 +15,8 @@ OR if you prefer `pip`
 
 ```text
 git clone https://github.com/haddocking/arctic3d.git && cd arctic3d
-pip install '.[dev]'
+pip install .
+pip install pytest pytest-cov pytest-mock coverage hypothesis mypy types-requests
 ```
 
 ## Testing
