@@ -1,7 +1,7 @@
 [project]
 name = "arctic3d"
 license = "Apache-2.0"
-version = "0.4.1"
+version = "0.6.0"
 description = "Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information"
 authors = [{ name = "Marco Giulini" }]
 maintainers = [{ name = "BonvinLab", email = "bonvinlab.support@uu.nl" }]
