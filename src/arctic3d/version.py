@@ -5,11 +5,20 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 
+def _find_pyproject_path() -> Path:
+    for directory in Path(__file__).resolve().parents:
+        pyproject_path = directory / "pyproject.toml"
+        if pyproject_path.exists():
+            return pyproject_path
+
+    raise RuntimeError("Could not find pyproject.toml for version fallback.")
+
+
 def _read_version() -> str:
     try:
         return version("arctic3d")
     except PackageNotFoundError:
-        pyproject_path = Path(__file__).resolve().parents[2] / "pyproject.toml"
+        pyproject_path = _find_pyproject_path()
         pyproject_contents = pyproject_path.read_text(encoding="utf-8")
         match = re.search(r'^version = "([^"]+)"$', pyproject_contents, re.MULTILINE)
         if match is None:
