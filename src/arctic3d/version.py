@@ -1,10 +1,12 @@
 """Version information."""
 
 import re
+from functools import lru_cache
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 
+@lru_cache(maxsize=1)
 def _find_pyproject_path() -> Path:
     start_path = Path(__file__).resolve()
     for directory in start_path.parents:
@@ -20,7 +22,10 @@ def _parse_version_parts(version_string: str) -> tuple[str, str, str]:
         r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", version_string
     )
     if version_parts_match is None:
-        raise RuntimeError(f"Could not parse semantic version from {version_string!r}.")
+        raise RuntimeError(
+            "Version field exists but does not match expected format "
+            f"'X.Y.Z[...suffix]': {version_string!r}."
+        )
 
     return (
         version_parts_match.group(1),
