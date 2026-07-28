@@ -2,6 +2,7 @@
 name = "arctic3d"
 license = "Apache-2.0"
 version = "0.6.0"
+requires-python = ">=3.9"
 description = "Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information"
 authors = [{ name = "Marco Giulini" }]
 maintainers = [{ name = "BonvinLab", email = "bonvinlab.support@uu.nl" }]
@@ -36,7 +37,13 @@ dependencies = [
   "kaleido>=0.2.1",
 ]
 
-[project.optional-dependencies]
+[project.scripts]
+arctic3d = "arctic3d.cli:maincli"
+arctic3d-resclust = "arctic3d.cli_resclust:maincli"
+arctic3d-localise = "arctic3d.cli_localise:maincli"
+arctic3d-restraints = "arctic3d.cli_restraints:maincli"
+
+[dependency-groups]
 dev = [
   "pytest",
   "pytest-cov",
@@ -47,12 +54,12 @@ dev = [
   "types-requests",
 ]
 
-[project.scripts]
-arctic3d = "arctic3d.cli:maincli"
-arctic3d-resclust = "arctic3d.cli_resclust:maincli"
-arctic3d-localise = "arctic3d.cli_localise:maincli"
-arctic3d-restraints = "arctic3d.cli_restraints:maincli"
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+[tool.uv]
+default-groups = ["dev"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
@@ -60,7 +67,3 @@ markers = [
   "sanity: tests if the apis are working as expected",
   "integration: tests the integration of different components",
 ]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"

@@ -18,18 +18,18 @@ jobs:
 
       - uses: astral-sh/setup-uv@v6
 
-      - run: uv pip install '.[dev]' --system
+      - run: uv sync
 
-      - run: mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
+      - run: uv run mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
 
       - name: Run sanity check on the API endpoints
-        run: pytest -m sanity -vvv
+        run: uv run pytest -m sanity -vvv
 
       - name: Run unit tests
-        run: pytest -m "not (sanity or integration)" --cov=./ --cov-report=xml -v
+        run: uv run pytest -m "not (sanity or integration)" --cov=./ --cov-report=xml -v
 
       - name: Run integration tests
-        run: pytest -m integration
+        run: uv run pytest -m integration
 
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
