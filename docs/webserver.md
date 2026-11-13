@@ -34,10 +34,6 @@ optional.
 
 ### Interface parameters
 
-- **Interface file**: your own interfaces, for example from experiments or
-  modelling, instead of those retrieved from the PDBe. One interface per line:
-  a name followed by its residue numbers, as in
-  [this example](example/1ppe_E_example_interfaces.txt).
 - **Uniprot IDs to be excluded**: partners whose interfaces should not be
   considered, comma-separated. For example `P68871` excludes the homodimer
   interfaces of P68871.
