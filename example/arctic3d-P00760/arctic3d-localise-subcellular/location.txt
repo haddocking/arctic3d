@@ -1,0 +1,28 @@
+location Q9S9H8 -> extracellular region
+location Q95P16 -> extracellular region
+location P01058 -> extracellular region
+location Q9S9E3 -> extracellular region
+location P80321 -> extracellular region
+location P82107 -> extracellular region
+location P10295 -> extracellular region
+location P23827 -> outer membrane-bounded periplasmic space
+location Q0JR25 -> extracellular region
+location P01055 -> extracellular region
+location Q90WA1 -> extracellular region
+location Q05G17 -> extracellular region
+location P83052 -> extracellular region
+location P17734 -> extracellular region
+location P01009 -> COPII-coated ER to Golgi transport vesicle,endoplasmic reticulum,endoplasmic reticulum lumen,endoplasmic reticulum-Golgi intermediate compartment membrane,extracellular exosome,extracellular matrix,extracellular region,ficolin-1-rich granule lumen,Golgi apparatus,platelet alpha granule lumen
+location P31713 -> extracellular region,nematocyst
+location P00766 -> extracellular region,serine protease inhibitor complex
+location P85981 -> extracellular region
+location P05067 -> amyloid-beta complex,astrocyte projection,axon,cell surface,clathrin-coated pit,cytoplasm,cytoplasmic vesicle,cytosol,dendrite,dendritic shaft,dendritic spine,early endosome,early endosome membrane,endoplasmic reticulum,endoplasmic reticulum lumen,endosome,endosome lumen,extracellular exosome,extracellular region,Golgi apparatus,Golgi lumen,Golgi-associated vesicle,growth cone filopodium,growth cone lamellipodium,main axon,membrane,membrane raft,mitochondrial inner membrane,nuclear envelope lumen,nucleus,perikaryon,perinuclear region of cytoplasm,plasma membrane,platelet alpha granule lumen,recycling endosome,signaling receptor complex,synapse,synaptic cleft,trans-Golgi network membrane
+location P01062 -> extracellular region
+location P82409 -> extracellular region
+location P00760 -> extracellular region,serine protease inhibitor complex
+location P01074 -> extracellular region
+location P00998 -> extracellular region
+location O46162 -> extracellular region
+location P10293 -> extracellular region
+location P00974 -> extracellular region,serine protease inhibitor complex
+location P48307 -> extracellular matrix,extracellular region

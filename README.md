@@ -168,7 +168,7 @@ Open `sequence_probability.html` in a web browser to explore per-residue binding
 python -m http.server -d example/arctic3d-P00760
 ```
 
-then open http://localhost:8000/report.html. Two example outputs are included: `example/arctic3d-P00760`, from `arctic3d P00760` (trypsin), and `example/arctic3d-1ppe_E`, from `arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt` (input PDB and interfaces).
+then open http://localhost:8000/report.html. Two example outputs are included: `example/arctic3d-P00760`, from `arctic3d P00760 --biological_clustering location function process` (trypsin; the interactive `cluster_N.html` bar plots are left out to keep the repository small), and `example/arctic3d-1ppe_E`, from `arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt` (input PDB and interfaces).
 
 ## Citing us
 
