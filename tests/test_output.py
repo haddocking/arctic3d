@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -217,6 +218,10 @@ def test_make_plotly_plot():
         "Cluster 2": [1.0] * len(conv_resids),
     }
     make_plotly_plot(conv_resids, probs)
+    # colors of the first two clusters (Set2), not black (#521)
+    fig = json.loads(Path("sequence_probability.json").read_text())
+    colors = [trace["marker"]["color"] for trace in fig["data"]]
+    assert colors == ["#66c2a5", "#fc8d62"]
     for fname in ("sequence_probability.html", "sequence_probability.json"):
         assert Path.exists(Path(fname))
         os.unlink(fname)

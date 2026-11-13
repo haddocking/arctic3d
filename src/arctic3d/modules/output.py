@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.colors import to_hex
 import MDAnalysis as mda
 import math
 import numpy as np
@@ -284,7 +285,7 @@ def make_plotly_plot(conv_resids, probs):
                 x=conv_resids,
                 y=probs[key],
                 name=key,
-                marker_color=f"rgb{cluster_color(key_idx)}",
+                marker_color=to_hex(cluster_color(key_idx)),
             )
         )
     # prettifying layout
