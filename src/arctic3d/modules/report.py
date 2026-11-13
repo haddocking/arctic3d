@@ -258,6 +258,7 @@ def generate_report(
     resnames,
     options,
     uniprot_id=None,
+    localised=None,
 ):
     """Write report.html and state.mvsj in the run directory (cwd).
 
@@ -277,6 +278,8 @@ def generate_report(
         command-line options shown in the report
     uniprot_id : str or None
         uniprot id of the target
+    localised : dict or None
+        run folder of arctic3d-localise for each biological clustering type
     """
     log.info("Writing report.html")
     pdb_f = Path(pdb_f)
@@ -379,6 +382,20 @@ def generate_report(
             "<h3>Residue probabilities along the sequence</h3>"
             '<iframe src="sequence_probability.html"></iframe>'
         )
+    for clustering_type, folder in (localised or {}).items():
+        figures.append(
+            f"<h3>Biological clustering by {escape(clustering_type)}</h3>"
+            f'<p>All files: <a href="{folder}/">{folder}/</a></p>'
+        )
+        # no plot for a cluster whose partners have no annotation
+        for cl_id in cl_ids:
+            if Path(folder, f"cluster_{cl_id}.png").exists():
+                figures.append(
+                    f"<h4>Cluster {cl_id} (<a href="
+                    f'"{folder}/cluster_{cl_id}.html">interactive</a>)</h4>'
+                    f'<img src="{folder}/cluster_{cl_id}.png" '
+                    f'alt="{escape(clustering_type)} of cluster {cl_id}">'
+                )
 
     downloads = [
         "arctic3d.log",

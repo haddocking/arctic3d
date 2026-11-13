@@ -12,6 +12,9 @@ def test_generate_report(tmp_path, monkeypatch):
     """Test report.html and state.mvsj."""
     shutil.copy(Path(golden_data, "1rypB_r_b.pdb"), tmp_path)
     monkeypatch.chdir(tmp_path)
+    # bar plot of arctic3d-localise for cluster 2 only
+    Path("loc").mkdir()
+    Path("loc", "cluster_2.png").touch()
     cl_residues_probs = {2: {36: 1.0, 37: 0.5}, 1: {1: 1.0}}
     cl_dict = {2: ["int_1", "int_2"], 1: ["int_3"]}
     # int_4 was filtered out of the clustering
@@ -29,6 +32,7 @@ def test_generate_report(tmp_path, monkeypatch):
         cl_residues_probs,
         get_resnames_dict("1rypB_r_b.pdb")[1],
         {"threshold": 0.866},
+        localised={"location": "loc"},
     )
 
     with open("state.mvsj") as f:
@@ -42,3 +46,5 @@ def test_generate_report(tmp_path, monkeypatch):
         '<td class="text">int_4</td><td>1</td><td class="text">not clustered'
         in html
     )
+    assert '<img src="loc/cluster_2.png"' in html
+    assert "loc/cluster_1.png" not in html
