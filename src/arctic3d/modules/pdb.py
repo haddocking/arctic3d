@@ -623,7 +623,6 @@ def validate_api_hit(
         )
         exp_method = str(hit["experimental_method"])
         if check_pdb and coverage is not None:
-
             if float(coverage) > coverage_cutoff:
                 check_list.append(True)
             else:
@@ -749,7 +748,6 @@ def get_maxint_pdb(
     if validated_pdbs != []:
         max_nint = 0
         for curr_pdb, curr_cif_f, curr_hit in validated_pdbs:
-
             try:
                 chain_id = str(curr_hit["chain_id"])
             except Exception as e:

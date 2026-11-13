@@ -107,7 +107,8 @@ def test_error_parse_out_pdb():
 def test_interface_data(mocker, inp_interface_data, inp_interface_ligand_data):
     """Test interface_data input json file."""
 
-    # Mock the `make_request` to make sure the tests are not dependent on the API
+    # Mock the `make_request` to make sure the tests are not dependent on
+    # the API
     mock_make_request = mocker.patch("arctic3d.modules.interface.make_request")
 
     exp_interface_residues = {
@@ -142,8 +143,10 @@ def test_interface_data(mocker, inp_interface_data, inp_interface_ligand_data):
         out_partner_string=None,
         out_pdb_string=None,
         full=False,
-        interface_data=None,  # setting interface as None should trigger a call to the API
-        ligand="no",  # setting ligand as `no` will trigger a call to `INTERFACE_URL`
+        # setting interface as None should trigger a call to the API
+        interface_data=None,
+        # setting ligand as `no` will trigger a call to `INTERFACE_URL`
+        ligand="no",
     )
     assert obs_interface_residues == exp_interface_residues
 
@@ -159,8 +162,10 @@ def test_interface_data(mocker, inp_interface_data, inp_interface_ligand_data):
         out_partner_string=None,
         out_pdb_string=None,
         full=False,
-        interface_data=None,  # setting interface as None should trigger a call to the API
-        ligand="yes",  # setting ligand as `no` will trigger a call to `LIGAND_URL`
+        # setting interface as None should trigger a call to the API
+        interface_data=None,
+        # setting ligand as `yes` will trigger a call to `LIGAND_URL`
+        ligand="yes",
     )
 
     assert obs_interface_residues == {
@@ -175,7 +180,8 @@ def test_interface_data(mocker, inp_interface_data, inp_interface_ligand_data):
 def test_full_interface(mocker, inp_interface_data):
     """Test interface_data input json file with full option."""
 
-    # Mock the `make_request` to make sure the tests are not dependent on the API
+    # Mock the `make_request` to make sure the tests are not dependent on
+    # the API
     mock_make_request = mocker.patch("arctic3d.modules.interface.make_request")
     mock_make_request.return_value = {}
 
@@ -201,7 +207,8 @@ def test_full_interface(mocker, inp_interface_data):
 def test_ligandyes_interface(mocker, inp_interface_ligand_data):
     """Test get_interface_residues when ligand == yes."""
 
-    # Mock the `make_request` to make sure the tests are not dependent on the API
+    # Mock the `make_request` to make sure the tests are not dependent on
+    # the API
     mock_make_request = mocker.patch("arctic3d.modules.interface.make_request")
     mock_make_request.return_value = {}
 

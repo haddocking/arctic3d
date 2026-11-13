@@ -108,6 +108,7 @@ After running ARCTIC-3D, results are stored in the output directory (default: `a
 | `sequence_probability.json` | JSON data for the interactive plot |
 | `report.html` | Report of the results with a Mol* view of the binding surfaces (turn off with `--no_report`) |
 | `state.mvsj` | Mol* views shown in `report.html` |
+| `arctic3d-localise-{type}/` | With `--biological_clustering`: annotations of the partners and a bar plot per cluster (`cluster_{N}.png`, `cluster_{N}.html`) for each type |
 
 ### Understanding the clustering
 

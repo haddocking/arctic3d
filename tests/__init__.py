@@ -1,4 +1,5 @@
 """Test module."""
+
 from pathlib import Path
 
 tests_path = Path(__file__).resolve().parents[0]

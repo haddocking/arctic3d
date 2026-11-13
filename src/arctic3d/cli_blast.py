@@ -1,4 +1,5 @@
 """Main CLI."""
+
 import argparse
 import logging
 import sys
@@ -28,7 +29,8 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--db",
-    help="Local BLAST database path (e.g., db/swissprot). If not provided, remote BLAST will be used",
+    help="Local BLAST database path (e.g., db/swissprot). If not provided, "
+    "remote BLAST will be used",
 )
 
 

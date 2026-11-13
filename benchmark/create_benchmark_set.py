@@ -1,4 +1,5 @@
 """Tool to create a benchmark set for the ARCTIC-3D tool."""
+
 import argparse
 import logging
 import os
@@ -34,7 +35,7 @@ def load_bm5_file(bm5_file: str) -> list[tuple[str, str, str]]:
 
 
 def filter_bm5(
-    bm5: list[tuple[str, str, str, str]]
+    bm5: list[tuple[str, str, str, str]],
 ) -> list[tuple[str, str, str, str]]:
     """Filter out multichain pdbs."""
     logging.info("Filtering out antibodies and multichain pdbs.")
@@ -75,7 +76,7 @@ def identify_uniprotid(pdb_id: str, target_chain: str) -> Optional[str]:
 
 
 def parse_bm(
-    bm: list[tuple[str, str, str, str]]
+    bm: list[tuple[str, str, str, str]],
 ) -> list[tuple[str, str, str, str, str, str]]:
     """Parse the benchmark and return a list with the Uniprot IDs."""
     parsed_bm: list = []

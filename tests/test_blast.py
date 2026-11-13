@@ -20,7 +20,8 @@ def xml_file():
 
 def test_blast_remote(mocker, fasta_file, xml_file):
 
-    # Mock the remote blast call by passing the xml file as stringIo as return value
+    # Mock the remote blast call by passing the xml file as stringIo as
+    # return value
     with open(xml_file, "r") as f:
         xml = f.read()
     xml_string_io = StringIO(xml)
@@ -44,7 +45,10 @@ def test_parse_xml(xml_file):
 
 
 def test_parse_xml_no_hits(tmp_path):
-    """A BLAST result with no hits should raise a clear error, not IndexError."""
+    """A BLAST result with no hits should raise a clear error.
+
+    Not an IndexError.
+    """
     no_hits_xml = tmp_path / "no_hits.xml"
     no_hits_xml.write_text(
         '<?xml version="1.0"?>\n'

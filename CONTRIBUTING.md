@@ -16,29 +16,22 @@ OR if you prefer `pip`
 ```text
 git clone https://github.com/haddocking/arctic3d.git && cd arctic3d
 pip install .
-pip install pytest pytest-cov pytest-mock coverage hypothesis mypy types-requests
+pip install pytest pytest-cov pytest-mock coverage hypothesis mypy ruff types-requests
 ```
 
 ## Testing
 
 ```text
-pytest --cov=./ --cov-report=xml -v
+uv run pytest -m "not (sanity or integration)"
 ```
+
+The `sanity` (API checks) and `integration` tests need an internet connection: run them with `uv run pytest -m sanity` and `uv run pytest -m integration`.
 
 ## Linting
 
-We use `trunk` as the "all-purpose" linting tool, check its [documentation](https://docs.trunk.io/docs/install).
-
-To check for code style issues, run:
+The code is linted and formatted with [ruff](https://docs.astral.sh/ruff/), configured in `pyproject.toml` (lines of at most 79 characters). The CI runs both checks:
 
 ```text
-trunk check
+uv run ruff check        # add --fix to fix what can be fixed automatically
+uv run ruff format       # or ruff format --check to only check
 ```
-
-To automatically fix the issues, run:
-
-```text
-trunk fmt
-```
-
-If you are using VSCode, then [this extension](https://marketplace.visualstudio.com/items?itemName=Trunk.io) make it easy to check for style errors.

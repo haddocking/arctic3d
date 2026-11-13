@@ -20,6 +20,11 @@ jobs:
 
       - run: uv sync
 
+      - name: Check style with ruff
+        run: |
+          uv run ruff check
+          uv run ruff format --check
+
       - run: uv run mypy src/ --ignore-missing-imports --explicit-package-bases --disallow-incomplete-defs # --check-untyped-defs
 
       - name: Run sanity check on the API endpoints

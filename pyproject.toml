@@ -50,6 +50,7 @@ dev = [
   "coverage",
   "hypothesis",
   "mypy",
+  "ruff",
   "types-requests",
 ]
 
@@ -66,3 +67,10 @@ markers = [
   "sanity: tests if the apis are working as expected",
   "integration: tests the integration of different components",
 ]
+
+[tool.ruff]
+line-length = 79
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I"]

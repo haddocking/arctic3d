@@ -1,4 +1,5 @@
 """Main CLI."""
+
 import argparse
 import os
 import sys
@@ -7,25 +8,24 @@ from pathlib import Path
 
 from arctic3d import log
 from arctic3d.modules.blast import run_blast
-from arctic3d.modules.clustering import filter_clusters
 from arctic3d.modules.cluster_interfaces import cluster_interfaces
+from arctic3d.modules.clustering import filter_clusters
 from arctic3d.modules.input import Input
 from arctic3d.modules.interface import (
     get_interface_residues,
     read_interface_residues,
 )
+from arctic3d.modules.log import add_log_for_CLI
 from arctic3d.modules.output import (
+    create_output_folder,
     get_init_message,
     make_output,
-    write_footer,
-    create_output_folder,
     setup_output_folder,
+    write_footer,
 )
 from arctic3d.modules.pdb import get_best_pdb
 from arctic3d.modules.report import generate_report
 from arctic3d.modules.sequence import to_fasta
-from arctic3d.modules.log import add_log_for_CLI
-
 
 argument_parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -37,7 +37,8 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--db",
-    help="Local BLAST database path (e.g., db/swissprot). If not provided, remote BLAST will be used",
+    help="Local BLAST database path (e.g., db/swissprot). If not provided, "
+    "remote BLAST will be used",
 )
 
 argument_parser.add_argument(
@@ -136,7 +137,8 @@ argument_parser.add_argument(
 
 argument_parser.add_argument(
     "--biological_clustering",
-    help="Perform biological clustering of partners. Can specify multiple types: "
+    help="Perform biological clustering of partners. Can specify multiple "
+    "types: "
     "'location' clusters by subcellular location, "
     "'function' clusters by protein function, "
     "'process' clusters by biological process",
@@ -387,9 +389,7 @@ def main(
             quickgo_param = config["quickgo"]
             localise_run_dir = config["dir"]
 
-            log.info(
-                f"Running biological clustering by {clustering_type}..."
-            )
+            log.info(f"Running biological clustering by {clustering_type}...")
 
             try:
                 localise_main(

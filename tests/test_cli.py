@@ -164,18 +164,26 @@ def test_biological_clustering_config():
 
     # Verify all config values are correct
     assert clustering_config["location"]["quickgo"] == "C"
-    assert clustering_config["location"]["dir"] == "arctic3d-localise-subcellular"
+    assert (
+        clustering_config["location"]["dir"] == "arctic3d-localise-subcellular"
+    )
 
     assert clustering_config["function"]["quickgo"] == "F"
-    assert clustering_config["function"]["dir"] == "arctic3d-localise-proteinfunction"
+    assert (
+        clustering_config["function"]["dir"]
+        == "arctic3d-localise-proteinfunction"
+    )
 
     assert clustering_config["process"]["quickgo"] == "P"
-    assert clustering_config["process"]["dir"] == "arctic3d-localise-biologicalprocess"
+    assert (
+        clustering_config["process"]["dir"]
+        == "arctic3d-localise-biologicalprocess"
+    )
 
 
 @pytest.mark.integration
 def test_biological_clustering_not_called_when_no_interfaces(monkeypatch):
-    """Test that biological_clustering is not executed when there are no interfaces."""
+    """Test that biological_clustering is not run without interfaces."""
     # Mock localise_main to track if it's called
     mock_localise = MagicMock()
     monkeypatch.setattr("arctic3d.cli_localise.main", mock_localise)

@@ -26,6 +26,7 @@ Input arguments:
 
     `output` : the path where to output clusters data.
 """
+
 import argparse
 import sys
 
@@ -39,7 +40,6 @@ from arctic3d.modules.clustering import (
 )
 from arctic3d.modules.input import Input
 from arctic3d.modules.output import create_output_folder
-
 
 argument_parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter
@@ -227,11 +227,11 @@ def main(
     # check if data must be flushed to output file
     if output:
         # initiate output directory
-        output_basepath = create_output_folder(output, uniprot_id='resclust')
+        output_basepath = create_output_folder(output, uniprot_id="resclust")
         # write txt file
-        output_fname = f'{output_basepath}/clustered_residues.out'
+        output_fname = f"{output_basepath}/clustered_residues.out"
         log.info(f'writing clusters data in "{output_fname}"')
-        with open(output_fname, 'w') as filout:
+        with open(output_fname, "w") as filout:
             for el in cl_dict.keys():
                 filout.write(
                     f"cluster {el} -> "
