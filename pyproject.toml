@@ -2,7 +2,7 @@
 name = "arctic3d"
 license = "Apache-2.0"
 version = "0.6.0"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "Automatic Retrieval and ClusTering of Interfaces in Complexes from 3D structural information"
 authors = [{ name = "Marco Giulini" }]
 maintainers = [{ name = "BonvinLab", email = "bonvinlab.support@uu.nl" }]
@@ -10,7 +10,6 @@ readme = "README.md"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "License :: OSI Approved :: Apache Software License",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -35,6 +34,7 @@ dependencies = [
   "pdbecif>=1.5",
   "jsonpickle>=4.1.0",
   "kaleido>=0.2.1",
+  "molviewspec>=1.8.1",
 ]
 
 [project.scripts]

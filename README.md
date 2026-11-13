@@ -106,6 +106,8 @@ After running ARCTIC-3D, results are stored in the output directory (default: `a
 | `{pdb_id}-{chain}_cl{N}.pdb` | PDB structure for cluster N with probabilities encoded in B-factor column |
 | `sequence_probability.html` | Interactive bar plot of per-residue probabilities |
 | `sequence_probability.json` | JSON data for the interactive plot |
+| `report.html` | Report of the results with a Mol* view of the binding surfaces (turn off with `--no_report`) |
+| `state.mvsj` | Mol* views shown in `report.html` |
 
 ### Understanding the clustering
 
@@ -157,6 +159,16 @@ The dendrogram (`dendrogram_average.png`) shows the hierarchical relationship be
 ### Using the interactive plot
 
 Open `sequence_probability.html` in a web browser to explore per-residue binding probabilities. Each cluster is shown as a separate colored bar series, allowing you to identify which residues are involved in which binding surface and compare hotspots across different clusters.
+
+### Viewing the report
+
+`report.html` shows the binding surfaces on the structure (Mol*), with the cluster and residue tables, the dendrogram and the sequence plot. Browsers do not let a page opened from disk load the structure, so serve the output directory and open the report from there:
+
+```
+python -m http.server -d example/arctic3d-P00760
+```
+
+then open http://localhost:8000/report.html. Two example outputs are included: `example/arctic3d-P00760`, from `arctic3d P00760` (trypsin), and `example/arctic3d-1ppe_E`, from `arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt` (input PDB and interfaces).
 
 ## Citing us
 

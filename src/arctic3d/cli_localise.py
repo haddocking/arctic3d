@@ -8,17 +8,17 @@ subcellular location (as provided by
 
 USAGE::
 
-    arctic3d-localise ./example/clustered_interfaces.out
+    arctic3d-localise ./example/arctic3d-P00760/clustered_interfaces.out
 
 Use the run_dir parameter if you want to specify a specific output directory::
 
-    arctic3d-localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/arctic3d-P00760/clustered_interfaces.out \
         --run_dir=arctic3d-localise-example
 
 Use the out_partner parameter to exclude one or more uniprot IDs
 from the search::
 
-    arctic3d-localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/arctic3d-P00760/clustered_interfaces.out \
         --out_partner=P00760,P00761
 
 It is possible to retrieve information from quickGO instead of using
@@ -27,18 +27,18 @@ the standard uniprot subcellular location.
 QuickGO possesses information location (labelled as C), function (F),
 and biological process (P)::
 
-    arctic3d-localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/arctic3d-P00760/clustered_interfaces.out \
         --quickgo=F
 
 By default the CLI will output html files and png images. It is possible
 to specify the output format with the format parameter::
 
-    arctic3d-localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/arctic3d-P00760/clustered_interfaces.out \
         --format=pdf
 
 The scale parameter can be used to scale the images::
 
-    arctic3d-localise ./example/clustered_interfaces.out \
+    arctic3d-localise ./example/arctic3d-P00760/clustered_interfaces.out \
         --scale=2.0
 """
 

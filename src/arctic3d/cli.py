@@ -16,10 +16,12 @@ from arctic3d.modules.interface import (
 from arctic3d.modules.output import (
     get_init_message,
     make_output,
+    write_footer,
     create_output_folder,
     setup_output_folder,
 )
 from arctic3d.modules.pdb import get_best_pdb
+from arctic3d.modules.report import generate_report
 from arctic3d.modules.sequence import to_fasta
 from arctic3d.modules.log import add_log_for_CLI
 
@@ -142,6 +144,14 @@ argument_parser.add_argument(
     default=[],
 )
 
+argument_parser.add_argument(
+    "--no_report",
+    dest="report",
+    help="do not write report.html (the results with a Mol* view of the"
+    " binding surfaces)",
+    action="store_false",
+)
+
 
 def load_args(arguments):
     """
@@ -200,9 +210,12 @@ def main(
     min_clust_size,
     int_cov_cutoff,
     biological_clustering,
+    report=True,
     log_level="DEBUG",
 ):
     """Main function."""
+    # the command-line options, shown in the report
+    options = dict(locals())
     init_message = get_init_message()
     log.info(init_message)
     st_time = time.time()
@@ -225,8 +238,11 @@ def main(
 
     # create output folder
     run_dir_path = create_output_folder(run_dir, uniprot_id)
-    # configure logging
-    log_file = Path(run_dir_path, "arctic3d.log")
+    # configure logging: the log file starts with the header (version), as
+    # the init message was logged before the file existed. Absolute path, as
+    # the run changes directory.
+    log_file = Path(run_dir_path, "arctic3d.log").resolve()
+    log_file.write_text(init_message)
     add_log_for_CLI(log, log_level, log_file)
 
     log.info(f"Target UNIPROTID: {uniprot_id}")
@@ -328,22 +344,29 @@ def main(
                 cl_dict, cl_residues, cl_residues_probs, min_clust_size
             )
 
-        make_output(
+        resnames = make_output(
             interface_residues=interface_residues,
             pdb_f=pdb_f,
             cl_dict=cl_dict,
             cl_residues=cl_residues,
             cl_residues_probs=cl_residues_probs,
         )
+        if report:
+            generate_report(
+                pdb_f=pdb_f,
+                interface_residues=interface_residues,
+                cl_dict=cl_dict,
+                cl_residues_probs=cl_residues_probs,
+                resnames=resnames,
+                options=options,
+                uniprot_id=uniprot_id,
+            )
     else:
         log.info("No interfaces found.")
 
-    log.info(
-        f"arctic3d run completed in {(time.time() - st_time):.2f} seconds."
-    )
-
     # check if there's at least one interface
     if Path("clustered_interfaces.out").is_file() is False:
+        write_footer(log_file, time.time() - st_time)
         return 255
 
     # run biological clustering if requested
@@ -396,6 +419,9 @@ def main(
                     f"Biological clustering by {clustering_type} failed: {e}"
                 )
 
+    write_footer(
+        log_file, time.time() - st_time, log_file.parent if report else None
+    )
     return 0
 
 

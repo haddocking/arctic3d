@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ARCTIC-3D Report</title>
+<script src="https://cdn.jsdelivr.net/npm/molstar@5.13.1/build/mvs-stories/mvs-stories.js"></script>
+<link rel="stylesheet" type="text/css"
+  href="https://cdn.jsdelivr.net/npm/molstar@5.13.1/build/mvs-stories/mvs-stories.css">
+<style>
+  body { margin: 0; font-family: sans-serif; }
+  header, section { padding: 0 1rem; }
+  .container { display: flex; height: 600px; }
+  #viewer { flex: 2 1 0; min-width: 0; position: relative; }
+  #controls { flex: 1 1 0; min-width: 300px; padding: 1rem; overflow: auto;
+              border-left: 1px solid #ccc; background: #f6f5f3; }
+  table { border-collapse: collapse; margin: 0.5rem 0 1rem; }
+  th, td { border: 1px solid #a0a0a0; padding: 4px 8px; text-align: right; }
+  td.text { text-align: left; }
+  table.sortable th { cursor: pointer; }
+  .swatch { display: inline-block; width: 0.8em; height: 0.8em;
+            margin-right: 0.3em; }
+  img { max-width: min(100%, 800px); }
+  iframe { width: 100%; height: 540px; border: none; }
+  #file-hint { background: #fff3cd; padding: 0.5rem; }
+  @media (max-width: 900px) {
+    .container { flex-direction: column; height: auto; }
+    #viewer { height: 50vh; }
+    #controls { border-left: none; border-top: 1px solid #ccc; }
+  }
+</style>
+</head>
+<body>
+<header>
+<h2>ARCTIC-3D Report</h2>
+<p>Target: custom; structure: input_data/1ppe_E.pdb; 4 interfaces retrieved, 4 clustered in 2 binding surfaces.</p>
+<details><summary>Options</summary><ul><li>biological_clustering: []</li><li>chain_to_use: None</li><li>db: None</li><li>full: False</li><li>input_arg: example/1ppe_E.pdb</li><li>int_cov_cutoff: 0.7</li><li>interface_data: None</li><li>interface_file: example/1ppe_E_example_interfaces.txt</li><li>ligand: no</li><li>linkage_strategy: average</li><li>log_level: DEBUG</li><li>min_clust_size: 0</li><li>out_partner: None</li><li>out_pdb: None</li><li>pdb_data: None</li><li>pdb_to_use: None</li><li>report: True</li><li>run_dir: example/arctic3d-1ppe_E</li><li>threshold: 0.866</li></ul></details>
+<p>Download: <a href="arctic3d.log">arctic3d.log</a> <a href="input_data/1ppe_E.pdb">input_data/1ppe_E.pdb</a> <a href="retrieved_interfaces.out">retrieved_interfaces.out</a> <a href="interface_matrix.txt">interface_matrix.txt</a> <a href="clustered_interfaces.out">clustered_interfaces.out</a> <a href="clustered_residues.out">clustered_residues.out</a> <a href="clustered_residues_probs.out">clustered_residues_probs.out</a> <a href="1ppe_E_cl1.pdb">1ppe_E_cl1.pdb</a> <a href="1ppe_E_cl2.pdb">1ppe_E_cl2.pdb</a> <a href="dendrogram_average.png">dendrogram_average.png</a> <a href="sequence_probability.html">sequence_probability.html</a></p>
+<p id="file-hint" hidden>The browser does not let a page opened from disk load
+the files of the viewer. Serve this directory with
+<code>python -m http.server -d &lt;directory&gt;</code> and open
+<a href="http://localhost:8000/report.html">http://localhost:8000/report.html</a>.</p>
+</header>
+<div class="container">
+  <div id="viewer"><mvs-stories-viewer /></div>
+  <div id="controls"><mvs-stories-snapshot-markdown /></div>
+</div>
+<section>
+<p><i>Click a column header to sort a table by that column; click again to
+reverse the order.</i></p>
+<h3>Clusters (binding surfaces)</h3><table class="sortable"><tr><th>Cluster</th><th>N interfaces</th><th>N residues</th><th>Top residues</th><th>Interfaces</th></tr><tr><td class="text"><span class="swatch" style="background: #66c2a5"></span>1</td><td>3</td><td>9</td><td class="text">ASP191 (1.00), GLY211 (1.00), GLY188 (0.67), GLY189 (0.67), LEU209 (0.67), HIS57 (0.33), SER192 (0.33), GLN194 (0.33), VAL213 (0.33)</td><td class="text">PRD_000216, PRD_000350, PRD_000556</td></tr><tr><td class="text"><span class="swatch" style="background: #fc8d62"></span>2</td><td>1</td><td>16</td><td class="text">GLY19 (1.00), GLY38 (1.00), GLN64 (1.00), ARG66 (1.00), VAL75 (1.00), ILE83 (1.00), TYR94 (1.00), SER96 (1.00), TRP141 (1.00), GLY142 (1.00)</td><td class="text">P00760</td></tr></table><h3>Residue probabilities</h3><table class="sortable"><tr><th>Residue</th><th>Name</th><th>Cluster 1</th><th>Cluster 2</th></tr><tr><td>19</td><td class="text">GLY</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>38</td><td class="text">GLY</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>57</td><td class="text">HIS</td><td style="background: #b6d8c1">0.333</td><td style="background: #ffffff">0.000</td></tr><tr><td>64</td><td class="text">GLN</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>66</td><td class="text">ARG</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>75</td><td class="text">VAL</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>83</td><td class="text">ILE</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>94</td><td class="text">TYR</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>96</td><td class="text">SER</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>141</td><td class="text">TRP</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>142</td><td class="text">GLY</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>144</td><td class="text">THR</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>147</td><td class="text">SER</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>170</td><td class="text">SER</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>171</td><td class="text">ALA</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>184</td><td class="text">GLY</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr><tr><td>188</td><td class="text">GLY</td><td style="background: #6cb283; color: white">0.667</td><td style="background: #ffffff">0.000</td></tr><tr><td>189</td><td class="text">GLY</td><td style="background: #6cb283; color: white">0.667</td><td style="background: #ffffff">0.000</td></tr><tr><td>191</td><td class="text">ASP</td><td style="background: #238b45; color: white">1.000</td><td style="background: #ffffff">0.000</td></tr><tr><td>192</td><td class="text">SER</td><td style="background: #b6d8c1">0.333</td><td style="background: #ffffff">0.000</td></tr><tr><td>194</td><td class="text">GLN</td><td style="background: #b6d8c1">0.333</td><td style="background: #ffffff">0.000</td></tr><tr><td>209</td><td class="text">LEU</td><td style="background: #6cb283; color: white">0.667</td><td style="background: #ffffff">0.000</td></tr><tr><td>211</td><td class="text">GLY</td><td style="background: #238b45; color: white">1.000</td><td style="background: #ffffff">0.000</td></tr><tr><td>213</td><td class="text">VAL</td><td style="background: #b6d8c1">0.333</td><td style="background: #ffffff">0.000</td></tr><tr><td>217</td><td class="text">SER</td><td style="background: #ffffff">0.000</td><td style="background: #238b45; color: white">1.000</td></tr></table><h3>Retrieved interfaces</h3><table class="sortable"><tr><th>Interface</th><th>Residues</th><th>Cluster</th></tr><tr><td class="text">PRD_000216</td><td>7</td><td class="text">1</td></tr><tr><td class="text">PRD_000350</td><td>7</td><td class="text">1</td></tr><tr><td class="text">PRD_000556</td><td>2</td><td class="text">1</td></tr><tr><td class="text">P00760</td><td>16</td><td class="text">2</td></tr></table><h3>Dendrogram</h3><img src="dendrogram_average.png" alt="Dendrogram of the interfaces"><h3>Residue probabilities along the sequence</h3><iframe src="sequence_probability.html"></iframe></section>
+<script>
+// Sort a table by a column on a click on its header, again to reverse.
+document.querySelectorAll('table.sortable th').forEach(th => {
+  th.title = 'Click to sort';
+  th.addEventListener('click', () => {
+    const table = th.closest('table');
+    const col = th.cellIndex;
+    const rows = [...table.rows].slice(1);
+    const key = r => {
+      const text = r.cells[col].textContent;
+      const x = parseFloat(text);
+      return isNaN(x) ? text : x;
+    };
+    const dir = th.dataset.dir === 'desc' ? 1 : -1;
+    th.dataset.dir = dir === 1 ? 'asc' : 'desc';
+    // Show the sorted column and its direction.
+    for (const h of table.rows[0].cells) {
+      h.textContent = h.textContent.replace(/ [▲▼]$/, '');
+    }
+    th.textContent += dir === 1 ? ' ▲' : ' ▼';
+    rows.sort((a, b) => {
+      const x = key(a), y = key(b);
+      return dir * (x < y ? -1 : x > y ? 1 : 0);
+    });
+    rows.forEach(r => table.tBodies[0].appendChild(r));
+  });
+});
+if (location.protocol === 'file:') {
+  document.getElementById('file-hint').hidden = false;
+} else {
+  mvsStories.loadFromURL('state.mvsj', { format: 'mvsj' });
+}
+</script>
+</body>
+</html>

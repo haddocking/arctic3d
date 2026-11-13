@@ -1,0 +1,47 @@
+
+##############################################
+#                                            #
+#                 ARCTIC-3D                  #
+#                                            #
+##############################################
+
+Starting ARCTIC-3D 0.6.0
+
+[2026-11-13 08:52:57,009] cli.py:arctic3d:main:248: Target UNIPROTID: None
+[2026-11-13 08:52:57,010] output.py:arctic3d.log:setup_output_folder:64: Setting up output folder example/arctic3d-1ppe_E
+[2026-11-13 08:52:57,010] cli.py:arctic3d:main:262: input interface file example/1ppe_E_example_interfaces.txt
+[2026-11-13 08:52:57,010] cli.py:arctic3d:main:285: Interface Residues: {'PRD_000216': [57, 188, 189, 191, 209, 211, 213], 'PRD_000350': [188, 189, 191, 192, 194, 209, 211], 'PRD_000556': [191, 211], 'P00760': [19, 38, 64, 66, 75, 83, 94, 96, 141, 142, 144, 147, 170, 171, 184, 217]}
+[2026-11-13 08:52:57,010] cli.py:arctic3d:main:322: PDB file: input_data/1ppe_E.pdb
+[2026-11-13 08:52:57,011] interface_matrix.py:arctic3d.log:interface_matrix:238: Computing interface matrix
+[2026-11-13 08:52:57,019] interface_matrix.py:arctic3d.log:filter_interfaces:182: Filtering interface dictionary with interface coverage cutoff = 0.7
+[2026-11-13 08:52:57,019] interface_matrix.py:arctic3d.log:filter_interfaces:195: 4 retained_interfaces
+[2026-11-13 08:52:57,019] interface_matrix.py:arctic3d.log:interface_matrix:248: Retained interfaces: ['PRD_000216', 'PRD_000350', 'PRD_000556', 'P00760']
+[2026-11-13 08:52:57,019] interface_matrix.py:arctic3d.log:interface_matrix:252: 6 pairs of interfaces
+[2026-11-13 08:52:57,020] interface_matrix.py:arctic3d.log:interface_matrix:255: Interacting residues [19, 38, 57, 64, 66, 75, 83, 94, 96, 141, 142, 144, 147, 170, 171, 184, 188, 189, 191, 192, 194, 209, 211, 213, 217]
+[2026-11-13 08:52:57,021] interface_matrix.py:arctic3d.log:output_interface_matrix:119: Writing interface similarity matrix to file interface_matrix.txt
+[2026-11-13 08:52:57,021] interface_matrix.py:arctic3d.log:interface_matrix:296: Interface matrix calculated in 0.01 seconds
+[2026-11-13 08:52:57,021] clustering.py:arctic3d.log:interface_clustering:202: Clustering interface matrix
+[2026-11-13 08:52:57,026] interface_matrix.py:arctic3d.log:read_int_matrix:334: Ligand names ['PRD_000216', 'PRD_000350', 'PRD_000556', 'P00760']
+[2026-11-13 08:52:57,026] clustering.py:arctic3d.log:cluster_similarity_matrix:88: Clustering with linkage average and threshold 0.866
+[2026-11-13 08:52:57,403] clustering.py:arctic3d.log:cluster_similarity_matrix:97: Dendrogram created and clustered.
+[2026-11-13 08:52:57,403] clustering.py:arctic3d.log:cluster_similarity_matrix:98: Clusters = [1 1 1 2]
+[2026-11-13 08:52:57,403] clustering.py:arctic3d.log:get_clustering_dict:134: Cluster dictionary {np.int32(1): ['PRD_000216', 'PRD_000350', 'PRD_000556'], np.int32(2): ['P00760']}
+[2026-11-13 08:52:57,404] clustering.py:arctic3d.log:interface_clustering:221: Clustering performed in 0.383 seconds
+[2026-11-13 08:52:57,404] clustering.py:arctic3d.log:interface_clustering:222: Clustering produced 2 clusters
+[2026-11-13 08:52:57,404] cli.py:arctic3d:main:337: Clustered interfaces {np.int32(1): ['PRD_000216', 'PRD_000350', 'PRD_000556'], np.int32(2): ['P00760']}
+[2026-11-13 08:52:57,404] cli.py:arctic3d:main:338: Clustered interface residues: {np.int32(1): [np.int64(57), np.int64(188), np.int64(189), np.int64(191), np.int64(192), np.int64(194), np.int64(209), np.int64(211), np.int64(213)], np.int32(2): [np.int64(19), np.int64(38), np.int64(64), np.int64(66), np.int64(75), np.int64(83), np.int64(94), np.int64(96), np.int64(141), np.int64(142), np.int64(144), np.int64(147), np.int64(170), np.int64(171), np.int64(184), np.int64(217)]}
+[2026-11-13 08:52:57,412] output.py:arctic3d.log:write_dict:98: Writing Interface information to file retrieved_interfaces.out
+[2026-11-13 08:52:57,412] output.py:arctic3d.log:write_dict:98: Writing Cluster information to file clustered_interfaces.out
+[2026-11-13 08:52:57,412] output.py:arctic3d.log:write_dict:98: Writing Cluster information to file clustered_residues.out
+[2026-11-13 08:52:57,412] output.py:arctic3d.log:output_pdb:216: Creating output pdb files...
+[2026-11-13 08:52:57,412] output.py:arctic3d.log:output_pdb:227: Creating output file 1ppe_E_cl1.pdb
+[2026-11-13 08:52:57,414] output.py:arctic3d.log:output_pdb:227: Creating output file 1ppe_E_cl2.pdb
+[2026-11-13 08:52:57,415] output.py:arctic3d.log:make_plotly_plot:278: Creating interactive plot.
+[2026-11-13 08:52:57,503] output.py:arctic3d.log:make_plotly_plot:315: Interactive plot sequence_probability.html successfully created.
+[2026-11-13 08:52:57,503] report.py:arctic3d.log:generate_report:281: Writing report.html
+##############################################
+ARCTIC-3D run completed in 0.50 seconds.
+To view report.html, serve the output directory:
+  python -m http.server -d example/arctic3d-1ppe_E
+and open http://localhost:8000/report.html
+##############################################
