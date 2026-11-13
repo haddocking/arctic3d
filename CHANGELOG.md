@@ -4,6 +4,7 @@
 
 - Publish the documentation at bonvinlab.org/arctic3d with MkDocs - PR #534
 - Change installation instructions to use python venv instead of conda - PR #537
+- Fixed `--full` when the PDBe returns `"chainIds": null` - PR #540
 
 ## 0.7.0
 
