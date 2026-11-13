@@ -482,36 +482,37 @@ def shorten_labels(list_of_labels, max_lab_length=60):
     return new_list_of_labels
 
 
-def create_barplot(cluster, sorted_dict, max_labels=70):
+def create_barplot(cluster, sorted_dict, format, scale, max_labels=25):
     """
-    Create horizontal barplot.
+    Create horizontal barplot (image) using matplotlib.
 
     Parameters
     ----------
     cluster : int or str
         cluster ID
-
     sorted_dict : dict
         dictionary of sorted entries
-
+    format : str
+        format of the output figure
+    scale : float
+        scale of the output figure (times 100 dpi)
     max_labels : int
         maximum number of labels to include
     """
-    labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
-    values = list(sorted_dict.values())[-max_labels:]
+    tmp_labels = shorten_labels(list(sorted_dict.keys())[-max_labels:])
+    tmp_values = list(sorted_dict.values())[-max_labels:]
+    labels, values = remove_duplicate_labels(tmp_labels, tmp_values)
     max_val = math.ceil(max(values))
-    min_val = math.floor(min(values))
-    gap = (max_val - min_val) // 12 + 1
-    xints = range(min_val, max_val + 1, int(gap))
-    plt.figure(figsize=(12, 12))
-    plt.title(f"cluster {cluster}", fontsize=24)
-    plt.barh(labels, values, height=0.3, color="g")
-    plt.xticks(xints, fontsize=18)
-    plt.yticks(fontsize=14)
-    plt.xlabel("Occurrencies", fontsize=24)
+    xints = range(0, max_val + 1, max_val // 12 + 1)
+    plt.figure(figsize=(12, 8))
+    plt.title(f"cluster {cluster}", fontsize=20)
+    plt.barh(labels, values, height=0.6, color="g")
+    plt.xticks(xints, fontsize=14)
+    plt.yticks(fontsize=12)
+    plt.xlabel("Occurrences", fontsize=16)
     plt.tight_layout()
-    fig_fname = f"cluster_{cluster}.png"
-    plt.savefig(fig_fname)
+    fig_fname = f"cluster_{cluster}.{format}"
+    plt.savefig(fig_fname, dpi=100 * scale)
     log.info(f"Figure {fig_fname} created")
     plt.close()
     return
@@ -545,9 +546,9 @@ def remove_duplicate_labels(labels, values):
     return new_labels, new_values
 
 
-def create_barplotly(cluster, sorted_dict, format, scale, max_labels=25):
+def create_barplotly(cluster, sorted_dict, max_labels=25):
     """
-    Create horizontal barplot using plotly.
+    Create horizontal barplot (interactive html) using plotly.
 
     Parameters
     ----------
@@ -555,10 +556,6 @@ def create_barplotly(cluster, sorted_dict, format, scale, max_labels=25):
         cluster ID
     sorted_dict : dict
         dictionary of sorted entries
-    format : str
-        format of the output figure
-    scale : float
-        scale of the output figure
     max_labels : int
         maximum number of labels to include
     """
@@ -568,11 +565,6 @@ def create_barplotly(cluster, sorted_dict, format, scale, max_labels=25):
     fig = go.Figure(go.Bar(x=values, y=labels, orientation="h"))
     fig_fname = f"cluster_{cluster}.html"
     fig.write_html(fig_fname)
-    log.info(f"Figure {fig_fname} created")
-    # also export it in png format
-    fig.update_yaxes(tickmode="linear")
-    fig_fname = f"cluster_{cluster}.{format}"
-    fig.write_image(fig_fname, scale=scale)
     log.info(f"Figure {fig_fname} created")
     return
 
