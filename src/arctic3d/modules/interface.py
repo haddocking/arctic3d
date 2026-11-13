@@ -317,10 +317,10 @@ def parse_interface_data(
                 else:
                     # iterate over pdb records
                     for pdb_record in residue_entry["interactingPDBEntries"]:
-                        # entries can have missing chainIds field, especially
-                        #   for PRD_* like uniprot IDs
+                        # entries can have a missing or null chainIds field,
+                        #   especially for PRD_* like uniprot IDs
                         chain_ids = [""]
-                        if "chainIds" in pdb_record.keys():
+                        if pdb_record.get("chainIds"):
                             chain_ids = pdb_record["chainIds"].split(",")
                         # if there are two or more chainIds, we discard the
                         #   current entry
