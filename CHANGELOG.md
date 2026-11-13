@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Publish the documentation at bonvinlab.org/arctic3d with MkDocs - PR #534
+
 ## 0.7.0
 
 - New report.html with a Mol* view of the binding surfaces and the results
