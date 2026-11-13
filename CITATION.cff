@@ -23,7 +23,7 @@ authors:
 - given-names: Anton
   family-names: Bushuiev
   affiliation: Czech Technical University in Prague
-version: 0.7.0
+version: 0.7.1
 date-released: 2026-11-13
 repository-code: https://github.com/haddocking/arctic3d
 license: cc-by-4.0
