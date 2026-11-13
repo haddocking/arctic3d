@@ -204,6 +204,31 @@ def test_full_interface(mocker, inp_interface_data):
     assert obs_interface_residues == exp_interface_residues
 
 
+def test_full_interface_null_chainids(mocker, inp_interface_data, tmp_path):
+    """Test the full option with "chainIds": null, as the PDBe returns."""
+    mocker.patch("arctic3d.modules.interface.make_request", return_value={})
+    interface_data = json.loads(inp_interface_data.read_text())
+    for partner in interface_data["P40202"]["data"]:
+        if partner["accession"] == "P00441":
+            for residue in partner["residues"]:
+                for pdb_record in residue["interactingPDBEntries"]:
+                    pdb_record["chainIds"] = None
+    null_data = Path(tmp_path, "interface_data.json")
+    null_data.write_text(json.dumps(interface_data))
+
+    obs_interface_residues = get_interface_residues(
+        "P40202",
+        None,
+        None,
+        full=True,
+        interface_data=null_data,
+        ligand="no",
+    )
+    exp_residues = [85, 137, 138, 187, 217, 218, 222, 229, 231, 232]
+    assert obs_interface_residues["P00441-5u9m-"] == exp_residues
+    assert "P00441-5u9m-A" not in obs_interface_residues
+
+
 def test_ligandyes_interface(mocker, inp_interface_ligand_data):
     """Test get_interface_residues when ligand == yes."""
 
