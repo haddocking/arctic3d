@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.1
 
 - Publish the documentation at bonvinlab.org/arctic3d with MkDocs - PR #534
 - Change installation instructions to use python venv instead of conda - PR #537
