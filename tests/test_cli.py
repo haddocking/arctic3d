@@ -95,16 +95,13 @@ def test_cli_full():
 
 @pytest.mark.integration
 def test_biological_clustering_integration():
-    """Integration test for biological_clustering with location option."""
+    """Integration test for biological_clustering with two types."""
     target_uniprot = "W5JXD7"
     exp_dir = Path(f"arctic3d-{target_uniprot}")
-    localise_dir = Path("arctic3d-localise-subcellular")
 
     # Clean up if exists
     if exp_dir.exists():
         shutil.rmtree(exp_dir)
-    if localise_dir.exists():
-        shutil.rmtree(localise_dir)
 
     start_cwd = os.getcwd()
     exit_code = main(
@@ -124,7 +121,7 @@ def test_biological_clustering_integration():
         threshold=None,
         min_clust_size=1,
         int_cov_cutoff=0.7,
-        biological_clustering=["location"],
+        biological_clustering=["location", "function"],
     )
 
     # Verify main clustering succeeded
@@ -137,20 +134,14 @@ def test_biological_clustering_integration():
     assert exp_dir.exists()
     assert Path(exp_dir, "clustered_interfaces.out").exists()
 
-    # Verify biological clustering directory was created
-    # (localise creates directory in the main arctic3d dir)
-    localise_dir_full = Path(exp_dir, "arctic3d-localise-subcellular")
-    if localise_dir_full.exists():
-        assert Path(localise_dir_full, "arctic3d-localise.log").exists()
-    elif localise_dir.exists():
-        # Or it might be in the working directory
+    # each type writes its folder in the run directory (#519)
+    for name in ["subcellular", "proteinfunction"]:
+        localise_dir = Path(exp_dir, f"arctic3d-localise-{name}")
         assert Path(localise_dir, "arctic3d-localise.log").exists()
 
     # Cleanup
     if exp_dir.exists():
         shutil.rmtree(exp_dir)
-    if localise_dir.exists():
-        shutil.rmtree(localise_dir)
 
 
 def test_biological_clustering_config():
