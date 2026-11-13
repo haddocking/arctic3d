@@ -1,0 +1,8 @@
+/* Blue of the wenmr.science.uu.nl banner (#3464b8) */
+/* stylelint-disable custom-property-pattern -- names set by Material for MkDocs */
+:root > * {
+  --md-primary-fg-color: rgb(52 100 184);
+  --md-primary-fg-color--light: rgb(90 131 204);
+  --md-primary-fg-color--dark: rgb(43 84 153);
+  --md-accent-fg-color: rgb(43 84 153);
+}
