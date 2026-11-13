@@ -352,16 +352,6 @@ def main(
             cl_residues=cl_residues,
             cl_residues_probs=cl_residues_probs,
         )
-        if report:
-            generate_report(
-                pdb_f=pdb_f,
-                interface_residues=interface_residues,
-                cl_dict=cl_dict,
-                cl_residues_probs=cl_residues_probs,
-                resnames=resnames,
-                options=options,
-                uniprot_id=uniprot_id,
-            )
     else:
         log.info("No interfaces found.")
 
@@ -371,6 +361,7 @@ def main(
         return 255
 
     # run biological clustering if requested
+    localised = {}  # clustering type -> localise run folder
     if biological_clustering and interface_residues:
         from arctic3d.cli_localise import main as localise_main
 
@@ -415,6 +406,7 @@ def main(
                     f"Biological clustering by {clustering_type} completed. "
                     f"Results in {localise_run_dir}/"
                 )
+                localised[clustering_type] = localise_run_dir
             except Exception as e:
                 log.warning(
                     f"Biological clustering by {clustering_type} failed: {e}"
@@ -423,6 +415,17 @@ def main(
                 # localise changes directory into its own run folder
                 os.chdir(log_file.parent)
 
+    if report:
+        generate_report(
+            pdb_f=pdb_f,
+            interface_residues=interface_residues,
+            cl_dict=cl_dict,
+            cl_residues_probs=cl_residues_probs,
+            resnames=resnames,
+            options=options,
+            uniprot_id=uniprot_id,
+            localised=localised,
+        )
     write_footer(
         log_file, time.time() - st_time, log_file.parent if report else None
     )

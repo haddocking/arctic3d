@@ -162,7 +162,7 @@ Open `sequence_probability.html` in a web browser to explore per-residue binding
 
 ### Viewing the report
 
-`report.html` shows the binding surfaces on the structure (Mol*), with the cluster and residue tables, the dendrogram and the sequence plot. Browsers do not let a page opened from disk load the structure, so serve the output directory and open the report from there:
+`report.html` shows the binding surfaces on the structure (Mol*), with the cluster and residue tables, the dendrogram, the sequence plot and, with `--biological_clustering`, the bar plots of each clustering type. Browsers do not let a page opened from disk load the structure, so serve the output directory and open the report from there:
 
 ```
 python -m http.server -d example/arctic3d-P00760
