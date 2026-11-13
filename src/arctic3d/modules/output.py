@@ -244,6 +244,26 @@ def output_pdb(pdb_f, cl_residues_probs):
     return output_files
 
 
+def cluster_color(idx):
+    """
+    Returns the color of a cluster (RGB, 0-1), as in the interactive plot.
+
+    Parameters
+    ----------
+    idx : int
+        index of the cluster
+
+    Returns
+    -------
+    color : tuple
+        RGB color
+    """
+    # a qualitatively diverse set of colors, extended with the tab10 and
+    # tab20 colormaps
+    colors = plt.cm.Set2.colors + plt.cm.tab10.colors + plt.cm.tab20.colors
+    return colors[idx % len(colors)]
+
+
 def make_plotly_plot(conv_resids, probs):
     """
     Makes a plotly interactive plot.
@@ -256,15 +276,6 @@ def make_plotly_plot(conv_resids, probs):
         dictionary of probability (y axis)
     """
     log.info("Creating interactive plot.")
-    # create a qualitatively diverse set of colors
-    ref_colors = plt.cm.Set2.colors
-    if len(probs.keys()) > len(ref_colors):
-        # extend the color list with the tab10 and tab20 colormaps
-        # this extends the interactivity up to 40 clusters
-        ref_colors = ref_colors + plt.cm.tab10.colors + plt.cm.tab20.colors
-    # convert to rgb
-    colors = [f"rgb{ref_colors[n]}" for n in range(len(ref_colors))]
-
     # create figure
     fig = go.Figure(layout={"width": len(conv_resids) * 10, "height": 500})
     for key_idx, key in enumerate(probs.keys()):
@@ -273,7 +284,7 @@ def make_plotly_plot(conv_resids, probs):
                 x=conv_resids,
                 y=probs[key],
                 name=key,
-                marker_color=colors[key_idx],
+                marker_color=f"rgb{cluster_color(key_idx)}",
             )
         )
     # prettifying layout
@@ -403,6 +414,11 @@ def make_output(
         example { 1 : {1:0.7, 2:0.2, 3:0.4 ...}
                 ...
         }
+
+    Returns
+    -------
+    full_resnames_dict : dict
+        dictionary of residues names (3 letter) for each residue id
     """
     # retrieving conv_resids dictionary
     resnames_dict, full_resnames_dict = get_resnames_dict(pdb_f)
@@ -429,6 +445,7 @@ def make_output(
 
     # make interactive plot with probabilities
     plot_interactive_probs(cl_residues_probs, resnames_dict)
+    return full_resnames_dict
 
 
 def shorten_labels(list_of_labels, max_lab_length=60):
@@ -591,3 +608,36 @@ def get_init_message():
     )
 
     return message
+
+
+def write_footer(log_file, elapsed, report_dir=None):
+    """
+    Prints the final message and appends it to the log file.
+
+    It is written to the file directly, as arctic3d-localise
+    (--biological_clustering) redirects the log to its own file.
+
+    Parameters
+    ----------
+    log_file : Path
+        absolute path to the log file
+    elapsed : float
+        run time in seconds
+    report_dir : str or Path or None
+        directory of report.html, None if no report was written
+    """
+    sep = "#" * 46
+    message = (
+        f"{sep}{os.linesep}"
+        f"ARCTIC-3D run completed in {elapsed:.2f} seconds.{os.linesep}"
+    )
+    if report_dir is not None:
+        message += (
+            f"To view report.html, serve the output directory:{os.linesep}"
+            f"  python -m http.server -d {report_dir}{os.linesep}"
+            f"and open http://localhost:8000/report.html{os.linesep}"
+        )
+    message += f"{sep}{os.linesep}"
+    print(message, end="")
+    with open(log_file, "a") as wfile:
+        wfile.write(message)

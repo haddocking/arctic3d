@@ -83,6 +83,11 @@ def test_cli_full():
     obs_content = Path(exp_dir, "clustered_interfaces.out").read_text()
     exp_content = f"Cluster 1 -> Q9L5A4-3wqb-A{os.linesep}"
     assert exp_content == obs_content
+    assert Path(exp_dir, "report.html").exists()
+    # the log starts with the version and ends with the footer
+    log_content = Path(exp_dir, "arctic3d.log").read_text()
+    assert "Starting ARCTIC-3D" in log_content.split("Target UNIPROTID")[0]
+    assert "http.server" in log_content.splitlines()[-3]
     # remove folder
     if exp_dir.exists():
         shutil.rmtree(exp_dir)
