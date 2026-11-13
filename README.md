@@ -38,22 +38,21 @@ Check [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## Installation
 
-### With `conda`
-
-Clone the repository on your computer and navigate to it
+**ARCTIC-3D** (Python 3.10 or later) is best installed in a virtual environment. Open a terminal and type
 
 ```bash
-git clone git@github.com:haddocking/arctic3d.git
-cd arctic3d
+python3 -m venv .venv
+source .venv/bin/activate
+pip install arctic3d
+arctic3d -h
 ```
 
-Here you can create the arctic3d environment:
+To install from the source instead, clone the repository and run `pip install .` in it:
 
 ```bash
-conda create -n arctic3d python=3.10
-conda activate arctic3d
+git clone https://github.com/haddocking/arctic3d.git
+cd arctic3d
 pip install .
-arctic3d -h
 ```
 
 ## To run BLAST locally
