@@ -22,7 +22,7 @@
 
 ## WEB SERVER
 
-ARCTIC-3D is available at this webserver https://wenmr.science.uu.nl/arctic3d/
+ARCTIC-3D is available at this webserver https://wenmr.science.uu.nl/arctic3d/ (see the [web server manual](https://www.bonvinlab.org/arctic3d/webserver.html)).
 
 ## ARCTIC-3D: all you want to know about protein-specific interfaces
 
@@ -70,20 +70,16 @@ export PATH="PATH_TO_YOUR_ARCTIC3D_INSTALLATION/src/ncbi-blast-2.15.0+/bin:$PATH
 
 ## Example usage
 
-Please refer to the [examples](docs/examples.md) documentation page.
+Please refer to the [examples](https://www.bonvinlab.org/arctic3d/examples.html) documentation page.
 
-## Detailed documentation
+## Documentation
 
-In order to generate a detailed html documentation please execute these commands
+The documentation is at https://www.bonvinlab.org/arctic3d. To build it locally:
 
-```text
-pip install myst_parser
-pip install chardet
-conda install sphinx
-sphinx-build -E docs ./arctic3d-docs
+```bash
+pip install mkdocs-material
+mkdocs serve
 ```
-
-Then you can open the file `arctic3d-docs/index.html`, which contains all the necessary documentation.
 
 ## Result interpretation
 

@@ -1,0 +1,23 @@
+site_name: ARCTIC-3D
+site_url: https://www.bonvinlab.org/arctic3d
+repo_name: haddocking/arctic3d
+repo_url: https://github.com/haddocking/arctic3d
+use_directory_urls: false
+# docs/ links to the README, CONTRIBUTING and example/ of the repository
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+  palette:
+    primary: custom
+    accent: custom
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: README.md
+  - Examples: examples.md
+  - Web server: webserver.md
+  - Contributing: CONTRIBUTING.md
