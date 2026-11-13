@@ -1,15 +1,18 @@
 # Changelog
 
-## Latest changes
+## 0.7.0
 
-- Added report.html generation to visualise results (Mol* view of all
-  binding surfaces and of each cluster, residues colored by probability;
-  tables of the clusters, residue probabilities and retrieved interfaces; the
-  dendrogram and sequence plot; links to the output files); turned off with
-  `--no_report`. New dependency: molviewspec
-- `arctic3d.log` starts with a header giving the ARCTIC-3D version and ends
-  with a footer giving the run time and how to view report.html
-- Python 3.9 is no longer supported (molviewspec needs Python >= 3.10)
+- New report.html with a Mol* view of the binding surfaces and the results
+  (`--no_report` to skip); new dependency: molviewspec - PR #523
+- `arctic3d.log` has a header with the version and a footer with the run
+  time - PR #523
+- Python 3.9 is no longer supported - PR #523
+- report.html shows the `--biological_clustering` results - PR #526
+- Fixed `--biological_clustering` with several types - PR #525
+- Fixed black bars in sequence_probability.html - PR #527
+- Fixed failing bar plot images: matplotlib replaces kaleido - PR #524
+- Example output with `--biological_clustering` - PR #529
+- Documentation updated; code linted with ruff - PR #531
 
 ## 0.6.0
 
