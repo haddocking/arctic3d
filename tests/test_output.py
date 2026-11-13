@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from arctic3d.modules.output import (
+    create_barplot,
     create_output_folder,
     make_plotly_plot,
     output_pdb,
@@ -230,3 +231,10 @@ def test_plot_interactive_probs():
     for fname in ("sequence_probability.html", "sequence_probability.json"):
         assert Path.exists(Path(fname))
         os.unlink(fname)
+
+
+def test_create_barplot(tmp_path, monkeypatch):
+    """Test the bar plot image, written without a browser (issue #522)."""
+    monkeypatch.chdir(tmp_path)
+    create_barplot(1, {"Periplasm": 1, "Secreted": 3}, "png", 1.0)
+    assert Path("cluster_1.png").read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"

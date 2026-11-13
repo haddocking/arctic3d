@@ -52,7 +52,8 @@ from arctic3d import log
 from arctic3d.functions import make_request
 from arctic3d.modules.interface import parse_out_partner
 from arctic3d.modules.log import add_log_for_CLI
-from arctic3d.modules.output import (  # create_barplot,
+from arctic3d.modules.output import (
+    create_barplot,
     create_barplotly,
     create_output_folder,
     parse_clusters,
@@ -446,9 +447,9 @@ def main(
         if cl_bins[cluster] != {}:
             # get sorted dictionary
             sort_dict = get_sorted_dict(cl_bins[cluster])
-            # plot
-            # create_barplot(cluster, sort_dict, max_labels=50)
-            create_barplotly(cluster, sort_dict, format, scale, max_labels=25)
+            # plot: interactive html and image
+            create_barplotly(cluster, sort_dict)
+            create_barplot(cluster, sort_dict, format, scale)
 
     # saving histograms
     os.mkdir("histograms")
