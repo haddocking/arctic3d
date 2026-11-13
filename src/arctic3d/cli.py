@@ -420,7 +420,7 @@ def main(
                 )
 
     write_footer(
-        log_file, time.time() - st_time, run_dir_path if report else None
+        log_file, time.time() - st_time, log_file.parent if report else None
     )
     return 0
 
