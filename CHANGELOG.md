@@ -4,6 +4,7 @@
 
 - Publish the documentation at bonvinlab.org/arctic3d with MkDocs - PR #534
 - Change installation instructions to use python venv instead of conda - PR #537
+- Web server manual: removed the interface file option - PR #541
 
 ## 0.7.0
 
