@@ -1,5 +1,6 @@
 """Main CLI."""
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
@@ -418,6 +419,9 @@ def main(
                 log.warning(
                     f"Biological clustering by {clustering_type} failed: {e}"
                 )
+            finally:
+                # localise changes directory into its own run folder
+                os.chdir(log_file.parent)
 
     write_footer(
         log_file, time.time() - st_time, log_file.parent if report else None
