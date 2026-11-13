@@ -65,6 +65,14 @@ arctic3d.modules.pdb module
    :undoc-members:
    :show-inheritance:
 
+arctic3d.modules.report module
+------------------------------
+
+.. automodule:: arctic3d.modules.report
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 arctic3d.modules.sequence module
 --------------------------------
 

@@ -13,7 +13,9 @@ def test_version_matches_pyproject():
     assert version_match is not None
 
     expected_version = version_match.group(1)
-    semver_match = re.match(r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", expected_version)
+    semver_match = re.match(
+        r"^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$", expected_version
+    )
     assert semver_match is not None
     expected_parts = (
         semver_match.group(1),

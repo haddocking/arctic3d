@@ -1,17 +1,17 @@
 "Output library."
+
+import importlib.metadata
 import logging
+import math
 import os
 import shutil
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_hex
 import MDAnalysis as mda
-import math
 import numpy as np
 import plotly.graph_objects as go
-
-import importlib.metadata
+from matplotlib.colors import to_hex
 
 log = logging.getLogger("arctic3d.log")
 
@@ -238,7 +238,9 @@ def output_pdb(pdb_f, cl_residues_probs):
                             + (100 - st_beta) * cl_residues_probs[cl_id][resid]
                         )
                     n_blank = 3 - len(str(new_beta).split(".")[0])
-                    new_line = f"{ln[:60]}{' '*n_blank}{new_beta:.2f}{ln[66:]}"
+                    new_line = (
+                        f"{ln[:60]}{' ' * n_blank}{new_beta:.2f}{ln[66:]}"
+                    )
                     wfile.write(f"{new_line}{os.linesep}")
                 else:
                     wfile.write(f"{ln}{os.linesep}")

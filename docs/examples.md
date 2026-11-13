@@ -7,6 +7,7 @@ ARCTIC3D can be executed in several ways:
 1. [standard-pdb-input](#standard-pdb-input)
 1. [uniprot-full-input](#uniprot-full-input)
 1. [uniprot-ligand-input](#uniprot-ligand-input)
+1. [biological-clustering](#biological-clustering)
 1. [arctic3d-resclust](#arctic3d-resclust)
 1. [arctic3d-localise](#arctic3d-localise)
 1. [arctic3d-restraints](#arctic3d-restraints)
@@ -25,6 +26,14 @@ This is the basic ARCTIC3D scenario: here the program performs the following tas
 2. gathering of the corresponding interfaces
 3. structural projection of the interfaces on the [best available pdb](https://www.ebi.ac.uk/pdbe/api/doc/sifts.html)
 4. interface clustering using the irregular spin glass theory
+
+The results are summarised in `report.html` in the output folder (turn it off with `--no_report`). Serve the folder and open the report in a browser:
+
+```bash
+python -m http.server -d arctic3d-P00760
+```
+
+then open http://localhost:8000/report.html. The [README](https://github.com/haddocking/arctic3d#result-interpretation) explains each output file.
 
 Step 3 can be skipped by specifying the pdb that must be retrieved:
 
@@ -54,7 +63,7 @@ Here a single sequence (in FASTA format) is given to ARCTIC3D. The program blast
 arctic3d example/1ppe_E.fasta --db db/swissprot
 ```
 
-Once the uniprot ID is retrieved the workflow proceeds as explained in [standard-uniprot-input](standard-uniprot-input).
+Once the uniprot ID is retrieved the workflow proceeds as explained in [standard-uniprot-input](#standard-uniprot-input).
 
 To run blast remotely simply remove the db reference:
 
@@ -70,14 +79,14 @@ It is also possible to provide ARCTIC3D with a set of pre-calculated interfaces.
 arctic3d example/1ppe_E.pdb --interface_file example/1ppe_E_example_interfaces.txt
 ```
 
-One may want to run ARCTIC3D on a custom pdb, without providing an interface file. Here the program extracts the pdb sequence and finds the corresponding uniprot ID. The input file is then renumbered according to the canonical numbering. Finally, the workflow showcased in [standard-uniprot-input](standard-uniprot-input) can be executed.
+One may want to run ARCTIC3D on a custom pdb, without providing an interface file. Here the program extracts the pdb sequence and finds the corresponding uniprot ID. The input file is then renumbered according to the canonical numbering. Finally, the workflow showcased in [standard-uniprot-input](#standard-uniprot-input) can be executed.
 
 ## uniprot-full-input
 
 In the PDB it might happen that the same protein partners interact with a different set of residues, depending on a variety of factors. As an example, proteins forming homotrimers form at least two different interfaces. By default, ARCTIC3D does not consider this multimeric information, but the `full` option can be utilized to separate protein-protein interfaces at the pdb-chain level.
 
 ```bash
-arctic3d P00760 --full=True
+arctic3d P00760 --full
 ```
 
 ## uniprot-ligand-input
@@ -95,6 +104,16 @@ arctic3d P00760 --ligand=both
 ```
 
 **Disclaimer**: typically, different small molecules of the same type (ions in particular) cannot be distinguished according to the [graph-api](https://www.ebi.ac.uk/pdbe/pdbe-kb/api). Therefore results have to be interpreted carefully.
+
+## biological-clustering
+
+The partners of each binding surface can be grouped by their subcellular location, molecular function or biological process (from [QuickGO](https://www.ebi.ac.uk/QuickGO/)), to see how the clusters relate to the biology of the partners:
+
+```bash
+arctic3d P00760 --biological_clustering location function process
+```
+
+Any of the three types can be given. Each one runs [arctic3d-localise](#arctic3d-localise) on the results and writes its own folder in the output folder (`arctic3d-localise-subcellular`, `arctic3d-localise-proteinfunction` and `arctic3d-localise-biologicalprocess`), with a bar plot of the annotations of the partners of each cluster. The bar plots are also shown in `report.html`.
 
 ## arctic3d-resclust
 
@@ -116,7 +135,7 @@ Did you run ARCTIC3D on your favourite protein and wonder how the different inte
 arctic3d-localise ${arctic3d_rundir}/clustered_interfaces.out
 ```
 
-Here `arctic3d_rundir` is the name of the output folder that you want to analyse.
+Here `arctic3d_rundir` is the name of the output folder that you want to analyse. By default the subcellular location of the partners is retrieved from UniProt; use `--quickgo` with `C` (cellular component), `F` (molecular function) or `P` (biological process) to use QuickGO annotations instead.
 
 ## arctic3d-restraints
 
@@ -128,4 +147,4 @@ arctic3d-restraints --r1 ${first_arctic3d_rundir} --r2 ${second_arctic3d_rundir}
 
 This works by extracting the residues that are more likely to occur in the clusters identified by ARCTIC3D, according to the selected probability threshold (0.3 by default). In fact, it does not always make sense to include all the residues found in a cluster. Parameters `ch1` and `ch2` define the chain ID that will be used in the restraint files for each interacting partner.
 
-The output of this command is a new folder (`arctic3-restraints` by default) that contains all the generated restraint .tbl files, one for each pair of interface clusters. For example, if there are three clusters in `first_arctic3d_rundir` and four in `second_arctic3d_rundir`, you will obtain 12 different restraint files. The .tbl files are also zipped in a tgz archive (`ambig.tbl.tgz`), which can be directly [used within HADDOCK3](https://github.com/haddocking/haddock3/blob/main/docs/examples.md#docking-multiple-ambig).
+The output of this command is a new folder (`arctic3d-restraints` by default) that contains all the generated restraint .tbl files, one for each pair of interface clusters. For example, if there are three clusters in `first_arctic3d_rundir` and four in `second_arctic3d_rundir`, you will obtain 12 different restraint files. The .tbl files are also zipped in a tgz archive (`ambig.tbl.tgz`), which can be directly [used within HADDOCK3](https://github.com/haddocking/haddock3/blob/main/docs/examples.md#docking-multiple-ambig).

@@ -14,7 +14,10 @@ def _find_pyproject_path() -> Path:
         if pyproject_path.exists():
             return pyproject_path
 
-    raise RuntimeError(f"Could not find pyproject.toml for version fallback from {start_path}.")
+    raise RuntimeError(
+        "Could not find pyproject.toml for version fallback from "
+        f"{start_path}."
+    )
 
 
 def _parse_version_parts(version_string: str) -> tuple[str, str, str]:
@@ -40,10 +43,14 @@ def _read_version() -> str:
     except PackageNotFoundError:
         pyproject_path = _find_pyproject_path()
         pyproject_contents = pyproject_path.read_text(encoding="utf-8")
-        match = re.search(r'^version = "([^"]+)"$', pyproject_contents, re.MULTILINE)
+        match = re.search(
+            r'^version = "([^"]+)"$', pyproject_contents, re.MULTILINE
+        )
         if match is None:
             if 'version = "' in pyproject_contents:
-                raise RuntimeError(f"Version field is malformed in {pyproject_path}.")
+                raise RuntimeError(
+                    f"Version field is malformed in {pyproject_path}."
+                )
             raise RuntimeError(f"Version field not found in {pyproject_path}.")
         return match.group(1)
 

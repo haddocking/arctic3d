@@ -32,22 +32,21 @@ the interface residues::
 This will consider only residues with a probability of being in the interface
 higher than 0.5 (for each cluster).
 """
+
 import argparse
 import os
 import sys
+import tarfile
 import time
 from pathlib import Path
-import tarfile
 
 from arctic3d import log
-
+from arctic3d.modules.log import add_log_for_CLI
 from arctic3d.modules.output import (
-    read_residues_probs,
     create_output_folder,
+    read_residues_probs,
     setup_output_folder,
 )
-from arctic3d.modules.log import add_log_for_CLI
-
 
 argument_parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter

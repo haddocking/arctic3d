@@ -1,18 +1,16 @@
 """Manage logging."""
+
 import logging
 import sys
 from functools import partial
 from logging import FileHandler, StreamHandler
-
 
 log_file_name = "log"
 
 
 info_formatter = "[%(asctime)s %(module)s %(levelname)s] %(message)s"
 debug_formatter = (
-    "[%(asctime)s] "
-    "%(filename)s:%(name)s:%(funcName)s:%(lineno)d: "
-    "%(message)s"
+    "[%(asctime)s] %(filename)s:%(name)s:%(funcName)s:%(lineno)d: %(message)s"
 )
 
 log_formatters = {

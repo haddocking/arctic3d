@@ -1,9 +1,8 @@
+import os
+import shutil
 from pathlib import Path
 
 import pytest
-
-import os
-import shutil
 
 from arctic3d.cli_resclust import main
 
@@ -41,7 +40,7 @@ def test_wrong_residue_list(example_pdbpath):
             "distance",
             None,
         )
-    assert e.type == SystemExit
+    assert e.type is SystemExit
     assert e.value.code == 1
 
 
