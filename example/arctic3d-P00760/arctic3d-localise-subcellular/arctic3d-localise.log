@@ -1,0 +1,128 @@
+[2026-11-13 13:40:59,094] cli_localise.py:arctic3d:main:358: Running arctic3d-localise with QUICKGO location information
+[2026-11-13 13:40:59,094] cli_localise.py:arctic3d:main:368: Input file is clustered_interfaces.out
+[2026-11-13 13:40:59,094] output.py:arctic3d.log:setup_output_folder:65: Setting up output folder arctic3d-localise-subcellular
+[2026-11-13 13:40:59,094] cli_localise.py:arctic3d:main:376: Retrieved clustering_dict with 2 clusters.
+[2026-11-13 13:40:59,094] output.py:arctic3d.log:write_dict:99: Writing Cluster information to file uniprot_clustering.out
+[2026-11-13 13:40:59,094] cli_localise.py:arctic3d:main:399: Retrieving location of 52 partners...(this may take a while)
+[2026-11-13 13:40:59,094] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q9S9H8
+[2026-11-13 13:40:59,250] cli_localise.py:arctic3d:main:421: location retrieved for Q9S9H8
+[2026-11-13 13:40:59,250] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID B2G3C8
+[2026-11-13 13:40:59,417] cli_localise.py:arctic3d:main:418: no location retrieved for B2G3C8
+[2026-11-13 13:40:59,417] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P80211
+[2026-11-13 13:40:59,585] cli_localise.py:arctic3d:main:418: no location retrieved for P80211
+[2026-11-13 13:40:59,585] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q7M1P4
+[2026-11-13 13:40:59,747] cli_localise.py:arctic3d:main:418: no location retrieved for Q7M1P4
+[2026-11-13 13:40:59,748] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q95P16
+[2026-11-13 13:40:59,923] cli_localise.py:arctic3d:main:421: location retrieved for Q95P16
+[2026-11-13 13:40:59,924] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P01058
+[2026-11-13 13:41:00,100] cli_localise.py:arctic3d:main:421: location retrieved for P01058
+[2026-11-13 13:41:00,101] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q9S9E3
+[2026-11-13 13:41:00,279] cli_localise.py:arctic3d:main:421: location retrieved for Q9S9E3
+[2026-11-13 13:41:00,280] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P80321
+[2026-11-13 13:41:00,456] cli_localise.py:arctic3d:main:421: location retrieved for P80321
+[2026-11-13 13:41:00,457] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P82107
+[2026-11-13 13:41:00,899] cli_localise.py:arctic3d:main:421: location retrieved for P82107
+[2026-11-13 13:41:00,900] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P01051
+[2026-11-13 13:41:01,278] cli_localise.py:arctic3d:main:418: no location retrieved for P01051
+[2026-11-13 13:41:01,278] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_001025
+[2026-11-13 13:41:01,342] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_001025, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:01,343] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P10295
+[2026-11-13 13:41:01,517] cli_localise.py:arctic3d:main:421: location retrieved for P10295
+[2026-11-13 13:41:01,517] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_000846
+[2026-11-13 13:41:01,717] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_000846, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:01,720] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P23827
+[2026-11-13 13:41:01,916] cli_localise.py:arctic3d:main:421: location retrieved for P23827
+[2026-11-13 13:41:01,917] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q4GWU5
+[2026-11-13 13:41:02,097] cli_localise.py:arctic3d:main:418: no location retrieved for Q4GWU5
+[2026-11-13 13:41:02,098] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_001086
+[2026-11-13 13:41:02,162] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_001086, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:02,165] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q0JR25
+[2026-11-13 13:41:02,799] cli_localise.py:arctic3d:main:421: location retrieved for Q0JR25
+[2026-11-13 13:41:02,799] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P01055
+[2026-11-13 13:41:02,971] cli_localise.py:arctic3d:main:421: location retrieved for P01055
+[2026-11-13 13:41:02,971] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q90WA1
+[2026-11-13 13:41:03,144] cli_localise.py:arctic3d:main:421: location retrieved for Q90WA1
+[2026-11-13 13:41:03,145] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q05G17
+[2026-11-13 13:41:03,327] cli_localise.py:arctic3d:main:421: location retrieved for Q05G17
+[2026-11-13 13:41:03,328] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q1EG59
+[2026-11-13 13:41:03,927] cli_localise.py:arctic3d:main:418: no location retrieved for Q1EG59
+[2026-11-13 13:41:03,928] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P83052
+[2026-11-13 13:41:04,090] cli_localise.py:arctic3d:main:421: location retrieved for P83052
+[2026-11-13 13:41:04,090] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P17734
+[2026-11-13 13:41:04,265] cli_localise.py:arctic3d:main:421: location retrieved for P17734
+[2026-11-13 13:41:04,265] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P01009
+[2026-11-13 13:41:04,462] cli_localise.py:arctic3d:main:421: location retrieved for P01009
+[2026-11-13 13:41:04,462] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P31713
+[2026-11-13 13:41:04,814] cli_localise.py:arctic3d:main:421: location retrieved for P31713
+[2026-11-13 13:41:04,815] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_002533
+[2026-11-13 13:41:04,871] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_002533, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:04,873] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P00766
+[2026-11-13 13:41:05,058] cli_localise.py:arctic3d:main:421: location retrieved for P00766
+[2026-11-13 13:41:05,058] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P10822
+[2026-11-13 13:41:05,229] cli_localise.py:arctic3d:main:418: no location retrieved for P10822
+[2026-11-13 13:41:05,229] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Other
+[2026-11-13 13:41:05,864] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for Other, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:05,865] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_000216
+[2026-11-13 13:41:05,920] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_000216, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:05,921] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_000842
+[2026-11-13 13:41:05,974] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_000842, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:05,975] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P85981
+[2026-11-13 13:41:06,138] cli_localise.py:arctic3d:main:421: location retrieved for P85981
+[2026-11-13 13:41:06,138] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P86451
+[2026-11-13 13:41:06,897] cli_localise.py:arctic3d:main:418: no location retrieved for P86451
+[2026-11-13 13:41:06,898] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P05067
+[2026-11-13 13:41:07,328] cli_localise.py:arctic3d:main:421: location retrieved for P05067
+[2026-11-13 13:41:07,329] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P01062
+[2026-11-13 13:41:07,505] cli_localise.py:arctic3d:main:421: location retrieved for P01062
+[2026-11-13 13:41:07,505] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_000556
+[2026-11-13 13:41:07,575] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_000556, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:07,578] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P82409
+[2026-11-13 13:41:07,922] cli_localise.py:arctic3d:main:421: location retrieved for P82409
+[2026-11-13 13:41:07,922] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P00760
+[2026-11-13 13:41:08,118] cli_localise.py:arctic3d:main:421: location retrieved for P00760
+[2026-11-13 13:41:08,118] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P01074
+[2026-11-13 13:41:08,283] cli_localise.py:arctic3d:main:421: location retrieved for P01074
+[2026-11-13 13:41:08,283] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P00998
+[2026-11-13 13:41:08,442] cli_localise.py:arctic3d:main:421: location retrieved for P00998
+[2026-11-13 13:41:08,443] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q6VEQ7
+[2026-11-13 13:41:08,895] cli_localise.py:arctic3d:main:418: no location retrieved for Q6VEQ7
+[2026-11-13 13:41:08,896] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID A0A504Y4D3
+[2026-11-13 13:41:09,075] cli_localise.py:arctic3d:main:418: no location retrieved for A0A504Y4D3
+[2026-11-13 13:41:09,075] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_002374
+[2026-11-13 13:41:09,136] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_002374, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:09,140] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P84781
+[2026-11-13 13:41:09,315] cli_localise.py:arctic3d:main:418: no location retrieved for P84781
+[2026-11-13 13:41:09,316] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID O46162
+[2026-11-13 13:41:09,992] cli_localise.py:arctic3d:main:421: location retrieved for O46162
+[2026-11-13 13:41:09,992] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P10293
+[2026-11-13 13:41:10,236] cli_localise.py:arctic3d:main:421: location retrieved for P10293
+[2026-11-13 13:41:10,237] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID Q9S9F3
+[2026-11-13 13:41:10,417] cli_localise.py:arctic3d:main:418: no location retrieved for Q9S9F3
+[2026-11-13 13:41:10,418] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_001097
+[2026-11-13 13:41:10,504] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_001097, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:10,506] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P00974
+[2026-11-13 13:41:10,838] cli_localise.py:arctic3d:main:421: location retrieved for P00974
+[2026-11-13 13:41:10,839] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID P48307
+[2026-11-13 13:41:11,014] cli_localise.py:arctic3d:main:421: location retrieved for P48307
+[2026-11-13 13:41:11,014] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID PRD_000750
+[2026-11-13 13:41:11,079] cli_localise.py:arctic3d:call_uniprot:265: Could not make UNIPROT request for PRD_000750, Expecting value: line 1 column 1 (char 0)
+[2026-11-13 13:41:11,082] cli_localise.py:arctic3d:call_uniprot:260: calling uniprot with uniprot ID A0A6P5Y0F4
+[2026-11-13 13:41:11,254] cli_localise.py:arctic3d:main:418: no location retrieved for A0A6P5Y0F4
+[2026-11-13 13:41:11,255] cli_localise.py:arctic3d:main:429: location retrieval took 12.161 seconds
+[2026-11-13 13:41:11,255] cli_localise.py:arctic3d:main:430: 11 partners failed uniprot calls.
+[2026-11-13 13:41:11,255] cli_localise.py:arctic3d:main:431: 13 contain None location information.
+[2026-11-13 13:41:11,255] cli_localise.py:arctic3d:main:432: Retrieved location for 28 partners.
+[2026-11-13 13:41:11,255] cli_localise.py:arctic3d:main:434: Unique location entries: ['extracellular region', 'outer membrane-bounded periplasmic space', 'COPII-coated ER to Golgi transport vesicle', 'endoplasmic reticulum', 'endoplasmic reticulum lumen', 'endoplasmic reticulum-Golgi intermediate compartment membrane', 'extracellular exosome', 'extracellular matrix', 'ficolin-1-rich granule lumen', 'Golgi apparatus', 'platelet alpha granule lumen', 'nematocyst', 'serine protease inhibitor complex', 'amyloid-beta complex', 'astrocyte projection', 'axon', 'cell surface', 'clathrin-coated pit', 'cytoplasm', 'cytoplasmic vesicle', 'cytosol', 'dendrite', 'dendritic shaft', 'dendritic spine', 'early endosome', 'early endosome membrane', 'endosome', 'endosome lumen', 'Golgi lumen', 'Golgi-associated vesicle', 'growth cone filopodium', 'growth cone lamellipodium', 'main axon', 'membrane', 'membrane raft', 'mitochondrial inner membrane', 'nuclear envelope lumen', 'nucleus', 'perikaryon', 'perinuclear region of cytoplasm', 'plasma membrane', 'recycling endosome', 'signaling receptor complex', 'synapse', 'synaptic cleft', 'trans-Golgi network membrane']
+[2026-11-13 13:41:11,255] cli_localise.py:arctic3d:main:438: Saving retrieved location to file location.txt
+[2026-11-13 13:41:11,255] output.py:arctic3d.log:write_dict:99: Writing location information to file location.txt
+[2026-11-13 13:41:11,257] cli_localise.py:arctic3d:main:444: Plotting cluster locations...
+[2026-11-13 13:41:11,284] output.py:arctic3d.log:create_barplotly:569: Figure cluster_1.html created
+[2026-11-13 13:41:11,608] output.py:arctic3d.log:create_barplot:517: Figure cluster_1.png created
+[2026-11-13 13:41:11,618] output.py:arctic3d.log:create_barplotly:569: Figure cluster_2.html created
+[2026-11-13 13:41:11,745] output.py:arctic3d.log:create_barplot:517: Figure cluster_2.png created
+[2026-11-13 13:41:11,746] cli_localise.py:arctic3d:main:458: writing histogram for cluster 1
+[2026-11-13 13:41:11,747] cli_localise.py:arctic3d:main:458: writing histogram for cluster 2
+[2026-11-13 13:41:11,747] cli_localise.py:arctic3d:main:470: arctic3d-localise run took 12.654 seconds
+[2026-11-13 13:41:11,747] cli.py:arctic3d:main:405: Biological clustering by location completed. Results in arctic3d-localise-subcellular/
+[2026-11-13 13:41:11,747] cli.py:arctic3d:main:390: Running biological clustering by function...
+[2026-11-13 13:41:11,747] output.py:arctic3d.log:create_output_folder:45: Creating output_directory arctic3d-localise-proteinfunction

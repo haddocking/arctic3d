@@ -1,0 +1,38 @@
+function Q9S9H8 -> serine-type endopeptidase inhibitor activity
+function P80211 -> serine-type endopeptidase inhibitor activity
+function Q7M1P4 -> endopeptidase inhibitor activity
+function Q95P16 -> serine-type endopeptidase inhibitor activity
+function P01058 -> serine-type endopeptidase inhibitor activity
+function Q9S9E3 -> serine-type endopeptidase inhibitor activity
+function P80321 -> serine-type endopeptidase inhibitor activity
+function P82107 -> serine-type endopeptidase inhibitor activity
+function P01051 -> serine-type endopeptidase inhibitor activity
+function P10295 -> serine-type endopeptidase inhibitor activity
+function P23827 -> protein homodimerization activity,serine-type endopeptidase inhibitor activity
+function Q4GWU5 -> endopeptidase inhibitor activity,protease binding,serine-type endopeptidase inhibitor activity
+function Q0JR25 -> serine-type endopeptidase inhibitor activity
+function P01055 -> serine-type endopeptidase inhibitor activity
+function Q90WA1 -> serine-type endopeptidase inhibitor activity
+function Q05G17 -> serine-type endopeptidase inhibitor activity
+function Q1EG59 -> serine-type endopeptidase inhibitor activity
+function P83052 -> endopeptidase inhibitor activity
+function P17734 -> serine-type endopeptidase inhibitor activity
+function P01009 -> identical protein binding,protease binding,serine-type endopeptidase inhibitor activity
+function P31713 -> ion channel inhibitor activity,serine-type endopeptidase inhibitor activity
+function P00766 -> serine-type endopeptidase activity,serpin family protein binding
+function P10822 -> endopeptidase inhibitor activity
+function P86451 -> endopeptidase inhibitor activity
+function P05067 -> DNA binding,enzyme binding,growth factor receptor binding,heparin binding,identical protein binding,peptidase activator activity,protein serine/threonine kinase binding,PTB domain binding,receptor ligand activity,serine-type endopeptidase inhibitor activity,signaling receptor activator activity,signaling receptor binding,transition metal ion binding
+function P01062 -> serine-type endopeptidase inhibitor activity
+function P82409 -> serine-type endopeptidase inhibitor activity
+function P00760 -> endopeptidase activity,serine-type endopeptidase activity,serpin family protein binding
+function P01074 -> serine-type endopeptidase inhibitor activity
+function P00998 -> serine-type endopeptidase inhibitor activity
+function Q6VEQ7 -> endopeptidase inhibitor activity
+function A0A504Y4D3 -> ATP binding,ATP hydrolysis activity,serine-type endopeptidase inhibitor activity
+function O46162 -> peptidase inhibitor activity
+function P10293 -> serine-type endopeptidase inhibitor activity
+function Q9S9F3 -> serine-type endopeptidase inhibitor activity
+function P00974 -> calcium ion binding,molecular function inhibitor activity,potassium channel inhibitor activity,protease binding,serine-type endopeptidase inhibitor activity,sulfate binding,zymogen binding
+function P48307 -> extracellular matrix structural constituent,serine-type endopeptidase inhibitor activity
+function A0A6P5Y0F4 -> endopeptidase inhibitor activity
